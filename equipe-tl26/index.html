@@ -655,25 +655,29 @@ function viewExt() {
 
 /* Parcial do exterior compilada pela imprensa a partir dos boletins de urna (antes da totalização oficial) */
 const EXT_PARCIAL = {
-  fonte: 'InfoMoney', hora: '13h de 04/10',
-  link: 'https://www.infomoney.com.br/politica/eleicoes-2026-apuracao-exterior-primeiro-turno/',
+  fonte: 'Poder360 (15h) e InfoMoney (13h)', hora: '15h de 04/10',
+  link: 'https://www.poder360.com.br/poder-eleicoes-2026/eleicoes-2026-exterior-resultados/',
   cands: [ { num: 'lula', nome: 'Lula', partido: 'PT' }, { num: 'flavio', nome: 'Flávio Bolsonaro', partido: 'PL' },
     { num: 'cury', nome: 'Augusto Cury', partido: '' }, { num: 'renan', nome: 'Renan Santos', partido: '' },
     { num: 'caiado', nome: 'Ronaldo Caiado', partido: '' }, { num: 'zema', nome: 'Romeu Zema', partido: '' } ],
+  // Lula e Flávio: Poder360 15h (Japão: InfoMoney 13h). Demais candidatos: InfoMoney 13h, quando citados.
   paises: [
     ['Japão','jp',{ lula: 5234, flavio: 24601, cury: 1501, renan: 1197, caiado: 595, zema: 368 }],
     ['Austrália','au',{ lula: 4562, flavio: 2579, cury: 329, renan: 316 }],
-    ['Emirados Árabes','ae',{ lula: 469, flavio: 659 }],
+    ['Emirados Árabes','ae',{ lula: 512, flavio: 659 }],
     ['China','cn',{ lula: 367, flavio: 203 }],
+    ['Catar','qa',{ lula: 147, flavio: 173 }],
     ['Singapura','sg',{ lula: 190, flavio: 92, renan: 22, cury: 21 }],
     ['Nova Zelândia','nz',{ lula: 234, flavio: 64, renan: 13 }],
     ['Coreia do Sul','kr',{ lula: 123, flavio: 72, renan: 6, caiado: 6, cury: 6 }],
     ['Taiwan','tw',{ lula: 77, flavio: 107 }],
     ['Estônia','ee',{ lula: 142, flavio: 19 }],
     ['Tailândia','th',{ lula: 40, flavio: 51, renan: 3, cury: 3 }],
-    ['Malásia','my',{ lula: 44, flavio: 27, renan: 7 }],
     ['Arábia Saudita','sa',{ lula: 52, flavio: 22 }],
-    ['Filipinas','ph',{ lula: 26, flavio: 33, renan: 2 }]
+    ['Malásia','my',{ lula: 44, flavio: 27, renan: 7 }],
+    ['Egito','eg',{ lula: 46, flavio: 12 }],
+    ['Filipinas','ph',{ lula: 26, flavio: 33, renan: 2 }],
+    ['Chipre','cy',{ lula: 24, flavio: 20 }]
   ]
 };
 function viewExtParcial() {
@@ -683,9 +687,9 @@ function viewExtParcial() {
   P.cands.forEach(c => { tv[c.num] = paises.reduce((t, p) => t + (p.v[c.num] || 0), 0); vv += tv[c.num]; });
   const totais = {};
   P.cands.forEach(c => { totais[c.num] = { votos: tv[c.num], pct: tv[c.num] / (vv || 1) * 100 }; });
-  const topo = `<div class="turno"><span class="lb">Parcial</span><span class="tx" style="font-size:20px">Boletins de urna já apurados no exterior, compilação do ${esc(P.fonte)} (${esc(P.hora)}). A partir das 17h esta tabela é substituída automaticamente pelos dados oficiais do TSE.</span></div>`;
+  const topo = `<div class="turno"><span class="lb">Parcial</span><span class="tx" style="font-size:20px">Boletins de urna já apurados no exterior, compilação de ${esc(P.fonte)}. A partir das 17h esta tabela é substituída automaticamente pelos dados oficiais do TSE.</span></div>`;
   return tabelaExt(P.cands, paises, totais, topo,
-    `${paises.length} países com votação encerrada. Percentuais sobre os votos dos candidatos listados. Candidatos não citados na compilação não aparecem. Fonte: <a href="${P.link}" target="_blank" rel="noopener" style="color:var(--gold2)">${esc(P.fonte)}</a>. Números não oficiais até a divulgação do TSE.`);
+    `${paises.length} países com votação encerrada. Percentuais sobre os votos dos candidatos listados. Candidatos não citados na compilação não aparecem. Fontes: <a href="${P.link}" target="_blank" rel="noopener" style="color:var(--gold2)">Poder360</a> e <a href="https://www.infomoney.com.br/politica/eleicoes-2026-apuracao-exterior-primeiro-turno/" target="_blank" rel="noopener" style="color:var(--gold2)">InfoMoney</a>. Números não oficiais até a divulgação do TSE.`);
 }
 
 /* ===== Deputados por estado ===== */

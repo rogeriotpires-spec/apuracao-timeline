@@ -87,6 +87,7 @@ body.sim .simflag{display:inline-block}
 .turno.def{border-left-color:var(--green)}.turno.def .lb{background:var(--green);color:#fff}
 .turno.mini{padding:6px 10px;margin:0 0 6px;border-left-width:4px}
 .turno.mini .tx{font-size:18px}.turno.mini .lb{font-size:10px;padding:3px 6px}
+.reg{grid-column:1/-1;font-family:"Barlow Condensed";font-weight:800;font-size:26px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid var(--line);padding:10px 2px 4px;margin-top:4px}
 /* Resultado definido no cartão */
 .card.st-el{border:2px solid var(--green);box-shadow:0 0 26px rgba(47,191,113,.35)}
 .card.st-t2{border:2px solid var(--gold)}
@@ -170,6 +171,13 @@ const CARGOS = {
   7: { nome: 'Dep. Estadual', ele: 'est' },
   8: { nome: 'Dep. Distrital', ele: 'est' }
 };
+const REGIAO = { AC:'Norte', AM:'Norte', AP:'Norte', PA:'Norte', RO:'Norte', RR:'Norte', TO:'Norte',
+  AL:'Nordeste', BA:'Nordeste', CE:'Nordeste', MA:'Nordeste', PB:'Nordeste', PE:'Nordeste', PI:'Nordeste', RN:'Nordeste', SE:'Nordeste',
+  DF:'Centro-Oeste', GO:'Centro-Oeste', MS:'Centro-Oeste', MT:'Centro-Oeste',
+  ES:'Sudeste', MG:'Sudeste', RJ:'Sudeste', SP:'Sudeste', PR:'Sul', RS:'Sul', SC:'Sul' };
+const REG_ORDEM = ['Nacional', 'Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul', 'Outros'];
+const nomeReg = x => x.cargo === 1 ? 'Nacional' : (REGIAO[x.uf] || 'Outros');
+const ordemReg = x => REG_ORDEM.indexOf(nomeReg(x));
 const UFS = ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'];
 
 const LISTA_PADRAO = `Conrado;Estadual;27200;RJ;12:15
@@ -470,7 +478,15 @@ function viewLive(flash) {
   const lista = parseLista();
   if (!lista.length) return '<div class="empty">Nenhum candidato na lista. Use Configurar.</div>';
   const ar = noAr(lista);
-  return '<div class="grid">' + lista.map(x => {
+  const ordenada = lista.slice().sort((a, b) => ordemReg(a) - ordemReg(b) || a.nome.localeCompare(b.nome, 'pt-BR'));
+  let regAtual = null;
+  return '<div class="grid">' + ordenada.map(x => {
+    const rg = nomeReg(x);
+    const cab = rg !== regAtual ? `<div class="reg">${rg}</div>` : '';
+    regAtual = rg;
+    return cab + cartao(x);
+  }).join('') + '</div>';
+  function cartao(x) {
     if (!x.ok) return `<div class="card"><div class="nm">${esc(x.nome)}</div><div class="meta err">Linha incompleta: confira cargo, número e UF</div></div>`;
     const r = data[key(x.cargo, x.cargo === 1 ? 'br' : x.uf)];
     const c = r && r.cands.find(k => k.num === x.numero);
@@ -496,7 +512,7 @@ function viewLive(flash) {
       <div class="bar"><i style="width:${Math.min(100, c.pct * (x.cargo >= 6 ? 8 : 1))}%"></i></div>
       <div class="foot"><span>${c.pos}º de ${tot} no ${x.cargo === 1 ? 'país' : 'estado'} · ${fmtP(r.pst)} apurado ${dl(c.sq)}</span></div>${faixa}
     </div>`;
-  }).join('') + '</div>';
+  }
 }
 
 function viewPres() {
@@ -510,12 +526,18 @@ function viewPres() {
 }
 
 function viewUF(c, top) {
-  return '<div class="grid">' + UFS.map(uf => {
+  let regAtual = null;
+  return '<div class="grid">' + UFS.slice().sort((a, b) => REG_ORDEM.indexOf(REGIAO[a]) - REG_ORDEM.indexOf(REGIAO[b]) || a.localeCompare(b)).map(uf => {
+    const cab = REGIAO[uf] !== regAtual ? `<div class="reg">${REGIAO[uf]}</div>` : '';
+    regAtual = REGIAO[uf];
+    return cab + cartaoUF(uf);
+  }).join('') + '</div>';
+  function cartaoUF(uf) {
     const r = data[key(c, uf)];
     if (!r || !r.cands.length) return `<div class="card uf"><div class="ufh"><div class="ufn">${uf}</div></div><div class="meta err">${r && r.err ? esc(r.err) : 'aguardando'}</div></div>`;
     return `<div class="card uf"><div class="ufh"><div class="ufn">${uf}</div><div class="prog">${fmtP(r.pst)} apurado</div></div>${c === 3 ? caixaTurno(r, true) : ''}` +
       r.cands.slice(0, top).map(k => `<div class="line">${img(k.foto)}<div><div class="nm">${esc(k.nome)}</div><div class="meta">${esc(k.partido)} · ${fmt(k.votos)} ${dl(k.sq)} ${tagSt(k)}</div></div><div class="p">${fmtP(k.pct)}</div><div class="bar"><i style="width:${k.pct}%"></i></div></div>`).join('') + '</div>';
-  }).join('') + '</div>';
+  }
 }
 
 function render(flash) {

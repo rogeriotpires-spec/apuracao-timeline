@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apuração Timeline 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07142b; --bg2:#0c1f40; --card:#10264d; --card2:#15305e; --line:#25467e;
+  --tx:#f3f6fb; --mut:#9fb2d3; --gold:#f2b632; --gold2:#ffd76a; --green:#2fbf71; --red:#e5484d; --blue:#4c8dff; --grey:#6b7d9c;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(1200px 600px at 80% -10%,#1b3f80 0%,transparent 60%),var(--bg);color:var(--tx);font-family:Inter,system-ui,sans-serif;min-height:100vh}
+.cond{font-family:"Barlow Condensed",Inter,sans-serif}
+header{display:flex;align-items:center;gap:18px;padding:14px 22px;border-bottom:2px solid var(--gold);background:linear-gradient(90deg,#0a1a38,#0f2a5a);position:sticky;top:0;z-index:5;flex-wrap:wrap}
+.brand{font-family:"Barlow Condensed";font-weight:800;font-size:30px;letter-spacing:.5px;line-height:1}
+.brand span{color:var(--gold)}
+.sub{font-size:13px;color:var(--mut);font-weight:600;letter-spacing:1px;text-transform:uppercase}
+.spacer{flex:1}
+.stat{text-align:right;font-size:13px;color:var(--mut);line-height:1.35}
+.stat b{color:var(--tx);font-size:15px}
+.big{font-family:"Barlow Condensed";font-size:34px;font-weight:700;color:var(--gold2);line-height:1}
+button{font:600 13px Inter;border:1px solid var(--line);background:var(--card2);color:var(--tx);padding:8px 12px;border-radius:8px;cursor:pointer}
+button:hover{border-color:var(--gold)}
+button.pri{background:var(--gold);color:#1a1300;border-color:var(--gold)}
+nav{display:flex;gap:6px;padding:10px 22px;flex-wrap:wrap}
+nav button{font-family:"Barlow Condensed";font-size:20px;font-weight:700;padding:6px 18px;text-transform:uppercase;letter-spacing:.5px}
+nav button.on{background:var(--gold);color:#1a1300;border-color:var(--gold)}
+main{padding:6px 22px 30px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.card{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:12px;padding:12px 14px;position:relative;overflow:hidden}
+.card.air{border:2px solid var(--gold);box-shadow:0 0 0 3px rgba(242,182,50,.25),0 0 30px rgba(242,182,50,.25)}
+.card.flash{animation:fl 2.2s ease}
+@keyframes fl{0%{background:#2b5a2f}100%{}}
+.row{display:flex;align-items:center;gap:10px}
+.photo{width:52px;height:52px;border-radius:50%;object-fit:cover;background:#0a1a38;border:2px solid var(--line);flex:none}
+.nm{font-family:"Barlow Condensed";font-weight:700;font-size:23px;line-height:1.05}
+.meta{font-size:12px;color:var(--mut);font-weight:600}
+.hr{position:absolute;top:10px;right:12px;font-family:"Barlow Condensed";font-weight:700;font-size:17px;color:var(--gold2)}
+.air .hr::before{content:"NO AR  ";color:var(--red)}
+.votes{display:flex;align-items:baseline;justify-content:space-between;margin-top:10px}
+.v{font-family:"Barlow Condensed";font-weight:800;font-size:32px;line-height:1}
+.p{font-family:"Barlow Condensed";font-weight:700;font-size:24px;color:var(--gold2)}
+.bar{height:7px;background:#0a1a38;border-radius:4px;margin-top:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:4px;transition:width .8s}
+.foot{display:flex;justify-content:space-between;align-items:center;margin-top:7px;font-size:12px;color:var(--mut);gap:8px}
+.tag{font:700 11px Inter;padding:3px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.4px;background:var(--grey);color:#fff;white-space:nowrap}
+.tag.el{background:var(--green)}.tag.t2{background:var(--gold);color:#1a1300}.tag.ne{background:#3a4660}.tag.su{background:var(--blue)}
+.delta{color:var(--green);font-weight:700}
+.err{color:#ff9a9a}
+/* Presidente */
+.pres{display:flex;flex-direction:column;gap:10px;max-width:1300px}
+.prow{display:grid;grid-template-columns:70px 1fr 160px 120px;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.prow .photo{width:64px;height:64px}
+.prow .nm{font-size:28px}
+.prow .bar{height:12px}
+.prow .v{font-size:30px;text-align:right}
+.prow .p{font-size:36px;text-align:right}
+/* UF cards */
+.uf .ufh{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.uf .ufn{font-family:"Barlow Condensed";font-weight:800;font-size:26px;color:var(--gold)}
+.uf .line{display:grid;grid-template-columns:1fr auto;gap:2px 8px;padding:6px 0;border-top:1px solid var(--line)}
+.uf .line .nm{font-size:19px}
+.uf .line .p{font-size:20px;text-align:right}
+.uf .line .bar{grid-column:1/3;height:5px;margin-top:2px}
+.prog{font-size:12px;color:var(--mut);font-weight:600}
+/* Config */
+#cfg{position:fixed;inset:0;background:rgba(3,8,20,.8);display:none;z-index:20;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto}
+#cfg.open{display:flex}
+.panel{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:20px;width:min(900px,100%)}
+.panel h2{font-family:"Barlow Condensed";font-size:28px;margin-bottom:8px}
+.panel p{color:var(--mut);font-size:13px;margin:6px 0 10px}
+textarea{width:100%;height:340px;background:#06102a;color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:10px;font:13px/1.5 ui-monospace,Consolas,monospace}
+.opts{display:flex;gap:18px;flex-wrap:wrap;margin:14px 0;font-size:14px}
+.opts label{display:flex;gap:6px;align-items:center}
+input[type=number]{width:70px;background:#06102a;color:var(--tx);border:1px solid var(--line);border-radius:6px;padding:4px 6px}
+.empty{color:var(--mut);padding:30px;text-align:center;font-size:15px}
+.simflag{background:var(--red);color:#fff;font:700 12px Inter;padding:4px 8px;border-radius:6px;display:none}
+body.sim .simflag{display:inline-block}
+@media (max-width:700px){.prow{grid-template-columns:52px 1fr 90px}.prow .v{display:none}.brand{font-size:24px}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="brand">TIMELINE <span>APURAÇÃO 2026</span></div>
+    <div class="sub">1º turno · dados oficiais do TSE</div>
+  </div>
+  <span class="simflag">SIMULAÇÃO</span>
+  <div class="spacer"></div>
+  <div class="stat">Presidente: urnas apuradas<br><span class="big" id="gpst">--</span></div>
+  <div class="stat">Atualizado às <b id="last">--</b><br>Próxima em <b id="next">--</b></div>
+  <div class="stat"><b id="clock" class="cond" style="font-size:28px">--:--</b><br>Brasília</div>
+  <button class="pri" id="btnNow">Atualizar agora</button>
+  <button id="btnCfg">Configurar</button>
+</header>
+<nav id="tabs">
+  <button data-t="live" class="on">Nossa live</button>
+  <button data-t="pres">Presidente</button>
+  <button data-t="gov">Governadores</button>
+  <button data-t="sen">Senado</button>
+</nav>
+<main id="view"></main>
+
+<div id="cfg"><div class="panel">
+  <h2>Lista de candidatos monitorados</h2>
+  <p>Uma linha por candidato, no formato <b>Nome;Cargo;Número;UF;Horário</b>. Cargo aceita: Presidente, Governador, Senado, Federal, Estadual, Distrital. O horário é opcional e serve para destacar quem está no ar.</p>
+  <textarea id="lista" spellcheck="false"></textarea>
+  <div class="opts">
+    <label><input type="checkbox" id="oPres"> Todos os presidenciáveis</label>
+    <label><input type="checkbox" id="oGov"> Todos os governadores</label>
+    <label><input type="checkbox" id="oSen"> Todos os senadores</label>
+  </div>
+  <div class="opts">
+    <label>Atualizar a cada <input type="number" id="oInt" min="1" max="60"> min</label>
+    <label><input type="checkbox" id="oRot"> Rodízio automático das abas a cada <input type="number" id="oRotS" min="5" max="300"> s</label>
+    <label><input type="checkbox" id="oSim"> Modo simulação (votos fictícios para ensaio)</label>
+  </div>
+  <div class="opts">
+    <button class="pri" id="btnSave">Salvar e atualizar</button>
+    <button id="btnClose">Fechar</button>
+    <button id="btnCsv">Baixar CSV da lista</button>
+    <button id="btnReset">Restaurar lista original</button>
+  </div>
+</div></div>
+
+<script>
+/* ===== Configuração TSE 2026 ===== */
+const BASE = 'https://resultados.tse.jus.br/oficial/ele2026';
+const ELE = { fed: '6257', est: '6259' }; // 1º turno: federal (presidente) e estadual
+const CARGOS = {
+  1: { nome: 'Presidente', ele: 'fed' },
+  3: { nome: 'Governador', ele: 'est' },
+  5: { nome: 'Senado', ele: 'est' },
+  6: { nome: 'Dep. Federal', ele: 'est' },
+  7: { nome: 'Dep. Estadual', ele: 'est' },
+  8: { nome: 'Dep. Distrital', ele: 'est' }
+};
+const UFS = ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'];
+
+const LISTA_PADRAO = `Conrado;Estadual;27200;RJ;12:15
+Andrea Sorvetão;Senado;221;RJ;12:15
+Portinho;Senado;222;RJ;12:40
+Bruno Engler;Federal;22112;MG;12:40
+Sonaira Fernandes;Estadual;2220;SP;13:20
+Anderson Moraes;Estadual;22120;RJ;13:20
+Dr. Maurício Soares (Maumau);Federal;2200;PI;14:00
+Sebastião Coelho;Senado;300;DF;14:00
+Darcio Bracarense;Estadual;22132;AL;14:30
+Ed Raposo;Federal;2207;RJ;14:30
+Delegado Pablo;Federal;2255;AM;15:00
+Leandro de Jesus;Federal;2233;BA;15:00
+Ana Paula Goldbach;Estadual;30222;RJ;15:30
+Capitão Martim;Estadual;10122;RS;15:30
+Felipe Podri;Federal;2228;RS;16:00
+Igor Podri;Federal;2210;RJ;16:00
+Fabiana Bolsonaro;Federal;2238;SC;16:30
+Luiza do Clezão;Distrital;22822;DF;17:00
+Nina Braga;Estadual;22090;SP;17:30
+Barbara Mendes;Estadual;2206;SP;18:00
+Paulo Eduardo Martins;Federal;22500;SP;18:30
+Mariana Naime;Federal;2201;DF;19:00
+Coronel Claudia;Federal;2255;MG;19:30
+Valadares;Senado;222;SE;20:00
+Caivano;Federal;1009;SP;20:30
+Giuliano Argôlo;Federal;2226;BA;21:00`;
+
+/* ===== Estado ===== */
+const qs = new URLSearchParams(location.search);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('tl26_' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('tl26_' + k, JSON.stringify(v)); } catch (e) {} }
+};
+let cfg = {
+  lista: store.get('lista', LISTA_PADRAO),
+  pres: store.get('pres', true), gov: store.get('gov', true), sen: store.get('sen', true),
+  intMin: store.get('intMin', 5), rot: store.get('rot', false), rotS: store.get('rotS', 20),
+  sim: qs.get('sim') === '1' ? true : store.get('sim', false)
+};
+if (qs.get('rotate') === '1') cfg.rot = true;
+if (qs.get('rotate') === '0') cfg.rot = false;
+let tab = qs.get('tab') || 'live';
+const data = {};      // chave "cargo|uf" -> resultado normalizado
+const prevVotes = {}; // sqcand -> votos no ciclo anterior
+const deltas = {};    // sqcand -> ganho no último ciclo
+let nextAt = 0, lastAt = null, busy = false, rotTimer = null;
+
+/* ===== Utilidades ===== */
+const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+const n = s => (s ? Number(String(s).replace(/\./g, '').replace(',', '.')) || 0 : 0);
+const pc = s => (s ? Number(String(s).replace(',', '.')) || 0 : 0);
+const fmt = x => x.toLocaleString('pt-BR');
+const fmtP = x => x.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function cargoCode(s) {
+  s = norm(s);
+  if (s.startsWith('pres')) return 1;
+  if (s.startsWith('gov')) return 3;
+  if (s.startsWith('sen')) return 5;
+  if (s.startsWith('fed') || s.includes('federal')) return 6;
+  if (s.startsWith('dist') || s.includes('distrital')) return 8;
+  if (s.startsWith('est') || s.includes('estadual')) return 7;
+  return 0;
+}
+const key = (c, uf) => c + '|' + uf.toLowerCase();
+function url(c, abr) {
+  const e = ELE[CARGOS[c].ele], a = abr.toLowerCase();
+  return `${BASE}/${e}/dados/${a}/${a}-c${String(c).padStart(4, '0')}-e${e.padStart(6, '0')}-u.json`;
+}
+function foto(c, abr, sq) { return `${BASE}/${ELE[CARGOS[c].ele]}/fotos/${abr.toLowerCase()}/${sq}.jpeg`; }
+
+function parseLista() {
+  return cfg.lista.split(/\r?\n/).map(l => l.trim()).filter(Boolean).map((l, i) => {
+    const p = l.split(/[;\t]/).map(x => x.trim());
+    const c = cargoCode(p[1]);
+    return { id: i, nome: p[0], cargo: c, numero: (p[2] || '').replace(/\D/g, ''), uf: (p[3] || '').toUpperCase(), hora: (p[4] || '').replace('h', ':'), ok: c && p[2] && (c === 1 || p[3]) };
+  });
+}
+
+/* ===== Coleta ===== */
+function normalizar(raw, c) {
+  const cg = (raw.carg || []).find(x => Number(x.cd) === c) || (raw.carg || [])[0] || { agr: [] };
+  const cands = [];
+  for (const agr of cg.agr || []) for (const par of agr.par || []) for (const k of par.cand || []) {
+    cands.push({ sq: k.sqcand, num: k.n, nome: k.nmu || k.nm, partido: par.sg, votos: n(k.vap), pct: pc(k.pvap), eleito: k.e === 's', st: k.st || '', foto: foto(c, raw.cdabr || 'br', k.sqcand) });
+  }
+  cands.sort((a, b) => b.votos - a.votos || a.nome.localeCompare(b.nome, 'pt-BR'));
+  cands.forEach((x, i) => x.pos = i + 1);
+  return { ok: true, cands, vagas: n(cg.nv), pst: pc(raw.s && raw.s.pst), hora: raw.hg || '', final: raw.tf === 's' };
+}
+
+/* simulação para ensaio: votos fictícios que crescem a cada ciclo */
+const simState = {};
+function simular(k, r) {
+  const s = simState[k] || (simState[k] = { prog: 0, w: {} });
+  s.prog = Math.min(100, s.prog + 7 + Math.random() * 9);
+  let tot = 0;
+  r.cands.forEach(x => { if (!(x.sq in s.w)) s.w[x.sq] = Math.pow(Math.random(), 2.2); tot += s.w[x.sq]; });
+  const base = 50000 + (k.charCodeAt(0) * 7919) % 900000;
+  r.cands.forEach(x => { x.votos = Math.round(base * s.prog / 100 * (s.w[x.sq] / (tot || 1)) * (0.97 + Math.random() * 0.06) * 10); });
+  const vv = r.cands.reduce((a, x) => a + x.votos, 0) || 1;
+  r.cands.forEach(x => x.pct = x.votos / vv * 100);
+  r.cands.sort((a, b) => b.votos - a.votos);
+  r.cands.forEach((x, i) => { x.pos = i + 1; x.eleito = false; x.st = s.prog >= 100 ? (i < Math.max(1, r.vagas) ? 'Eleito' : 'Não eleito') : ''; });
+  r.pst = Math.round(s.prog * 100) / 100;
+  return r;
+}
+
+async function fetchOne(c, uf) {
+  const k = key(c, uf);
+  try {
+    const res = await fetch(url(c, uf), { cache: 'no-store' });
+    if (!res.ok) throw new Error(res.status === 403 || res.status === 404 ? 'TSE ainda não publicou este arquivo' : 'TSE respondeu ' + res.status);
+    let r = normalizar(await res.json(), c);
+    if (cfg.sim) r = simular(k, r);
+    data[k] = r;
+  } catch (e) {
+    data[k] = Object.assign(data[k] || { cands: [] }, { ok: !!(data[k] && data[k].cands.length), err: e.message === 'Failed to fetch' ? 'sem conexão com o TSE' : e.message });
+  }
+}
+
+function tarefas() {
+  const set = new Set();
+  parseLista().forEach(x => { if (x.ok) set.add(key(x.cargo, x.cargo === 1 ? 'br' : x.uf)); });
+  set.add(key(1, 'br'));
+  if (cfg.gov) UFS.forEach(u => set.add(key(3, u)));
+  if (cfg.sen) UFS.forEach(u => set.add(key(5, u)));
+  return [...set].map(k => { const [c, uf] = k.split('|'); return () => fetchOne(Number(c), uf); });
+}
+
+async function atualizar() {
+  if (busy) return;
+  busy = true;
+  document.getElementById('btnNow').textContent = 'Atualizando...';
+  const ts = tarefas();
+  let i = 0;
+  const worker = async () => { while (i < ts.length) await ts[i++](); };
+  await Promise.all(Array.from({ length: 6 }, worker));
+  // deltas
+  for (const k in data) for (const x of data[k].cands || []) {
+    if (x.sq in prevVotes) deltas[x.sq] = x.votos - prevVotes[x.sq];
+    prevVotes[x.sq] = x.votos;
+  }
+  lastAt = new Date();
+  nextAt = Date.now() + cfg.intMin * 60000;
+  busy = false;
+  document.getElementById('btnNow').textContent = 'Atualizar agora';
+  render(true);
+}
+
+/* ===== Renderização ===== */
+function tagSt(x) {
+  const s = norm(x.st);
+  if (x.eleito || (s.includes('eleito') && !s.includes('nao'))) return `<span class="tag el">${esc(x.st || 'Eleito')}</span>`;
+  if (s.includes('2')) return `<span class="tag t2">${esc(x.st)}</span>`;
+  if (s.includes('suplente')) return `<span class="tag su">${esc(x.st)}</span>`;
+  if (s.includes('nao')) return `<span class="tag ne">${esc(x.st)}</span>`;
+  return x.st ? `<span class="tag">${esc(x.st)}</span>` : '';
+}
+const img = (src) => `<img class="photo" src="${src}" onerror="this.style.visibility='hidden'" alt="">`;
+const dl = sq => deltas[sq] > 0 ? `<span class="delta">+${fmt(deltas[sq])}</span>` : '';
+
+function noAr(lista) {
+  const now = brNow(); const m = now.getHours() * 60 + now.getMinutes();
+  let best = null;
+  lista.forEach(x => { if (!x.hora) return; const [h, mi] = x.hora.split(':').map(Number); const t = h * 60 + (mi || 0); if (t <= m && (best === null || t >= best)) best = t; });
+  return best;
+}
+
+function viewLive(flash) {
+  const lista = parseLista();
+  if (!lista.length) return '<div class="empty">Nenhum candidato na lista. Use Configurar.</div>';
+  const ar = noAr(lista);
+  return '<div class="grid">' + lista.map(x => {
+    if (!x.ok) return `<div class="card"><div class="nm">${esc(x.nome)}</div><div class="meta err">Linha incompleta: confira cargo, número e UF</div></div>`;
+    const r = data[key(x.cargo, x.cargo === 1 ? 'br' : x.uf)];
+    const c = r && r.cands.find(k => k.num === x.numero);
+    const [h, mi] = (x.hora || '').split(':').map(Number);
+    const isAir = ar !== null && x.hora && h * 60 + (mi || 0) === ar;
+    const hr = x.hora ? `<div class="hr">${esc(x.hora.replace(':', 'h'))}</div>` : '';
+    const sub = `${CARGOS[x.cargo].nome} · ${x.cargo === 1 ? 'BR' : x.uf} · ${x.numero}`;
+    if (!c) {
+      const msg = !r ? 'aguardando primeira leitura' : (r.err || 'número não encontrado no arquivo do TSE');
+      return `<div class="card ${isAir ? 'air' : ''}">${hr}<div class="nm">${esc(x.nome)}</div><div class="meta">${sub}</div><div class="meta err" style="margin-top:8px">${esc(msg)}</div></div>`;
+    }
+    const tot = r.cands.length;
+    const fl = flash && deltas[c.sq] > 0 ? 'flash' : '';
+    return `<div class="card ${isAir ? 'air' : ''} ${fl}">${hr}
+      <div class="row">${img(c.foto)}<div><div class="nm">${esc(x.nome)}</div><div class="meta">${esc(c.partido)} · ${sub}</div></div></div>
+      <div class="votes"><div class="v">${fmt(c.votos)}</div><div class="p">${fmtP(c.pct)}</div></div>
+      <div class="bar"><i style="width:${Math.min(100, c.pct * (x.cargo >= 6 ? 8 : 1))}%"></i></div>
+      <div class="foot"><span>${c.pos}º de ${tot} no ${x.cargo === 1 ? 'país' : 'estado'} · ${fmtP(r.pst)} apurado ${dl(c.sq)}</span>${tagSt(c)}</div>
+    </div>`;
+  }).join('') + '</div>';
+}
+
+function viewPres() {
+  const r = data[key(1, 'br')];
+  if (!r || !r.cands.length) return `<div class="empty">${r && r.err ? esc(r.err) : 'Aguardando dados do TSE para Presidente.'}</div>`;
+  return `<div class="prog" style="margin-bottom:10px">${fmtP(r.pst)} das seções totalizadas · TSE ${esc(r.hora)}</div><div class="pres">` +
+    r.cands.map(c => `<div class="prow">${img(c.foto)}
+      <div><div class="nm">${esc(c.nome)} <span class="meta">${esc(c.partido)} ${esc(c.num)}</span></div><div class="bar"><i style="width:${c.pct}%"></i></div></div>
+      <div class="v">${fmt(c.votos)}<div class="meta">${dl(c.sq)}</div></div>
+      <div><div class="p">${fmtP(c.pct)}</div><div style="text-align:right">${tagSt(c)}</div></div></div>`).join('') + '</div>';
+}
+
+function viewUF(c, top) {
+  return '<div class="grid">' + UFS.map(uf => {
+    const r = data[key(c, uf)];
+    if (!r || !r.cands.length) return `<div class="card uf"><div class="ufh"><div class="ufn">${uf}</div></div><div class="meta err">${r && r.err ? esc(r.err) : 'aguardando'}</div></div>`;
+    return `<div class="card uf"><div class="ufh"><div class="ufn">${uf}</div><div class="prog">${fmtP(r.pst)} apurado</div></div>` +
+      r.cands.slice(0, top).map(k => `<div class="line"><div><div class="nm">${esc(k.nome)}</div><div class="meta">${esc(k.partido)} · ${fmt(k.votos)} ${dl(k.sq)} ${tagSt(k)}</div></div><div class="p">${fmtP(k.pct)}</div><div class="bar"><i style="width:${k.pct}%"></i></div></div>`).join('') + '</div>';
+  }).join('') + '</div>';
+}
+
+function render(flash) {
+  document.body.classList.toggle('sim', cfg.sim);
+  document.querySelectorAll('#tabs button').forEach(b => {
+    const t = b.dataset.t;
+    b.style.display = (t === 'gov' && !cfg.gov) || (t === 'sen' && !cfg.sen) || (t === 'pres' && !cfg.pres) ? 'none' : '';
+    b.classList.toggle('on', t === tab);
+  });
+  const v = document.getElementById('view');
+  v.innerHTML = tab === 'pres' ? viewPres() : tab === 'gov' ? viewUF(3, 3) : tab === 'sen' ? viewUF(5, 4) : viewLive(flash);
+  const p = data[key(1, 'br')];
+  document.getElementById('gpst').textContent = p && p.cands.length ? fmtP(p.pst) : '--';
+  document.getElementById('last').textContent = lastAt ? lastAt.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '--';
+}
+
+/* ===== Relógio, ciclo e rodízio ===== */
+function brNow() { return new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' })); }
+setInterval(() => {
+  const d = brNow();
+  document.getElementById('clock').textContent = d.toTimeString().slice(0, 5);
+  const s = Math.max(0, Math.round((nextAt - Date.now()) / 1000));
+  document.getElementById('next').textContent = busy ? 'agora' : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+  if (!busy && nextAt && Date.now() >= nextAt) atualizar();
+}, 1000);
+setInterval(() => { if (tab === 'live') render(false); }, 60000); // move o destaque "no ar"
+
+function setRot() {
+  clearInterval(rotTimer);
+  if (!cfg.rot) return;
+  rotTimer = setInterval(() => {
+    const ordem = ['live', 'pres', 'gov', 'sen'].filter(t => (t !== 'gov' || cfg.gov) && (t !== 'sen' || cfg.sen) && (t !== 'pres' || cfg.pres));
+    tab = ordem[(ordem.indexOf(tab) + 1) % ordem.length];
+    render(false);
+  }, Math.max(5, cfg.rotS) * 1000);
+}
+
+/* ===== Eventos ===== */
+document.getElementById('tabs').onclick = e => { const t = e.target.dataset && e.target.dataset.t; if (t) { tab = t; render(false); } };
+document.getElementById('btnNow').onclick = atualizar;
+const $ = id => document.getElementById(id);
+function abrirCfg() {
+  $('lista').value = cfg.lista; $('oPres').checked = cfg.pres; $('oGov').checked = cfg.gov; $('oSen').checked = cfg.sen;
+  $('oInt').value = cfg.intMin; $('oRot').checked = cfg.rot; $('oRotS').value = cfg.rotS; $('oSim').checked = cfg.sim;
+  $('cfg').classList.add('open');
+}
+$('btnCfg').onclick = abrirCfg;
+$('btnClose').onclick = () => $('cfg').classList.remove('open');
+$('btnReset').onclick = () => { $('lista').value = LISTA_PADRAO; };
+$('btnSave').onclick = () => {
+  const simAntes = cfg.sim;
+  cfg = { lista: $('lista').value, pres: $('oPres').checked, gov: $('oGov').checked, sen: $('oSen').checked,
+    intMin: Math.max(1, Number($('oInt').value) || 5), rot: $('oRot').checked, rotS: Math.max(5, Number($('oRotS').value) || 20), sim: $('oSim').checked };
+  Object.keys(cfg).forEach(k => store.set(k, cfg[k]));
+  if (simAntes !== cfg.sim) { for (const k in data) delete data[k]; for (const k in prevVotes) delete prevVotes[k]; for (const k in deltas) delete deltas[k]; for (const k in simState) delete simState[k]; }
+  $('cfg').classList.remove('open');
+  setRot(); atualizar();
+};
+$('btnCsv').onclick = () => {
+  const linhas = [['Nome', 'Cargo', 'Numero', 'UF', 'Horario', 'Nome na urna', 'Partido', 'Votos', 'Percentual', 'Posicao', 'Situacao', 'Apurado']];
+  parseLista().forEach(x => {
+    const r = data[key(x.cargo, x.cargo === 1 ? 'br' : x.uf)] || { cands: [] };
+    const c = r.cands.find(k => k.num === x.numero) || {};
+    linhas.push([x.nome, x.cargo ? CARGOS[x.cargo].nome : '', x.numero, x.uf, x.hora, c.nome || '', c.partido || '', c.votos ?? '', c.pct != null ? c.pct.toFixed(2).replace('.', ',') : '', c.pos || '', c.st || '', r.pst != null ? String(r.pst).replace('.', ',') : '']);
+  });
+  const csv = '\ufeff' + linhas.map(l => l.map(v => `"${String(v).replace(/"/g, '""')}"`).join(';')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  a.download = 'apuracao-timeline-' + brNow().toTimeString().slice(0, 5).replace(':', 'h') + '.csv';
+  a.click();
+};
+
+render(false); setRot(); atualizar();
+</script>
+</body>
+</html>

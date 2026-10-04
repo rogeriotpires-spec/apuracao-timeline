@@ -1,6 +1,6 @@
 {
- "fonte": "Poder360 (15h) e InfoMoney (13h52)",
- "atualizado": "15h50 de 04/10",
+ "fonte": "Poder360 (15h26)",
+ "atualizado": "16h20 de 04/10",
  "links": [
   [
    "Poder360",
@@ -53,12 +53,13 @@
    "Japão",
    "jp",
    {
-    "lula": 5234,
+    "lula": 5222,
     "flavio": 24601,
-    "cury": 1501,
-    "renan": 1197,
+    "cury": 1555,
+    "renan": 1195,
     "caiado": 595,
-    "zema": 368
+    "zema": 367,
+    "outros": 828
    }
   ],
   [
@@ -245,6 +246,79 @@
     "renan": 2,
     "zema": 1,
     "outros": 1
+   }
+  ],
+  [
+   "Palestina",
+   "ps",
+   {
+    "lula": 1078,
+    "flavio": 46,
+    "renan": 6,
+    "zema": 2,
+    "caiado": 2,
+    "cury": 2,
+    "outros": 22
+   }
+  ],
+  [
+   "Finlândia",
+   "fi",
+   {
+    "lula": 475,
+    "flavio": 155,
+    "renan": 22,
+    "cury": 14,
+    "caiado": 10,
+    "zema": 8,
+    "outros": 7
+   }
+  ],
+  [
+   "Israel",
+   "il",
+   {
+    "lula": 92,
+    "flavio": 523,
+    "renan": 27,
+    "cury": 25,
+    "caiado": 24,
+    "zema": 7,
+    "outros": 5
+   }
+  ],
+  [
+   "Grécia",
+   "gr",
+   {
+    "lula": 196,
+    "flavio": 230,
+    "cury": 21,
+    "caiado": 10,
+    "zema": 10,
+    "renan": 6,
+    "outros": 20
+   }
+  ],
+  [
+   "Kuwait",
+   "kw",
+   {
+    "lula": 54,
+    "flavio": 12,
+    "cury": 5,
+    "caiado": 2
+   }
+  ],
+  [
+   "Quênia",
+   "ke",
+   {
+    "lula": 26,
+    "flavio": 17,
+    "cury": 1,
+    "renan": 1,
+    "caiado": 1
    }
   ]
  ]

@@ -300,7 +300,12 @@ function simular(k, r) {
   let tot = 0;
   r.cands.forEach(x => { if (!(x.sq in s.w)) s.w[x.sq] = Math.pow(Math.random(), 2.2); tot += s.w[x.sq]; });
   const base = 50000 + (k.charCodeAt(0) * 7919) % 900000;
-  r.cands.forEach(x => { x.votos = Math.round(base * s.prog / 100 * (s.w[x.sq] / (tot || 1)) * (0.97 + Math.random() * 0.06) * 10); });
+  // cenário de teste: candidatos do PL sempre à frente
+  const ehPL = x => norm(x.partido) === 'pl';
+  const maxOutros = Math.max(0, ...r.cands.filter(x => !ehPL(x)).map(x => s.w[x.sq]));
+  const peso = x => ehPL(x) ? maxOutros * 1.25 + s.w[x.sq] + 0.05 : s.w[x.sq];
+  tot = r.cands.reduce((a, x) => a + peso(x), 0);
+  r.cands.forEach(x => { x.votos = Math.round(base * s.prog / 100 * (peso(x) / (tot || 1)) * (0.99 + Math.random() * 0.02) * 10); });
   const vv = r.cands.reduce((a, x) => a + x.votos, 0) || 1;
   r.cands.forEach(x => x.pct = x.votos / vv * 100);
   if (k === '1|br') { // cenário de teste: Flávio com 52,12% dos válidos

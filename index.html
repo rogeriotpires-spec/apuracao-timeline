@@ -61,10 +61,12 @@ main{padding:6px 22px 30px}
 /* UF cards */
 .uf .ufh{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .uf .ufn{font-family:"Barlow Condensed";font-weight:800;font-size:26px;color:var(--gold)}
-.uf .line{display:grid;grid-template-columns:1fr auto;gap:2px 8px;padding:6px 0;border-top:1px solid var(--line)}
+.uf .line{display:grid;grid-template-columns:44px 1fr auto;gap:2px 10px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}
+.uf .line .photo{width:44px;height:44px;grid-row:1}
+.urna{font-size:12px;color:var(--gold2);font-weight:600}
 .uf .line .nm{font-size:19px}
 .uf .line .p{font-size:20px;text-align:right}
-.uf .line .bar{grid-column:1/3;height:5px;margin-top:2px}
+.uf .line .bar{grid-column:1/4;height:5px;margin-top:2px}
 .prog{font-size:12px;color:var(--mut);font-weight:600}
 /* Config */
 #cfg{position:fixed;inset:0;background:rgba(3,8,20,.8);display:none;z-index:20;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto}
@@ -245,12 +247,25 @@ function parseLista() {
   });
 }
 
+/* ===== Conferência de nomes ===== */
+const PALAVRAS_FRACAS = new Set(['de','da','do','dos','das','dr','dra','delegado','delegada','capitao','coronel','sargento','pastor','professor','professora','vereador','deputado','deputada']);
+const tokens = s => norm(s).replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter(t => t.length > 2 && !PALAVRAS_FRACAS.has(t));
+function bate(nomeLista, ...nomesTse) {
+  const a = tokens(nomeLista), b = new Set(nomesTse.flatMap(tokens));
+  return a.some(t => b.has(t));
+}
+function suplenteDe(x, c) {
+  if (bate(x.nome, c.nome)) return null;
+  return (c.vs || []).find(v => /^s/.test(v.tp) && bate(x.nome, v.nome, v.nomeCompleto)) || null;
+}
+
 /* ===== Coleta ===== */
 function normalizar(raw, c) {
   const cg = (raw.carg || []).find(x => Number(x.cd) === c) || (raw.carg || [])[0] || { agr: [] };
   const cands = [];
   for (const agr of cg.agr || []) for (const par of agr.par || []) for (const k of par.cand || []) {
-    cands.push({ sq: k.sqcand, num: k.n, nome: k.nmu || k.nm, partido: par.sg, votos: n(k.vap), pct: pc(k.pvap), eleito: k.e === 's', st: k.st || '', foto: foto(c, raw.cdabr || 'br', k.sqcand) });
+    cands.push({ sq: k.sqcand, num: k.n, nome: k.nmu || k.nm, partido: par.sg, votos: n(k.vap), pct: pc(k.pvap), eleito: k.e === 's', st: k.st || '', foto: foto(c, raw.cdabr || 'br', k.sqcand),
+      vs: (k.vs || []).map(v => ({ tp: v.tp, sq: v.sqcand, nome: v.nmu || v.nm, nomeCompleto: v.nm || '', foto: foto(c, raw.cdabr || 'br', v.sqcand) })) });
   }
   cands.sort((a, b) => b.votos - a.votos || a.nome.localeCompare(b.nome, 'pt-BR'));
   cands.forEach((x, i) => x.pos = i + 1);
@@ -342,7 +357,7 @@ function catSt(x) {
 function detectar() {
   const vistos = new Set();
   const novos = [];
-  const checar = (c, cargo, uf, nomeLista) => {
+  const checar = (c, cargo, uf, nomeLista, fotoLista) => {
     if (vistos.has(c.sq)) return;
     vistos.add(c.sq);
     const cat = catSt(c), antes = prevCat[c.sq];
@@ -353,13 +368,13 @@ function detectar() {
     if (jaAvisado.has(c.sq + cat)) return;
     jaAvisado.add(c.sq + cat);
     novos.push({ cat, daLista, nome: nomeLista || c.nome, partido: c.partido, cargo: CARGOS[cargo].nome, uf: cargo === 1 ? 'BR' : uf.toUpperCase(),
-      votos: c.votos, pct: c.pct, st: c.st, foto: c.foto, hora: brNow().toTimeString().slice(0, 5) });
+      votos: c.votos, pct: c.pct, st: c.st, foto: fotoLista || c.foto, hora: brNow().toTimeString().slice(0, 5) });
   };
   parseLista().forEach(x => {
     if (!x.ok) return;
     const r = data[key(x.cargo, x.cargo === 1 ? 'br' : x.uf)];
     const c = r && r.cands.find(k => k.num === x.numero);
-    if (c) checar(c, x.cargo, x.uf, x.nome);
+    if (c) { const sup = x.cargo === 5 ? suplenteDe(x, c) : null; checar(c, x.cargo, x.uf, x.nome, sup && sup.foto); }
   });
   const p = data[key(1, 'br')];
   if (p) p.cands.forEach(c => checar(c, 1, 'br'));
@@ -433,10 +448,14 @@ function viewLive(flash) {
     }
     const tot = r.cands.length;
     const fl = flash && deltas[c.sq] > 0 ? 'flash' : '';
+    const sup = x.cargo === 5 ? suplenteDe(x, c) : null;
+    const ord = sup ? (sup.tp === 's1' ? '1º' : sup.tp === 's2' ? '2º' : '') : '';
+    const aviso = sup ? `<div class="urna">${ord} suplente de ${esc(c.nome)} (votos da chapa)</div>`
+      : !bate(x.nome, c.nome) ? `<div class="urna">Na urna: ${esc(c.nome)}</div>` : '';
     const cat = catSt(c);
     const faixa = cat ? `<div class="res ${cat}">${esc(c.st || ROTULO[cat])}</div>` : '';
     return `<div class="card ${isAir ? 'air' : ''} ${fl} ${cat ? 'st-' + cat : ''}">${hr}
-      <div class="row">${img(c.foto)}<div><div class="nm">${esc(x.nome)}</div><div class="meta">${esc(c.partido)} · ${sub}</div></div></div>
+      <div class="row">${img(sup ? sup.foto : c.foto)}<div><div class="nm">${esc(x.nome)}</div><div class="meta">${esc(c.partido)} · ${sub}</div>${aviso}</div></div>
       <div class="votes"><div class="v">${fmt(c.votos)}</div><div class="p">${fmtP(c.pct)}</div></div>
       <div class="bar"><i style="width:${Math.min(100, c.pct * (x.cargo >= 6 ? 8 : 1))}%"></i></div>
       <div class="foot"><span>${c.pos}º de ${tot} no ${x.cargo === 1 ? 'país' : 'estado'} · ${fmtP(r.pst)} apurado ${dl(c.sq)}</span></div>${faixa}
@@ -459,7 +478,7 @@ function viewUF(c, top) {
     const r = data[key(c, uf)];
     if (!r || !r.cands.length) return `<div class="card uf"><div class="ufh"><div class="ufn">${uf}</div></div><div class="meta err">${r && r.err ? esc(r.err) : 'aguardando'}</div></div>`;
     return `<div class="card uf"><div class="ufh"><div class="ufn">${uf}</div><div class="prog">${fmtP(r.pst)} apurado</div></div>` +
-      r.cands.slice(0, top).map(k => `<div class="line"><div><div class="nm">${esc(k.nome)}</div><div class="meta">${esc(k.partido)} · ${fmt(k.votos)} ${dl(k.sq)} ${tagSt(k)}</div></div><div class="p">${fmtP(k.pct)}</div><div class="bar"><i style="width:${k.pct}%"></i></div></div>`).join('') + '</div>';
+      r.cands.slice(0, top).map(k => `<div class="line">${img(k.foto)}<div><div class="nm">${esc(k.nome)}</div><div class="meta">${esc(k.partido)} · ${fmt(k.votos)} ${dl(k.sq)} ${tagSt(k)}</div></div><div class="p">${fmtP(k.pct)}</div><div class="bar"><i style="width:${k.pct}%"></i></div></div>`).join('') + '</div>';
   }).join('') + '</div>';
 }
 

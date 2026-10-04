@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quociente Eleitoral 2026 | Timeline</title>
+<meta name="description" content="Quantos votos cada partido precisa por vaga de deputado em cada estado, calculado ao vivo com os dados oficiais do TSE.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Quociente Eleitoral 2026 · Votos por vaga de deputado">
+<meta property="og:description" content="Quanto vale cada cadeira de deputado federal e estadual em cada estado, ao vivo com dados do TSE.">
+<meta property="og:url" content="https://rogeriotpires-spec.github.io/apuracao-timeline/quociente/">
+<meta property="og:image" content="https://rogeriotpires-spec.github.io/apuracao-timeline/og-image.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#060504">
+<link rel="icon" type="image/png" href="https://rogeriotpires-spec.github.io/apuracao-timeline/icone.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060504;--card:#100d0b;--card2:#171210;--line:#2c221c;--deep:#0a0807;--tx:#f6f2ee;--mut:#a89c92;--gold:#e07a2c;--gold2:#f4a65a;--brand:#c53b26;--glow:linear-gradient(90deg,#b5361f,#e07a2c 55%,#f4a65a)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(900px 520px at 12% -12%,rgba(197,59,38,.2),transparent 62%),radial-gradient(900px 520px at 92% -8%,rgba(224,122,44,.12),transparent 60%),var(--bg);background-attachment:fixed;color:var(--tx);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.c{font-family:"Barlow Condensed","Arial Narrow",Inter,sans-serif}
+header{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:14px 26px;background:#050403;position:relative;overflow:hidden;box-shadow:0 1px 0 rgba(224,122,44,.35)}
+header::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0 46px,rgba(224,122,44,.09) 46px 48px,transparent 48px 94px),radial-gradient(55% 170% at 22% 130%,rgba(214,96,30,.38),transparent 70%)}
+header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--glow)}
+header>*{position:relative}
+.logo{width:50px;height:50px;border-radius:12px}
+.wm{font-family:"Playfair Display",Georgia,serif;font-weight:700;font-size:28px}
+.ap{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:700;font-size:15px;letter-spacing:3px;text-transform:uppercase;background:var(--glow);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{font-size:11px;color:var(--mut);letter-spacing:1.6px;text-transform:uppercase;margin-top:4px}
+.sp{flex:1}.st{font-size:12px;color:var(--mut);text-align:right}.st b{color:var(--tx)}
+button{font:600 13px Inter;border:0;background:var(--glow);color:#140a04;padding:8px 14px;border-radius:999px;cursor:pointer}
+main{padding:18px 26px 40px;max-width:1300px}
+.intro{color:var(--mut);font-size:14px;line-height:1.55;max-width:900px;margin-bottom:14px}
+.intro b{color:var(--tx)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.tabs button{background:none;color:var(--mut);border-radius:0;font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-size:18px;letter-spacing:1.4px;text-transform:uppercase;padding:6px 14px 10px;position:relative}
+.tabs button.on{color:var(--tx)}.tabs button.on::after{content:"";position:absolute;left:12px;right:12px;bottom:-1px;height:3px;border-radius:3px;background:var(--glow)}
+.wrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%;min-width:760px}
+th,td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font:700 11px Inter;letter-spacing:.8px;text-transform:uppercase;color:var(--mut);background:var(--deep);position:sticky;top:0}
+td:first-child,th:first-child{text-align:left}
+td.uf{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:800;font-size:20px;color:var(--gold2)}
+td.n{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:700;font-size:19px}
+td.q{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:800;font-size:21px}
+tr.reg td{font-family:"Playfair Display",Georgia,serif;font-size:18px;color:var(--tx);background:rgba(255,255,255,.02);text-align:left}
+.tag{font:700 10px Inter;padding:3px 6px;border-radius:5px;letter-spacing:.5px;text-transform:uppercase}
+.real{background:#1f3a2a;color:#7fe0a8}.est{background:#3a2a1a;color:var(--gold2)}
+.bar{height:5px;background:var(--deep);border-radius:3px;overflow:hidden;margin-top:4px;min-width:70px}.bar i{display:block;height:100%;background:var(--glow)}
+.nota{color:var(--mut);font-size:12px;line-height:1.6;margin-top:12px;max-width:950px}
+footer{color:var(--mut);font-size:12px;text-align:center;padding:20px;border-top:1px solid var(--line)}
+footer a{color:var(--gold2)}
+@media(max-width:700px){header{padding:12px 16px}main{padding:14px}.wm{font-size:22px}}
+</style>
+</head>
+<body>
+<header>
+  <img class="logo" alt="Timeline" src="data:image/jpeg;base64,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">
+  <div><div><span class="wm">Timeline</span> <span class="ap">Quociente eleitoral 2026</span></div><div class="sub">Quantos votos vale cada cadeira de deputado</div></div>
+  <div class="sp"></div>
+  <div class="st">Atualizado às <b id="hora">--</b><br>Próxima em <b id="prox">--</b></div>
+  <button id="btn">Atualizar agora</button>
+</header>
+<main>
+  <p class="intro">O <b>quociente eleitoral</b> é o total de votos válidos do estado dividido pelo número de vagas: é quanto um <b>partido ou federação</b> precisa somar para garantir cada cadeira. A coluna <b>Projeção</b> estima o valor final a partir do que já foi apurado. Para ficar com a vaga do partido, o candidato precisa ter ao menos <b>10% do quociente</b> (piso individual), e 20% para disputar as sobras.</p>
+  <div class="tabs"><button data-c="6" class="on">Deputado federal</button><button data-c="7">Deputado estadual</button></div>
+  <div class="wrap"><table><thead><tr><th>UF</th><th>Vagas</th><th>Apurado</th><th>Válidos até agora</th><th>Quociente atual</th><th>Projeção do quociente</th><th>Piso individual (10%)</th><th>Base</th></tr></thead><tbody id="tb"></tbody></table></div>
+  <p class="nota"><span class="tag real">TSE</span> calculado com os votos válidos oficiais já apurados. <span class="tag est">Estimativa</span> enquanto o estado ainda não tem votos apurados: eleitorado de 2026 multiplicado por 70%, a parcela que costuma virar voto válido para deputado. A projeção divide os válidos pela fração de seções apuradas e fica mais precisa à medida que a apuração avança. No DF, a coluna estadual mostra deputados distritais.</p>
+</main>
+<footer>Dados oficiais do TSE (resultados.tse.jus.br), atualizados a cada 5 minutos. Revista Timeline, sem vínculo com a Justiça Eleitoral. · <a href="https://rogeriotpires-spec.github.io/apuracao-timeline/">Voltar à apuração</a></footer>
+<script>
+const BASE = 'https://resultados.tse.jus.br/oficial/ele2026/6259/dados';
+const REG = [['Norte',['AC','AM','AP','PA','RO','RR','TO']],['Nordeste',['AL','BA','CE','MA','PB','PE','PI','RN','SE']],['Centro-Oeste',['DF','GO','MS','MT']],['Sudeste',['ES','MG','RJ','SP']],['Sul',['PR','RS','SC']]];
+const FED = {AC:8,AL:9,AM:8,AP:8,BA:39,CE:22,DF:8,ES:10,GO:17,MA:18,MG:53,MS:8,MT:8,PA:17,PB:12,PE:25,PI:10,PR:30,RJ:46,RN:8,RO:8,RR:8,RS:31,SC:16,SE:8,SP:70,TO:8};
+const EST = u => u === 'DF' ? 24 : (FED[u] <= 12 ? 3 * FED[u] : 36 + FED[u] - 12);
+// eleitorado 2026 (TSE para SP, MG, RJ, BA e PR; demais estimados pelo total regional do TSE)
+const ELEIT = {"AC": 624205, "AP": 575063, "AM": 2768669, "PA": 6359155, "RO": 1268276, "RR": 383724, "TO": 1130261, "AL": 2417838, "BA": 11321005, "CE": 7066014, "MA": 5214824, "PB": 3191671, "PE": 7270090, "PI": 2662316, "RN": 2645741, "SE": 1740346, "DF": 2294417, "GO": 5084587, "MT": 2572497, "MS": 2045500, "ES": 2990490, "MG": 16377659, "RJ": 12857000, "SP": 34104226, "PR": 8609026, "RS": 8694652, "SC": 5557334};
+const n = s => (s ? Number(String(s).replace(/\./g, '').replace(',', '.')) || 0 : 0);
+const pc = s => (s ? Number(String(s).replace(',', '.')) || 0 : 0);
+const fmt = x => Math.round(x).toLocaleString('pt-BR');
+const fmtP = x => x.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
+let cargo = 6, nextAt = 0, busy = false;
+const dados = {};
+async function ler(c, uf) {
+  const cg = c === 7 && uf === 'DF' ? 8 : c, a = uf.toLowerCase();
+  try {
+    const r = await fetch(`${BASE}/${a}/${a}-c000${cg}-e006259-u.json`, { cache: 'no-store' });
+    if (!r.ok) return;
+    const j = await r.json();
+    const carg = (j.carg || []).find(x => Number(x.cd) === cg) || (j.carg || [])[0] || {};
+    dados[c + uf] = { vv: n(j.v && j.v.vv), pst: pc(j.s && j.s.pst), nv: n(carg.nv) };
+  } catch (e) {}
+}
+async function atualizar() {
+  if (busy) return; busy = true; document.getElementById('btn').textContent = 'Atualizando...';
+  const fila = []; REG.forEach(([, ufs]) => ufs.forEach(u => fila.push([cargo, u])));
+  const w = async () => { while (fila.length) { const [c, u] = fila.shift(); await ler(c, u); } };
+  await Promise.all(Array.from({ length: 4 }, w));
+  busy = false; document.getElementById('btn').textContent = 'Atualizar agora';
+  document.getElementById('hora').textContent = new Date().toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
+  nextAt = Date.now() + 5 * 60000; render();
+}
+function render() {
+  let h = '';
+  REG.forEach(([nome, ufs]) => {
+    h += `<tr class="reg"><td colspan="8">${nome}</td></tr>`;
+    ufs.forEach(u => {
+      const vagasPadrao = cargo === 6 ? FED[u] : EST(u);
+      const d = dados[cargo + u];
+      const vagas = d && d.nv ? d.nv : vagasPadrao;
+      if (d && d.vv > 0 && d.pst > 0) {
+        const q = d.vv / vagas, proj = d.vv / (d.pst / 100) / vagas;
+        h += `<tr><td class="uf">${u}</td><td class="n">${vagas}</td><td>${fmtP(d.pst)}<div class="bar"><i style="width:${d.pst}%"></i></div></td><td class="n">${fmt(d.vv)}</td><td class="n">${fmt(q)}</td><td class="q">${fmt(proj)}</td><td class="n">${fmt(proj * 0.1)}</td><td><span class="tag real">TSE</span></td></tr>`;
+      } else {
+        const proj = ELEIT[u] * 0.70 / vagas;
+        h += `<tr><td class="uf">${u}</td><td class="n">${vagas}</td><td>0,00%</td><td class="n">-</td><td class="n">-</td><td class="q">${fmt(proj)}</td><td class="n">${fmt(proj * 0.1)}</td><td><span class="tag est">Estimativa</span></td></tr>`;
+      }
+    });
+  });
+  document.getElementById('tb').innerHTML = h;
+}
+document.querySelector('.tabs').onclick = e => { const c = e.target.dataset && e.target.dataset.c; if (!c) return; cargo = Number(c); document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.c === c)); render(); atualizar(); };
+document.getElementById('btn').onclick = atualizar;
+setInterval(() => { const s = Math.max(0, Math.round((nextAt - Date.now()) / 1000)); document.getElementById('prox').textContent = busy ? 'agora' : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; if (!busy && nextAt && Date.now() >= nextAt) atualizar(); }, 1000);
+render(); atualizar();
+</script>
+</body>
+</html>

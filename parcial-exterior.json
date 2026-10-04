@@ -1,6 +1,6 @@
 {
- "fonte": "Poder360 (15h) e InfoMoney (13h)",
- "atualizado": "15h de 04/10",
+ "fonte": "Poder360 (15h) e InfoMoney (13h52)",
+ "atualizado": "15h50 de 04/10",
  "links": [
   [
    "Poder360",
@@ -41,6 +41,11 @@
    "num": "zema",
    "nome": "Romeu Zema",
    "partido": ""
+  },
+  {
+   "num": "outros",
+   "nome": "Outros",
+   "partido": ""
   }
  ],
  "paises": [
@@ -63,7 +68,10 @@
     "lula": 4562,
     "flavio": 2579,
     "cury": 329,
-    "renan": 316
+    "renan": 316,
+    "zema": 132,
+    "caiado": 124,
+    "outros": 78
    }
   ],
   [
@@ -71,7 +79,12 @@
    "ae",
    {
     "lula": 512,
-    "flavio": 659
+    "flavio": 659,
+    "renan": 64,
+    "cury": 56,
+    "zema": 27,
+    "caiado": 26,
+    "outros": 11
    }
   ],
   [
@@ -79,7 +92,12 @@
    "cn",
    {
     "lula": 367,
-    "flavio": 203
+    "flavio": 203,
+    "renan": 28,
+    "cury": 21,
+    "caiado": 13,
+    "zema": 9,
+    "outros": 7
    }
   ],
   [
@@ -87,7 +105,12 @@
    "qa",
    {
     "lula": 147,
-    "flavio": 173
+    "flavio": 173,
+    "renan": 15,
+    "cury": 10,
+    "zema": 6,
+    "caiado": 4,
+    "outros": 2
    }
   ],
   [
@@ -97,7 +120,10 @@
     "lula": 190,
     "flavio": 92,
     "renan": 22,
-    "cury": 21
+    "cury": 21,
+    "zema": 12,
+    "caiado": 6,
+    "outros": 5
    }
   ],
   [
@@ -106,7 +132,11 @@
    {
     "lula": 234,
     "flavio": 64,
-    "renan": 13
+    "renan": 13,
+    "zema": 7,
+    "cury": 6,
+    "caiado": 5,
+    "outros": 3
    }
   ],
   [
@@ -115,9 +145,11 @@
    {
     "lula": 123,
     "flavio": 72,
-    "renan": 6,
     "caiado": 6,
-    "cury": 6
+    "cury": 6,
+    "renan": 6,
+    "zema": 1,
+    "outros": 2
    }
   ],
   [
@@ -125,7 +157,11 @@
    "tw",
    {
     "lula": 77,
-    "flavio": 107
+    "flavio": 107,
+    "renan": 14,
+    "cury": 6,
+    "zema": 4,
+    "outros": 7
    }
   ],
   [
@@ -133,7 +169,12 @@
    "ee",
    {
     "lula": 142,
-    "flavio": 19
+    "flavio": 19,
+    "cury": 9,
+    "renan": 8,
+    "caiado": 5,
+    "zema": 3,
+    "outros": 4
    }
   ],
   [
@@ -143,7 +184,9 @@
     "lula": 40,
     "flavio": 51,
     "renan": 3,
-    "cury": 3
+    "cury": 3,
+    "zema": 1,
+    "outros": 1
    }
   ],
   [
@@ -151,7 +194,11 @@
    "sa",
    {
     "lula": 52,
-    "flavio": 22
+    "flavio": 22,
+    "renan": 6,
+    "zema": 2,
+    "caiado": 1,
+    "outros": 1
    }
   ],
   [
@@ -160,7 +207,10 @@
    {
     "lula": 44,
     "flavio": 27,
-    "renan": 7
+    "renan": 7,
+    "cury": 3,
+    "zema": 1,
+    "caiado": 1
    }
   ],
   [
@@ -168,7 +218,10 @@
    "eg",
    {
     "lula": 46,
-    "flavio": 12
+    "flavio": 12,
+    "cury": 3,
+    "caiado": 2,
+    "outros": 1
    }
   ],
   [
@@ -177,7 +230,8 @@
    {
     "lula": 26,
     "flavio": 33,
-    "renan": 2
+    "renan": 2,
+    "caiado": 1
    }
   ],
   [
@@ -185,7 +239,12 @@
    "cy",
    {
     "lula": 24,
-    "flavio": 20
+    "flavio": 20,
+    "cury": 5,
+    "caiado": 4,
+    "renan": 2,
+    "zema": 1,
+    "outros": 1
    }
   ]
  ]

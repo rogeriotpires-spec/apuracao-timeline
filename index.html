@@ -274,6 +274,7 @@ if (PUBLICO) {
 if (qs.get('rotate') === '1') cfg.rot = true;
 if (qs.get('rotate') === '0') cfg.rot = false;
 let tab = qs.get('tab') || 'live';
+let estavaTravada = true;
 const data = {};      // chave "cargo|uf" -> resultado normalizado
 const prevVotes = {}; // sqcand -> votos no ciclo anterior
 const deltas = {};    // sqcand -> ganho no último ciclo
@@ -586,6 +587,7 @@ async function carregarExterior() {
 function viewExt() {
   if (!extAtivo) { extAtivo = true; carregarExterior().then(() => { if (tab === 'ext') render(false); }); }
   const tot = data[key(1, 'zz')];
+  if (!extCidades || !tot || !tot.cands.some(x => x.votos > 0)) return viewExtParcial();
   if (!extCidades || !tot) return `<div class="empty">${extErro ? esc(extErro) : 'Carregando votação no exterior...'}</div>`;
   // os dois primeiros no exterior; se ainda não há votos, os dois primeiros no Brasil
   const ref = tot.cands.some(x => x.votos > 0) ? tot.cands : ((data[key(1, 'br')] || tot).cands);
@@ -616,6 +618,31 @@ function viewExt() {
     <div class="etot"><div class="bx ${cor(A)}"><div class="nmx">${esc(A.nome)}</div><div class="vt">${fmt(tA.votos)}</div><div class="meta">${fmtP(tA.pct)} dos válidos no exterior</div></div>
     <div class="bx ${cor(B)}"><div class="nmx">${esc(B.nome)}</div><div class="vt">${fmt(tB.votos)}</div><div class="meta">${fmtP(tB.pct)} dos válidos no exterior</div></div></div>
     <div class="meta" style="margin-top:8px">Total geral do exterior conforme o arquivo oficial do TSE. A soma por país pode diferir por alguns minutos enquanto os arquivos das cidades são atualizados.</div>`;
+}
+
+/* Parcial do exterior compilada pela imprensa a partir dos boletins de urna (antes da totalização oficial) */
+const EXT_PARCIAL = {
+  fonte: 'InfoMoney, a partir dos boletins de urna das seções', hora: '13h de 04/10',
+  link: 'https://www.infomoney.com.br/politica/eleicoes-2026-apuracao-exterior-primeiro-turno/',
+  paises: [
+    ['Japão','jp',5234,24601,4460], ['Austrália','au',4562,2579,1295], ['Emirados Árabes','ae',469,659,0],
+    ['China','cn',367,203,0], ['Singapura','sg',190,92,43], ['Taiwan','tw',77,107,0], ['Coreia do Sul','kr',123,72,21],
+    ['Estônia','ee',142,19,0], ['Nova Zelândia','nz',234,64,13], ['Tailândia','th',40,51,11], ['Arábia Saudita','sa',52,22,10],
+    ['Malásia','my',44,27,11], ['Filipinas','ph',26,33,2]
+  ]
+};
+function viewExtParcial() {
+  const P = EXT_PARCIAL;
+  const flag = iso => `<img class="fl" src="https://flagcdn.com/w40/${iso}.png" alt="" onerror="this.style.visibility='hidden'">`;
+  const lista = P.paises.slice().sort((a, b) => (b[2] + b[3] + b[4]) - (a[2] + a[3] + a[4]));
+  const sa = lista.reduce((t, p) => t + p[2], 0), sb = lista.reduce((t, p) => t + p[3], 0), so = lista.reduce((t, p) => t + p[4], 0);
+  const vv = sa + sb + so || 1;
+  return `<div class="turno"><span class="lb">Parcial</span><span class="tx" style="font-size:20px">Boletins de urna já apurados no exterior · compilação: ${esc(P.fonte)} (${esc(P.hora)}). A partir das 17h esta tabela é substituída automaticamente pelos dados oficiais do TSE.</span></div>
+    <div class="etab"><div class="erow hd"><span></span><span>País</span><span style="text-align:right">Lula</span><span style="text-align:right">Flávio Bolsonaro</span><span style="text-align:right">Outros</span><span style="text-align:right">Total</span></div>` +
+    lista.map(p => `<div class="erow">${flag(p[1])}<div class="ps">${esc(p[0])}</div><div class="num pt">${fmt(p[2])}</div><div class="num pl">${fmt(p[3])}</div><div class="num">${fmt(p[4])}</div><div class="num">${fmt(p[2] + p[3] + p[4])}</div></div>`).join('') +
+    `</div><div class="etot"><div class="bx pt"><div class="nmx">Lula</div><div class="vt">${fmt(sa)}</div><div class="meta">${fmtP(sa / vv * 100)} dos votos nesses países</div></div>
+    <div class="bx pl"><div class="nmx">Flávio Bolsonaro</div><div class="vt">${fmt(sb)}</div><div class="meta">${fmtP(sb / vv * 100)} dos votos nesses países</div></div></div>
+    <div class="meta" style="margin-top:8px">${lista.length} países com votação encerrada. Fonte: <a href="${P.link}" target="_blank" rel="noopener" style="color:var(--gold2)">${esc(P.fonte.split(',')[0])}</a>. Números não oficiais até a divulgação do TSE.</div>`;
 }
 
 /* ===== Deputados por estado ===== */
@@ -771,11 +798,14 @@ function viewUF(c, top) {
   }
 }
 
+const LIBERA_LIVE = Date.parse('2026-10-04T20:00:00Z'); // 17h de Brasília
+const liveTravada = () => PUBLICO && Date.now() < LIBERA_LIVE;
 function render(flash) {
+  if (liveTravada() && tab === 'live') tab = 'ext';
   document.body.classList.toggle('sim', cfg.sim);
   document.querySelectorAll('#tabs button').forEach(b => {
     const t = b.dataset.t;
-    b.style.display = (t === 'gov' && !cfg.gov) || (t === 'sen' && !cfg.sen) || (t === 'pres' && !cfg.pres) ? 'none' : '';
+    b.style.display = (t === 'gov' && !cfg.gov) || (t === 'sen' && !cfg.sen) || (t === 'pres' && !cfg.pres) || (t === 'live' && liveTravada()) ? 'none' : '';
     b.classList.toggle('on', t === tab);
   });
   const v = document.getElementById('view');
@@ -793,6 +823,7 @@ setInterval(() => {
   const s = Math.max(0, Math.round((nextAt - Date.now()) / 1000));
   document.getElementById('next').textContent = busy ? 'agora' : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   if (!busy && nextAt && Date.now() >= nextAt) atualizar();
+  if (PUBLICO && estavaTravada && !liveTravada()) { estavaTravada = false; render(false); } // libera às 17h sem recarregar
 }, 1000);
 setInterval(() => { if (tab === 'live') render(false); }, 60000); // move o destaque "no ar"
 

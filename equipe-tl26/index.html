@@ -90,6 +90,21 @@ body.sim .simflag{display:inline-block}
 .reg{grid-column:1/-1;font-family:"Barlow Condensed";font-weight:800;font-size:26px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid var(--line);padding:10px 2px 4px;margin-top:4px}
 .fonte{padding:14px 22px 90px;color:var(--mut);font-size:13px;text-align:center}
 body.publico #btnCfg{display:none}
+/* Exterior */
+.etab{max-width:1300px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.erow{display:grid;grid-template-columns:40px 1fr 120px 120px 100px 110px;align-items:center;gap:10px;padding:7px 14px;border-bottom:1px solid var(--line)}
+.erow.hd{background:#0a1a38;font:700 12px Inter;text-transform:uppercase;letter-spacing:.6px;color:var(--mut)}
+.erow .fl{width:34px;height:23px;object-fit:cover;border-radius:3px;background:#0a1a38}
+.erow .ps{font-family:"Barlow Condensed";font-weight:700;font-size:21px;line-height:1.05}
+.erow .num{font-family:"Barlow Condensed";font-weight:700;font-size:21px;text-align:right}
+.erow .pt{color:#ff8f8f}.erow .pl{color:#8fb8ff}
+.etot .bx.pt{border-color:#e5484d}.etot .bx.pl{border-color:#4c8dff}
+.etot{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:1300px;margin-top:14px}
+.etot .bx{border-radius:14px;padding:14px 18px;text-align:center;background:var(--card2);border:2px solid var(--line)}
+.etot .bx .nmx{font:700 14px Inter;text-transform:uppercase;letter-spacing:1px;color:var(--mut)}
+.etot .bx .vt{font-family:"Barlow Condensed";font-weight:800;font-size:48px;line-height:1.1}
+
+@media (max-width:700px){.erow{grid-template-columns:30px 1fr 64px 64px}.erow>:nth-child(5),.erow>:nth-child(6){display:none}.etot .bx .vt{font-size:32px}}
 /* Deputados */
 .ufbar{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;align-items:center}
 .ufbar button{padding:5px 9px;font:700 13px Inter}
@@ -150,6 +165,7 @@ body.publico #btnCfg{display:none}
   <button data-t="sen">Senado</button>
   <button data-t="fed">Dep. Federais</button>
   <button data-t="est">Dep. Estaduais</button>
+  <button data-t="ext">Exterior</button>
   <button data-t="def">Definidos</button>
 </nav>
 <main id="view"></main>
@@ -328,7 +344,7 @@ function simular(k, r) {
   s.prog = Math.min(100, s.prog + 7 + Math.random() * 9);
   let tot = 0;
   r.cands.forEach(x => { if (!(x.sq in s.w)) s.w[x.sq] = Math.pow(Math.random(), 2.2); tot += s.w[x.sq]; });
-  const base = 50000 + (k.charCodeAt(0) * 7919) % 900000;
+  const base = k.startsWith('1|zz') ? 400 + (Number(k.slice(4)) * 7919 || 0) % 4000 : 50000 + (k.charCodeAt(0) * 7919) % 900000;
   // cenário de teste: candidatos do PL sempre à frente
   const ehPL = x => norm(x.partido) === 'pl';
   const maxOutros = Math.max(0, ...r.cands.filter(x => !ehPL(x)).map(x => s.w[x.sq]));
@@ -386,6 +402,7 @@ async function atualizar() {
   let i = 0;
   const worker = async () => { while (i < ts.length) await ts[i++](); };
   await Promise.all(Array.from({ length: 6 }, worker));
+  if (extAtivo) await carregarExterior();
   // deltas
   for (const k in data) for (const x of data[k].cands || []) {
     if (x.sq in prevVotes) deltas[x.sq] = x.votos - prevVotes[x.sq];
@@ -488,6 +505,117 @@ function caixaTurno(r, mini) {
   if (!t) return '';
   const lb = t.definido ? 'Definido' : 'Se terminasse agora';
   return `<div class="turno ${t.definido ? 'def' : ''} ${mini ? 'mini' : ''}"><span class="lb">${lb}</span><span class="tx">${esc(t.tx)}</span></div>`;
+}
+
+/* ===== Votação no exterior (só Presidente) ===== */
+// Cidades com seção eleitoral no exterior -> país. Cidade sem correspondência aparece com o próprio nome.
+const PAISES = [
+ ['Estados Unidos','us','atlanta,boston,chicago,houston,los angeles,miami,nova york,nova iorque,new york,sao francisco,san francisco,washington,hartford,orlando'],
+ ['Canadá','ca','montreal,ottawa,toronto,vancouver,calgary'],['México','mx','mexico'],
+ ['Argentina','ar','buenos aires,cordoba,mendoza,rosario,puerto iguazu,paso de los libres'],['Chile','cl','santiago'],
+ ['Uruguai','uy','montevideu,rivera,chuy,artigas,rio branco,salto'],
+ ['Paraguai','py','assuncao,ciudad del este,encarnacion,pedro juan caballero,concepcion,salto del guaira'],
+ ['Bolívia','bo','la paz,santa cruz de la sierra,cochabamba,cobija,puerto quijarro,guayaramerin,riberalta,puerto suarez'],
+ ['Peru','pe','lima,iquitos'],['Colômbia','co','bogota,leticia'],['Venezuela','ve','caracas,santa elena de uairen,ciudad guayana,puerto ayacucho'],
+ ['Equador','ec','quito'],['Guiana Francesa','gf','caiena,saint georges'],['Guiana','gy','georgetown,lethem'],['Suriname','sr','paramaribo'],
+ ['Panamá','pa','panama'],['Costa Rica','cr','sao jose'],['Cuba','cu','havana'],['República Dominicana','do','santo domingo'],
+ ['Guatemala','gt','guatemala'],['Honduras','hn','tegucigalpa'],['El Salvador','sv','san salvador'],['Nicarágua','ni','managua'],
+ ['Haiti','ht','porto principe'],['Jamaica','jm','kingston'],['Trinidad e Tobago','tt','port of spain'],
+ ['Portugal','pt','lisboa,porto,faro'],['Espanha','es','madri,madrid,barcelona'],['França','fr','paris,marselha'],
+ ['Alemanha','de','berlim,frankfurt,munique,hamburgo'],['Itália','it','roma,milao'],['Reino Unido','gb','londres,edimburgo'],
+ ['Irlanda','ie','dublin'],['Bélgica','be','bruxelas'],['Países Baixos','nl','amsterda,roterda,haia'],['Luxemburgo','lu','luxemburgo'],
+ ['Suíça','ch','zurique,genebra,berna'],['Áustria','at','viena'],['Suécia','se','estocolmo'],['Noruega','no','oslo'],
+ ['Dinamarca','dk','copenhague'],['Finlândia','fi','helsinque'],['Polônia','pl','varsovia'],['República Tcheca','cz','praga'],
+ ['Hungria','hu','budapeste'],['Grécia','gr','atenas'],['Romênia','ro','bucareste'],['Rússia','ru','moscou'],['Ucrânia','ua','kiev,kyiv'],
+ ['Turquia','tr','ancara,istambul'],['Israel','il','tel aviv,jerusalem'],['Líbano','lb','beirute'],['Jordânia','jo','ama'],
+ ['Egito','eg','cairo'],['Emirados Árabes','ae','abu dhabi,dubai'],['Catar','qa','doha'],['Kuwait','kw','kuwait'],
+ ['Arábia Saudita','sa','riade'],['Irã','ir','teera'],['Índia','in','nova delhi,mumbai'],
+ ['China','cn','pequim,xangai,cantao'],['Hong Kong','hk','hong kong'],['Japão','jp','toquio,nagoia,hamamatsu'],
+ ['Coreia do Sul','kr','seul'],['Singapura','sg','singapura'],['Malásia','my','kuala lumpur'],['Tailândia','th','bangkok,bangcoc'],
+ ['Indonésia','id','jacarta'],['Vietnã','vn','hanoi'],['Filipinas','ph','manila'],
+ ['Austrália','au','sydney,sidney,camberra,melbourne,brisbane,perth'],['Nova Zelândia','nz','wellington,auckland'],
+ ['África do Sul','za','pretoria,cidade do cabo,joanesburgo'],['Angola','ao','luanda'],['Moçambique','mz','maputo'],
+ ['Cabo Verde','cv','praia'],['Nigéria','ng','abuja,lagos'],['Marrocos','ma','rabat'],['Argélia','dz','argel'],
+ ['Gana','gh','acra'],['Senegal','sn','dacar'],['Quênia','ke','nairobi'],['Tunísia','tn','tunis']
+];
+const CIDADE_PAIS = {};
+PAISES.forEach(([nome, iso, cids]) => cids.split(',').forEach(c => { CIDADE_PAIS[c] = { nome, iso }; }));
+function paisDaCidade(nm) {
+  const n = norm(nm).replace(/[^a-z ]/g, ' ').replace(/\s+/g, ' ').trim();
+  if (CIDADE_PAIS[n]) return CIDADE_PAIS[n];
+  const k = Object.keys(CIDADE_PAIS).sort((a, b) => b.length - a.length).find(c => (' ' + n + ' ').includes(' ' + c + ' '));
+  return k ? CIDADE_PAIS[k] : { nome: nm.charAt(0) + nm.slice(1).toLowerCase(), iso: '' };
+}
+let extAtivo = false, extCidades = null, extErro = '', extCarregando = false;
+const extDados = {}; // código da cidade -> resultado
+
+async function carregarExterior() {
+  if (extCarregando) return;
+  extCarregando = true;
+  try {
+    if (!extCidades) {
+      const res = await fetch(`${BASE}/${ELE.fed}/config/mun-e${ELE.fed.padStart(6, '0')}-cm.json`, { cache: 'no-store' });
+      if (!res.ok) throw new Error('TSE ainda não publicou a lista de cidades do exterior');
+      const cfgMun = await res.json();
+      const zz = (cfgMun.abr || []).find(a => norm(a.cd) === 'zz');
+      if (!zz) throw new Error('lista de cidades do exterior não encontrada no TSE');
+      extCidades = (zz.mu || []).map(m => ({ cd: m.cd, nm: m.nm, pais: paisDaCidade(m.nm) }));
+    }
+    await fetchOne(1, 'zz');
+    const fila2 = extCidades.slice();
+    const w = async () => {
+      while (fila2.length) {
+        const m = fila2.shift();
+        try {
+          const r2 = await fetch(`${BASE}/${ELE.fed}/dados/zz/zz${m.cd}-c0001-e${ELE.fed.padStart(6, '0')}-u.json`, { cache: 'no-store' });
+          if (!r2.ok) continue;
+          let r = normalizar(await r2.json(), 1);
+          if (cfg.sim) r = simular('1|zz' + m.cd, r);
+          extDados[m.cd] = r;
+        } catch (e) {}
+      }
+    };
+    await Promise.all(Array.from({ length: 6 }, w));
+    extErro = '';
+  } catch (e) {
+    extErro = e.message === 'Failed to fetch' ? 'sem conexão com o TSE' : e.message;
+  }
+  extCarregando = false;
+}
+
+function viewExt() {
+  if (!extAtivo) { extAtivo = true; carregarExterior().then(() => { if (tab === 'ext') render(false); }); }
+  const tot = data[key(1, 'zz')];
+  if (!extCidades || !tot) return `<div class="empty">${extErro ? esc(extErro) : 'Carregando votação no exterior...'}</div>`;
+  // os dois primeiros no exterior; se ainda não há votos, os dois primeiros no Brasil
+  const ref = tot.cands.some(x => x.votos > 0) ? tot.cands : ((data[key(1, 'br')] || tot).cands);
+  const [A, B] = ref;
+  if (!A || !B) return '<div class="empty">Aguardando dados do TSE.</div>';
+  const paises = {};
+  extCidades.forEach(m => {
+    const r = extDados[m.cd];
+    const p = paises[m.pais.nome] || (paises[m.pais.nome] = { ...m.pais, a: 0, b: 0, out: 0, cidades: 0 });
+    p.cidades++;
+    if (!r) return;
+    r.cands.forEach(x => { if (x.num === A.num) p.a += x.votos; else if (x.num === B.num) p.b += x.votos; else p.out += x.votos; });
+  });
+  const lista = Object.values(paises).sort((x, y) => (y.a + y.b + y.out) - (x.a + x.b + x.out) || x.nome.localeCompare(y.nome, 'pt-BR'));
+  const cor = c => (norm(c.partido) === 'pt' ? 'pt' : norm(c.partido) === 'pl' ? 'pl' : '');
+  const flag = iso => iso ? `<img class="fl" src="https://flagcdn.com/w40/${iso}.png" alt="" onerror="this.style.visibility='hidden'">` : '<span></span>';
+  const linhas = lista.map(p => `<div class="erow">${flag(p.iso)}<div class="ps">${esc(p.nome)}</div>
+    <div class="num ${cor(A)}">${fmt(p.a)}</div><div class="num ${cor(B)}">${fmt(p.b)}</div><div class="num">${fmt(p.out)}</div><div class="num">${fmt(p.a + p.b + p.out)}</div></div>`).join('');
+  let tA = tot.cands.find(x => x.num === A.num) || { votos: 0, pct: 0 };
+  let tB = tot.cands.find(x => x.num === B.num) || { votos: 0, pct: 0 };
+  if (cfg.sim) { // na simulação o total vem da soma das cidades, para fechar com a tabela
+    const sa = lista.reduce((t, p) => t + p.a, 0), sb = lista.reduce((t, p) => t + p.b, 0), so = lista.reduce((t, p) => t + p.out, 0);
+    const vv = sa + sb + so || 1;
+    tA = { votos: sa, pct: sa / vv * 100 }; tB = { votos: sb, pct: sb / vv * 100 };
+  }
+  return `<div class="prog" style="margin-bottom:10px">Presidente · votos de brasileiros no exterior · ${fmtP(tot.pst)} das seções totalizadas · ${lista.length} países e territórios</div>
+    <div class="etab"><div class="erow hd"><span></span><span>País</span><span style="text-align:right">${esc(A.nome)}</span><span style="text-align:right">${esc(B.nome)}</span><span style="text-align:right">Outros</span><span style="text-align:right">Total</span></div>${linhas}</div>
+    <div class="etot"><div class="bx ${cor(A)}"><div class="nmx">${esc(A.nome)}</div><div class="vt">${fmt(tA.votos)}</div><div class="meta">${fmtP(tA.pct)} dos válidos no exterior</div></div>
+    <div class="bx ${cor(B)}"><div class="nmx">${esc(B.nome)}</div><div class="vt">${fmt(tB.votos)}</div><div class="meta">${fmtP(tB.pct)} dos válidos no exterior</div></div></div>
+    <div class="meta" style="margin-top:8px">Total geral do exterior conforme o arquivo oficial do TSE. A soma por país pode diferir por alguns minutos enquanto os arquivos das cidades são atualizados.</div>`;
 }
 
 /* ===== Deputados por estado ===== */
@@ -651,7 +779,7 @@ function render(flash) {
     b.classList.toggle('on', t === tab);
   });
   const v = document.getElementById('view');
-  v.innerHTML = tab === 'pres' ? viewPres() : tab === 'gov' ? viewUF(3, 3) : tab === 'sen' ? viewUF(5, 4) : tab === 'def' ? viewDef() : tab === 'fed' ? viewDep(6) : tab === 'est' ? viewDep(7) : viewLive(flash);
+  v.innerHTML = tab === 'pres' ? viewPres() : tab === 'gov' ? viewUF(3, 3) : tab === 'sen' ? viewUF(5, 4) : tab === 'def' ? viewDef() : tab === 'fed' ? viewDep(6) : tab === 'est' ? viewDep(7) : tab === 'ext' ? viewExt() : viewLive(flash);
   const p = data[key(1, 'br')];
   document.getElementById('gpst').textContent = p && p.cands.length ? fmtP(p.pst) : '--';
   document.getElementById('last').textContent = lastAt ? lastAt.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '--';

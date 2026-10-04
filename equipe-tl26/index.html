@@ -168,6 +168,10 @@ body.publico #btnCfg{display:none}
 .drow .v{font-size:22px;text-align:right}
 .drow .p{font-size:20px;text-align:right}
 .drow.nossa{background:rgba(224,122,44,.12);box-shadow:inset 4px 0 0 var(--gold)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 10px;max-width:1300px}
+.chips button{padding:5px 11px;font-size:12px}.chips b{color:var(--gold2);margin-left:4px}
+.chips .rg{font:700 11px Inter;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-right:4px}
+.dmais{padding:14px;text-align:center;color:var(--mut);font-size:13px;cursor:pointer}
 .dsep{padding:8px 12px;font:700 12px Inter;color:var(--gold);text-transform:uppercase;letter-spacing:1px;background:var(--deep)}
 @media (max-width:700px){.drow{grid-template-columns:34px 40px 1fr 74px}.drow>:nth-child(4),.drow>:nth-child(6){display:none}}
 /* Resultado definido no cartão */
@@ -702,7 +706,7 @@ function viewExtParcial() {
 const depSel = { 6: store.get('uf6', 'RJ'), 7: store.get('uf7', 'RJ') };
 const extras = new Set();      // arquivos de deputados abertos nas abas, entram na atualização
 const pedindo = new Set();
-let depBusca = '', depTodos = false;
+let depBusca = '';
 const depCargo = (c, uf) => (c === 7 && uf === 'DF' ? 8 : c);
 const ufsPorRegiao = () => UFS.slice().sort((a, b) => REG_ORDEM.indexOf(REGIAO[a]) - REG_ORDEM.indexOf(REGIAO[b]) || a.localeCompare(b));
 
@@ -725,43 +729,74 @@ function viewDep(c) {
   }).join('') + '</div>';
   const r = data[k];
   if (!r || !r.cands.length) return bar + `<div class="empty">${r && r.err ? esc(r.err) : 'Carregando ' + CARGOS[cg].nome + ' de ' + uf + '...'}</div>`;
+  // atalhos para os candidatos da nossa lista neste estado
+  const nossos = parseLista().filter(x => x.ok && x.cargo === cg && x.uf === uf)
+    .map(x => ({ x, c: r.cands.find(k2 => k2.num === x.numero) })).filter(o => o.c);
+  const chips = nossos.length ? `<div class="chips"><span class="rg">Nossa lista</span>${nossos.map(o =>
+    `<button data-busca="${esc(o.c.num)}">${esc(o.x.nome)} <b>${o.c.pos}º</b></button>`).join('')}</div>` : '';
   return bar + `<div class="dhead"><span class="tt">${CARGOS[cg].nome} · ${uf}</span>
-    <span class="prog">${r.vagas} vagas · ${r.cands.length} candidatos · ${fmtP(r.pst)} apurado</span>
+    <span class="prog">${r.vagas} vagas · ${fmt(r.cands.length)} candidatos · ${fmtP(r.pst)} apurado</span>
     <input id="depBusca" placeholder="Buscar nome ou número" value="${esc(depBusca)}">
-    <button data-todos="1">${depTodos ? 'Mostrar só as vagas' : 'Mostrar todos'}</button></div>
+    ${depBusca ? '<button data-busca="">Limpar busca</button>' : ''}</div>${chips}
     <div class="dtab" id="depLista">${linhasDep(c)}</div>`;
 }
 
-function linhasDep(c) {
+// Lista completa com carregamento em lotes: só desenha mais linhas quando o fim da tabela chega à tela
+const DEP_LOTE = 150;
+let depLimite = DEP_LOTE, depObs = null;
+function listaFiltrada(c) {
   const uf = depSel[c], cg = depCargo(c, uf), r = data[key(cg, uf)];
-  if (!r) return '';
-  const nossos = new Set(parseLista().filter(x => x.ok && x.cargo === cg && x.uf === uf).map(x => x.numero));
+  if (!r) return { r: null, lst: [] };
   const q = norm(depBusca);
-  let lst, fora = [];
-  if (q) lst = r.cands.filter(x => norm(x.nome).includes(q) || x.num.startsWith(q));
-  else if (depTodos) lst = r.cands;
-  else {
-    const corte = Math.max(r.vagas, 10);
-    lst = r.cands.slice(0, corte);
-    fora = r.cands.slice(corte).filter(x => nossos.has(x.num));
-  }
+  return { r, lst: q ? r.cands.filter(x => norm(x.nome).includes(q) || x.num.startsWith(q)) : r.cands };
+}
+function linhasDep(c) {
+  const { r, lst } = listaFiltrada(c);
+  if (!r) return '';
+  if (!lst.length) return '<div class="empty">Nenhum candidato encontrado.</div>';
+  const uf = depSel[c], cg = depCargo(c, uf);
+  const nossos = new Set(parseLista().filter(x => x.ok && x.cargo === cg && x.uf === uf).map(x => x.numero));
   const linha = x => `<div class="drow ${nossos.has(x.num) ? 'nossa' : ''}"><div class="pos">${x.pos}º</div>${img(x.foto)}
     <div><div class="nm">${esc(x.nome)}</div><div class="meta">${esc(x.partido)} · ${esc(x.num)} ${dl(x.sq)}</div></div>
     <div class="v">${fmt(x.votos)}</div><div class="p">${fmtP(x.pct)}</div><div style="text-align:right">${tagSt(x)}</div></div>`;
-  if (!lst.length && !fora.length) return '<div class="empty">Nenhum candidato encontrado.</div>';
-  return lst.map(linha).join('') + (fora.length ? '<div class="dsep">Da nossa lista, fora das vagas</div>' + fora.map(linha).join('') : '');
+  const mostra = lst.slice(0, depLimite);
+  let html = '';
+  mostra.forEach((x, i) => {
+    html += linha(x);
+    if (!depBusca && x.pos === r.vagas && r.vagas > 0)
+      html += `<div class="dsep">Até aqui: ${r.vagas} posições, o número de vagas. Linha indicativa: quem se elege depende do quociente partidário.</div>`;
+  });
+  if (lst.length > mostra.length) html += `<div class="dmais" id="depMais">Carregando mais candidatos... (${fmt(mostra.length)} de ${fmt(lst.length)})</div>`;
+  setTimeout(() => observarFim(c), 0);
+  return html;
+}
+function observarFim(c) {
+  if (depObs) depObs.disconnect();
+  const el = document.getElementById('depMais');
+  if (!el || !('IntersectionObserver' in window)) return;
+  depObs = new IntersectionObserver(ents => {
+    if (!ents.some(e => e.isIntersecting)) return;
+    depObs.disconnect();
+    depLimite += DEP_LOTE;
+    const box = document.getElementById('depLista');
+    if (box) box.innerHTML = linhasDep(c);
+  }, { rootMargin: '600px' });
+  depObs.observe(el);
 }
 
 document.addEventListener('click', e => {
-  const b = e.target.closest && e.target.closest('[data-dep],[data-todos]');
+  const b = e.target.closest && e.target.closest('[data-dep],[data-busca],#depMais');
   if (!b) return;
+  if (b.id === 'depMais') { depLimite += DEP_LOTE; const box = document.getElementById('depLista'); if (box) box.innerHTML = linhasDep(tab === 'fed' ? 6 : 7); return; }
   if (b.dataset.dep) { const c = Number(b.dataset.dep); depSel[c] = b.dataset.uf; store.set('uf' + c, b.dataset.uf); depBusca = ''; }
-  if (b.dataset.todos) depTodos = !depTodos;
+  if (b.dataset.busca !== undefined) depBusca = b.dataset.busca;
+  if (b.dataset.dep || b.dataset.busca !== undefined) depLimite = DEP_LOTE;
   render(false);
 });
 document.addEventListener('input', e => {
   if (e.target.id !== 'depBusca') return;
   depBusca = e.target.value;
+  depLimite = DEP_LOTE;
   const el = document.getElementById('depLista');
   if (el) el.innerHTML = linhasDep(tab === 'fed' ? 6 : 7);
 });
@@ -775,7 +810,7 @@ function tagSt(x) {
   if (s.includes('nao')) return `<span class="tag ne">${esc(x.st)}</span>`;
   return x.st ? `<span class="tag">${esc(x.st)}</span>` : '';
 }
-const img = (src) => `<img class="photo" src="${src}" onerror="this.style.visibility='hidden'" alt="">`;
+const img = (src) => `<img class="photo" src="${src}" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'" alt="">`;
 const dl = sq => deltas[sq] > 0 ? `<span class="delta">+${fmt(deltas[sq])}</span>` : '';
 
 function noAr(lista) {

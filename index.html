@@ -99,12 +99,14 @@ body.publico #btnCfg{display:none}
 .erow .num{font-family:"Barlow Condensed";font-weight:700;font-size:21px;text-align:right}
 .erow .pt{color:#ff8f8f}.erow .pl{color:#8fb8ff}
 .etot .bx.pt{border-color:#e5484d}.etot .bx.pl{border-color:#4c8dff}
-.etot{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:1300px;margin-top:14px}
+.escroll{overflow-x:auto}
+.escroll .erow{min-width:max-content}
+.etot{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;max-width:1300px;margin-top:14px}
 .etot .bx{border-radius:14px;padding:14px 18px;text-align:center;background:var(--card2);border:2px solid var(--line)}
 .etot .bx .nmx{font:700 14px Inter;text-transform:uppercase;letter-spacing:1px;color:var(--mut)}
-.etot .bx .vt{font-family:"Barlow Condensed";font-weight:800;font-size:48px;line-height:1.1}
+.etot .bx .vt{font-family:"Barlow Condensed";font-weight:800;font-size:40px;line-height:1.1}
 
-@media (max-width:700px){.erow{grid-template-columns:30px 1fr 64px 64px}.erow>:nth-child(5),.erow>:nth-child(6){display:none}.etot .bx .vt{font-size:32px}}
+@media (max-width:700px){.etot .bx .vt{font-size:30px}}
 /* Deputados */
 .ufbar{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;align-items:center}
 .ufbar button{padding:5px 9px;font:700 13px Inter}
@@ -584,65 +586,78 @@ async function carregarExterior() {
   extCarregando = false;
 }
 
+function tabelaExt(cands, paises, totais, topo, rodape) {
+  // cands: [{num, nome, partido}] na ordem das colunas; paises: [{nome, iso, v:{num:votos}}]; totais: {num:{votos,pct}}
+  const cor = c => (norm(c.partido) === 'pt' ? 'pt' : norm(c.partido) === 'pl' ? 'pl' : '');
+  const flag = iso => iso ? `<img class="fl" src="https://flagcdn.com/w40/${iso}.png" alt="" onerror="this.style.visibility='hidden'">` : '<span></span>';
+  const cols = `40px minmax(150px,1fr) repeat(${cands.length}, 104px) 104px`;
+  const soma = p => cands.reduce((t, c) => t + (p.v[c.num] || 0), 0);
+  const lista = paises.slice().sort((a, b) => soma(b) - soma(a) || a.nome.localeCompare(b.nome, 'pt-BR'));
+  const hd = `<div class="erow hd" style="grid-template-columns:${cols}"><span></span><span>País</span>${cands.map(c => `<span style="text-align:right">${esc(c.nome)}</span>`).join('')}<span style="text-align:right">Total</span></div>`;
+  const linhas = lista.map(p => `<div class="erow" style="grid-template-columns:${cols}">${flag(p.iso)}<div class="ps">${esc(p.nome)}</div>${cands.map(c => `<div class="num ${cor(c)}">${fmt(p.v[c.num] || 0)}</div>`).join('')}<div class="num">${fmt(soma(p))}</div></div>`).join('');
+  const caixas = cands.slice().sort((a, b) => (totais[b.num] || {}).votos - (totais[a.num] || {}).votos).map(c => {
+    const t = totais[c.num] || { votos: 0, pct: 0 };
+    return `<div class="bx ${cor(c)}"><div class="nmx">${esc(c.nome)}</div><div class="vt">${fmt(t.votos)}</div><div class="meta">${fmtP(t.pct)}</div></div>`;
+  }).join('');
+  return `${topo}<div class="etab"><div class="escroll">${hd}${linhas}</div></div><div class="etot">${caixas}</div><div class="meta" style="margin-top:8px">${rodape}</div>`;
+}
+
 function viewExt() {
   if (!extAtivo) { extAtivo = true; carregarExterior().then(() => { if (tab === 'ext') render(false); }); }
   const tot = data[key(1, 'zz')];
   if (!extCidades || !tot || !tot.cands.some(x => x.votos > 0)) return viewExtParcial();
-  if (!extCidades || !tot) return `<div class="empty">${extErro ? esc(extErro) : 'Carregando votação no exterior...'}</div>`;
-  // os dois primeiros no exterior; se ainda não há votos, os dois primeiros no Brasil
-  const ref = tot.cands.some(x => x.votos > 0) ? tot.cands : ((data[key(1, 'br')] || tot).cands);
-  const [A, B] = ref;
-  if (!A || !B) return '<div class="empty">Aguardando dados do TSE.</div>';
+  const cands = tot.cands.filter(x => x.votos > 0).map(x => ({ num: x.num, nome: x.nome, partido: x.partido }));
   const paises = {};
   extCidades.forEach(m => {
+    const p = paises[m.pais.nome] || (paises[m.pais.nome] = { nome: m.pais.nome, iso: m.pais.iso, v: {} });
     const r = extDados[m.cd];
-    const p = paises[m.pais.nome] || (paises[m.pais.nome] = { ...m.pais, a: 0, b: 0, out: 0, cidades: 0 });
-    p.cidades++;
-    if (!r) return;
-    r.cands.forEach(x => { if (x.num === A.num) p.a += x.votos; else if (x.num === B.num) p.b += x.votos; else p.out += x.votos; });
+    if (r) r.cands.forEach(x => { p.v[x.num] = (p.v[x.num] || 0) + x.votos; });
   });
-  const lista = Object.values(paises).sort((x, y) => (y.a + y.b + y.out) - (x.a + x.b + x.out) || x.nome.localeCompare(y.nome, 'pt-BR'));
-  const cor = c => (norm(c.partido) === 'pt' ? 'pt' : norm(c.partido) === 'pl' ? 'pl' : '');
-  const flag = iso => iso ? `<img class="fl" src="https://flagcdn.com/w40/${iso}.png" alt="" onerror="this.style.visibility='hidden'">` : '<span></span>';
-  const linhas = lista.map(p => `<div class="erow">${flag(p.iso)}<div class="ps">${esc(p.nome)}</div>
-    <div class="num ${cor(A)}">${fmt(p.a)}</div><div class="num ${cor(B)}">${fmt(p.b)}</div><div class="num">${fmt(p.out)}</div><div class="num">${fmt(p.a + p.b + p.out)}</div></div>`).join('');
-  let tA = tot.cands.find(x => x.num === A.num) || { votos: 0, pct: 0 };
-  let tB = tot.cands.find(x => x.num === B.num) || { votos: 0, pct: 0 };
+  let totais = {};
+  tot.cands.forEach(x => { totais[x.num] = { votos: x.votos, pct: x.pct }; });
   if (cfg.sim) { // na simulação o total vem da soma das cidades, para fechar com a tabela
-    const sa = lista.reduce((t, p) => t + p.a, 0), sb = lista.reduce((t, p) => t + p.b, 0), so = lista.reduce((t, p) => t + p.out, 0);
-    const vv = sa + sb + so || 1;
-    tA = { votos: sa, pct: sa / vv * 100 }; tB = { votos: sb, pct: sb / vv * 100 };
+    const vv = Object.values(paises).reduce((t, p) => t + cands.reduce((u, c) => u + (p.v[c.num] || 0), 0), 0) || 1;
+    totais = {};
+    cands.forEach(c => { const v = Object.values(paises).reduce((t, p) => t + (p.v[c.num] || 0), 0); totais[c.num] = { votos: v, pct: v / vv * 100 }; });
   }
-  return `<div class="prog" style="margin-bottom:10px">Presidente · votos de brasileiros no exterior · ${fmtP(tot.pst)} das seções totalizadas · ${lista.length} países e territórios</div>
-    <div class="etab"><div class="erow hd"><span></span><span>País</span><span style="text-align:right">${esc(A.nome)}</span><span style="text-align:right">${esc(B.nome)}</span><span style="text-align:right">Outros</span><span style="text-align:right">Total</span></div>${linhas}</div>
-    <div class="etot"><div class="bx ${cor(A)}"><div class="nmx">${esc(A.nome)}</div><div class="vt">${fmt(tA.votos)}</div><div class="meta">${fmtP(tA.pct)} dos válidos no exterior</div></div>
-    <div class="bx ${cor(B)}"><div class="nmx">${esc(B.nome)}</div><div class="vt">${fmt(tB.votos)}</div><div class="meta">${fmtP(tB.pct)} dos válidos no exterior</div></div></div>
-    <div class="meta" style="margin-top:8px">Total geral do exterior conforme o arquivo oficial do TSE. A soma por país pode diferir por alguns minutos enquanto os arquivos das cidades são atualizados.</div>`;
+  const topo = `<div class="prog" style="margin-bottom:10px">Presidente · votos de brasileiros no exterior · ${fmtP(tot.pst)} das seções totalizadas · ${Object.keys(paises).length} países e territórios</div>`;
+  return tabelaExt(cands, Object.values(paises), totais, topo,
+    'Dados oficiais do TSE. Percentuais sobre os votos válidos no exterior. A soma por país pode diferir por alguns minutos enquanto os arquivos das cidades são atualizados.');
 }
 
 /* Parcial do exterior compilada pela imprensa a partir dos boletins de urna (antes da totalização oficial) */
 const EXT_PARCIAL = {
-  fonte: 'InfoMoney, a partir dos boletins de urna das seções', hora: '13h de 04/10',
+  fonte: 'InfoMoney', hora: '13h de 04/10',
   link: 'https://www.infomoney.com.br/politica/eleicoes-2026-apuracao-exterior-primeiro-turno/',
+  cands: [ { num: 'lula', nome: 'Lula', partido: 'PT' }, { num: 'flavio', nome: 'Flávio Bolsonaro', partido: 'PL' },
+    { num: 'cury', nome: 'Augusto Cury', partido: '' }, { num: 'renan', nome: 'Renan Santos', partido: '' },
+    { num: 'caiado', nome: 'Ronaldo Caiado', partido: '' }, { num: 'zema', nome: 'Romeu Zema', partido: '' } ],
   paises: [
-    ['Japão','jp',5234,24601,4460], ['Austrália','au',4562,2579,1295], ['Emirados Árabes','ae',469,659,0],
-    ['China','cn',367,203,0], ['Singapura','sg',190,92,43], ['Taiwan','tw',77,107,0], ['Coreia do Sul','kr',123,72,21],
-    ['Estônia','ee',142,19,0], ['Nova Zelândia','nz',234,64,13], ['Tailândia','th',40,51,11], ['Arábia Saudita','sa',52,22,10],
-    ['Malásia','my',44,27,11], ['Filipinas','ph',26,33,2]
+    ['Japão','jp',{ lula: 5234, flavio: 24601, cury: 1501, renan: 1197, caiado: 595, zema: 368 }],
+    ['Austrália','au',{ lula: 4562, flavio: 2579, cury: 329, renan: 316 }],
+    ['Emirados Árabes','ae',{ lula: 469, flavio: 659 }],
+    ['China','cn',{ lula: 367, flavio: 203 }],
+    ['Singapura','sg',{ lula: 190, flavio: 92, renan: 22, cury: 21 }],
+    ['Nova Zelândia','nz',{ lula: 234, flavio: 64, renan: 13 }],
+    ['Coreia do Sul','kr',{ lula: 123, flavio: 72, renan: 6, caiado: 6, cury: 6 }],
+    ['Taiwan','tw',{ lula: 77, flavio: 107 }],
+    ['Estônia','ee',{ lula: 142, flavio: 19 }],
+    ['Tailândia','th',{ lula: 40, flavio: 51, renan: 3, cury: 3 }],
+    ['Malásia','my',{ lula: 44, flavio: 27, renan: 7 }],
+    ['Arábia Saudita','sa',{ lula: 52, flavio: 22 }],
+    ['Filipinas','ph',{ lula: 26, flavio: 33, renan: 2 }]
   ]
 };
 function viewExtParcial() {
   const P = EXT_PARCIAL;
-  const flag = iso => `<img class="fl" src="https://flagcdn.com/w40/${iso}.png" alt="" onerror="this.style.visibility='hidden'">`;
-  const lista = P.paises.slice().sort((a, b) => (b[2] + b[3] + b[4]) - (a[2] + a[3] + a[4]));
-  const sa = lista.reduce((t, p) => t + p[2], 0), sb = lista.reduce((t, p) => t + p[3], 0), so = lista.reduce((t, p) => t + p[4], 0);
-  const vv = sa + sb + so || 1;
-  return `<div class="turno"><span class="lb">Parcial</span><span class="tx" style="font-size:20px">Boletins de urna já apurados no exterior · compilação: ${esc(P.fonte)} (${esc(P.hora)}). A partir das 17h esta tabela é substituída automaticamente pelos dados oficiais do TSE.</span></div>
-    <div class="etab"><div class="erow hd"><span></span><span>País</span><span style="text-align:right">Lula</span><span style="text-align:right">Flávio Bolsonaro</span><span style="text-align:right">Outros</span><span style="text-align:right">Total</span></div>` +
-    lista.map(p => `<div class="erow">${flag(p[1])}<div class="ps">${esc(p[0])}</div><div class="num pt">${fmt(p[2])}</div><div class="num pl">${fmt(p[3])}</div><div class="num">${fmt(p[4])}</div><div class="num">${fmt(p[2] + p[3] + p[4])}</div></div>`).join('') +
-    `</div><div class="etot"><div class="bx pt"><div class="nmx">Lula</div><div class="vt">${fmt(sa)}</div><div class="meta">${fmtP(sa / vv * 100)} dos votos nesses países</div></div>
-    <div class="bx pl"><div class="nmx">Flávio Bolsonaro</div><div class="vt">${fmt(sb)}</div><div class="meta">${fmtP(sb / vv * 100)} dos votos nesses países</div></div></div>
-    <div class="meta" style="margin-top:8px">${lista.length} países com votação encerrada. Fonte: <a href="${P.link}" target="_blank" rel="noopener" style="color:var(--gold2)">${esc(P.fonte.split(',')[0])}</a>. Números não oficiais até a divulgação do TSE.</div>`;
+  const paises = P.paises.map(([nome, iso, v]) => ({ nome, iso, v }));
+  const tv = {}; let vv = 0;
+  P.cands.forEach(c => { tv[c.num] = paises.reduce((t, p) => t + (p.v[c.num] || 0), 0); vv += tv[c.num]; });
+  const totais = {};
+  P.cands.forEach(c => { totais[c.num] = { votos: tv[c.num], pct: tv[c.num] / (vv || 1) * 100 }; });
+  const topo = `<div class="turno"><span class="lb">Parcial</span><span class="tx" style="font-size:20px">Boletins de urna já apurados no exterior, compilação do ${esc(P.fonte)} (${esc(P.hora)}). A partir das 17h esta tabela é substituída automaticamente pelos dados oficiais do TSE.</span></div>`;
+  return tabelaExt(P.cands, paises, totais, topo,
+    `${paises.length} países com votação encerrada. Percentuais sobre os votos dos candidatos listados. Candidatos não citados na compilação não aparecem. Fonte: <a href="${P.link}" target="_blank" rel="noopener" style="color:var(--gold2)">${esc(P.fonte)}</a>. Números não oficiais até a divulgação do TSE.`);
 }
 
 /* ===== Deputados por estado ===== */

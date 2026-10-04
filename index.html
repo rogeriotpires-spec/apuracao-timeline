@@ -88,6 +88,24 @@ body.sim .simflag{display:inline-block}
 .turno.mini{padding:6px 10px;margin:0 0 6px;border-left-width:4px}
 .turno.mini .tx{font-size:18px}.turno.mini .lb{font-size:10px;padding:3px 6px}
 .reg{grid-column:1/-1;font-family:"Barlow Condensed";font-weight:800;font-size:26px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid var(--line);padding:10px 2px 4px;margin-top:4px}
+/* Deputados */
+.ufbar{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;align-items:center}
+.ufbar button{padding:5px 9px;font:700 13px Inter}
+.ufbar button.on{background:var(--gold);color:#1a1300;border-color:var(--gold)}
+.ufbar .rg{font:700 11px Inter;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin:0 2px 0 8px}
+.dhead{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:10px;max-width:1300px}
+.dhead .tt{font-family:"Barlow Condensed";font-weight:800;font-size:28px}
+.dhead input{background:#06102a;color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:14px Inter;min-width:220px}
+.dtab{max-width:1300px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.drow{display:grid;grid-template-columns:48px 46px 1fr 130px 90px 150px;align-items:center;gap:10px;padding:6px 12px;border-bottom:1px solid var(--line)}
+.drow .photo{width:42px;height:42px}
+.drow .pos{font-family:"Barlow Condensed";font-weight:700;font-size:22px;color:var(--mut);text-align:right}
+.drow .nm{font-size:21px}
+.drow .v{font-size:22px;text-align:right}
+.drow .p{font-size:20px;text-align:right}
+.drow.nossa{background:rgba(242,182,50,.13);box-shadow:inset 4px 0 0 var(--gold)}
+.dsep{padding:8px 12px;font:700 12px Inter;color:var(--gold);text-transform:uppercase;letter-spacing:1px;background:#0a1a38}
+@media (max-width:700px){.drow{grid-template-columns:34px 40px 1fr 74px}.drow>:nth-child(4),.drow>:nth-child(6){display:none}}
 /* Resultado definido no cartão */
 .card.st-el{border:2px solid var(--green);box-shadow:0 0 26px rgba(47,191,113,.35)}
 .card.st-t2{border:2px solid var(--gold)}
@@ -128,6 +146,8 @@ body.sim .simflag{display:inline-block}
   <button data-t="pres">Presidente</button>
   <button data-t="gov">Governadores</button>
   <button data-t="sen">Senado</button>
+  <button data-t="fed">Dep. Federais</button>
+  <button data-t="est">Dep. Estaduais</button>
   <button data-t="def">Definidos</button>
 </nav>
 <main id="view"></main>
@@ -343,6 +363,7 @@ function tarefas() {
   const set = new Set();
   parseLista().forEach(x => { if (x.ok) set.add(key(x.cargo, x.cargo === 1 ? 'br' : x.uf)); });
   set.add(key(1, 'br'));
+  extras.forEach(k => set.add(k));
   if (cfg.gov) UFS.forEach(u => set.add(key(3, u)));
   if (cfg.sen) UFS.forEach(u => set.add(key(5, u)));
   return [...set].map(k => { const [c, uf] = k.split('|'); return () => fetchOne(Number(c), uf); });
@@ -460,6 +481,74 @@ function caixaTurno(r, mini) {
   return `<div class="turno ${t.definido ? 'def' : ''} ${mini ? 'mini' : ''}"><span class="lb">${lb}</span><span class="tx">${esc(t.tx)}</span></div>`;
 }
 
+/* ===== Deputados por estado ===== */
+const depSel = { 6: store.get('uf6', 'RJ'), 7: store.get('uf7', 'RJ') };
+const extras = new Set();      // arquivos de deputados abertos nas abas, entram na atualização
+const pedindo = new Set();
+let depBusca = '', depTodos = false;
+const depCargo = (c, uf) => (c === 7 && uf === 'DF' ? 8 : c);
+const ufsPorRegiao = () => UFS.slice().sort((a, b) => REG_ORDEM.indexOf(REGIAO[a]) - REG_ORDEM.indexOf(REGIAO[b]) || a.localeCompare(b));
+
+function garantir(cg, uf) {
+  const k = key(cg, uf);
+  extras.add(k);
+  if (data[k] || pedindo.has(k)) return;
+  pedindo.add(k);
+  fetchOne(cg, uf).then(() => { pedindo.delete(k); if (tab === 'fed' || tab === 'est') render(false); });
+}
+
+function viewDep(c) {
+  const uf = depSel[c], cg = depCargo(c, uf), k = key(cg, uf);
+  garantir(cg, uf);
+  let rg = null;
+  const bar = '<div class="ufbar">' + ufsPorRegiao().map(u => {
+    const cab = REGIAO[u] !== rg ? `<span class="rg">${REGIAO[u]}</span>` : '';
+    rg = REGIAO[u];
+    return cab + `<button data-dep="${c}" data-uf="${u}" class="${u === uf ? 'on' : ''}">${u}</button>`;
+  }).join('') + '</div>';
+  const r = data[k];
+  if (!r || !r.cands.length) return bar + `<div class="empty">${r && r.err ? esc(r.err) : 'Carregando ' + CARGOS[cg].nome + ' de ' + uf + '...'}</div>`;
+  return bar + `<div class="dhead"><span class="tt">${CARGOS[cg].nome} · ${uf}</span>
+    <span class="prog">${r.vagas} vagas · ${r.cands.length} candidatos · ${fmtP(r.pst)} apurado</span>
+    <input id="depBusca" placeholder="Buscar nome ou número" value="${esc(depBusca)}">
+    <button data-todos="1">${depTodos ? 'Mostrar só as vagas' : 'Mostrar todos'}</button></div>
+    <div class="dtab" id="depLista">${linhasDep(c)}</div>`;
+}
+
+function linhasDep(c) {
+  const uf = depSel[c], cg = depCargo(c, uf), r = data[key(cg, uf)];
+  if (!r) return '';
+  const nossos = new Set(parseLista().filter(x => x.ok && x.cargo === cg && x.uf === uf).map(x => x.numero));
+  const q = norm(depBusca);
+  let lst, fora = [];
+  if (q) lst = r.cands.filter(x => norm(x.nome).includes(q) || x.num.startsWith(q));
+  else if (depTodos) lst = r.cands;
+  else {
+    const corte = Math.max(r.vagas, 10);
+    lst = r.cands.slice(0, corte);
+    fora = r.cands.slice(corte).filter(x => nossos.has(x.num));
+  }
+  const linha = x => `<div class="drow ${nossos.has(x.num) ? 'nossa' : ''}"><div class="pos">${x.pos}º</div>${img(x.foto)}
+    <div><div class="nm">${esc(x.nome)}</div><div class="meta">${esc(x.partido)} · ${esc(x.num)} ${dl(x.sq)}</div></div>
+    <div class="v">${fmt(x.votos)}</div><div class="p">${fmtP(x.pct)}</div><div style="text-align:right">${tagSt(x)}</div></div>`;
+  if (!lst.length && !fora.length) return '<div class="empty">Nenhum candidato encontrado.</div>';
+  return lst.map(linha).join('') + (fora.length ? '<div class="dsep">Da nossa lista, fora das vagas</div>' + fora.map(linha).join('') : '');
+}
+
+document.addEventListener('click', e => {
+  const b = e.target.closest && e.target.closest('[data-dep],[data-todos]');
+  if (!b) return;
+  if (b.dataset.dep) { const c = Number(b.dataset.dep); depSel[c] = b.dataset.uf; store.set('uf' + c, b.dataset.uf); depBusca = ''; }
+  if (b.dataset.todos) depTodos = !depTodos;
+  render(false);
+});
+document.addEventListener('input', e => {
+  if (e.target.id !== 'depBusca') return;
+  depBusca = e.target.value;
+  const el = document.getElementById('depLista');
+  if (el) el.innerHTML = linhasDep(tab === 'fed' ? 6 : 7);
+});
+
 /* ===== Renderização ===== */
 function tagSt(x) {
   const s = norm(x.st);
@@ -553,7 +642,7 @@ function render(flash) {
     b.classList.toggle('on', t === tab);
   });
   const v = document.getElementById('view');
-  v.innerHTML = tab === 'pres' ? viewPres() : tab === 'gov' ? viewUF(3, 3) : tab === 'sen' ? viewUF(5, 4) : tab === 'def' ? viewDef() : viewLive(flash);
+  v.innerHTML = tab === 'pres' ? viewPres() : tab === 'gov' ? viewUF(3, 3) : tab === 'sen' ? viewUF(5, 4) : tab === 'def' ? viewDef() : tab === 'fed' ? viewDep(6) : tab === 'est' ? viewDep(7) : viewLive(flash);
   const p = data[key(1, 'br')];
   document.getElementById('gpst').textContent = p && p.cands.length ? fmtP(p.pst) : '--';
   document.getElementById('last').textContent = lastAt ? lastAt.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '--';

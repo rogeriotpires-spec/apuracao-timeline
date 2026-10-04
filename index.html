@@ -81,6 +81,12 @@ input[type=number]{width:70px;background:#06102a;color:var(--tx);border:1px soli
 .empty{color:var(--mut);padding:30px;text-align:center;font-size:15px}
 .simflag{background:var(--red);color:#fff;font:700 12px Inter;padding:4px 8px;border-radius:6px;display:none}
 body.sim .simflag{display:inline-block}
+.turno{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--card2);border:1px solid var(--line);border-left:6px solid var(--gold);border-radius:12px;padding:12px 16px;margin-bottom:12px;max-width:1300px}
+.turno .lb{font:700 12px Inter;letter-spacing:1px;text-transform:uppercase;padding:4px 8px;border-radius:6px;background:#0a1a38;color:var(--mut)}
+.turno .tx{font-family:"Barlow Condensed";font-weight:800;font-size:30px;line-height:1.05}
+.turno.def{border-left-color:var(--green)}.turno.def .lb{background:var(--green);color:#fff}
+.turno.mini{padding:6px 10px;margin:0 0 6px;border-left-width:4px}
+.turno.mini .tx{font-size:18px}.turno.mini .lb{font-size:10px;padding:3px 6px}
 /* Resultado definido no cartão */
 .card.st-el{border:2px solid var(--green);box-shadow:0 0 26px rgba(47,191,113,.35)}
 .card.st-t2{border:2px solid var(--gold)}
@@ -194,8 +200,9 @@ Caivano;Federal;1009;SP;20:30
 Giuliano Argôlo;Federal;2226;BA;21:00
 Rebeca Ramagem;Federal;2217;RJ;
 Mário Frias;Federal;2208;SP;
-Marcelo Dino;Estadual;22190;RJ;`;
-const LISTA_VERSAO = 2; // aumente ao mudar a lista padrão
+Marcelo Dino;Estadual;22190;RJ;
+Luís Fernando Pires;Estadual;11522;RS;`;
+const LISTA_VERSAO = 3; // aumente ao mudar a lista padrão
 
 /* ===== Estado ===== */
 const qs = new URLSearchParams(location.search);
@@ -278,6 +285,7 @@ function normalizar(raw, c) {
 
 /* simulação para ensaio: votos fictícios que crescem a cada ciclo */
 const simState = {};
+const SIM_FLAVIO = 52.12;
 function simular(k, r) {
   const s = simState[k] || (simState[k] = { prog: 0, w: {} });
   s.prog = Math.min(100, s.prog + 7 + Math.random() * 9);
@@ -287,6 +295,13 @@ function simular(k, r) {
   r.cands.forEach(x => { x.votos = Math.round(base * s.prog / 100 * (s.w[x.sq] / (tot || 1)) * (0.97 + Math.random() * 0.06) * 10); });
   const vv = r.cands.reduce((a, x) => a + x.votos, 0) || 1;
   r.cands.forEach(x => x.pct = x.votos / vv * 100);
+  if (k === '1|br') { // cenário de teste: Flávio com 52,12% dos válidos
+    const fl = r.cands.find(x => tokens(x.nome).includes('flavio'));
+    if (fl) {
+      const resto = vv - fl.votos || 1;
+      r.cands.forEach(x => { x.pct = x === fl ? SIM_FLAVIO : x.votos / resto * (100 - SIM_FLAVIO); x.votos = Math.round(vv * x.pct / 100); });
+    }
+  }
   r.cands.sort((a, b) => b.votos - a.votos);
   const majoritario = k.startsWith('1|') || k.startsWith('3|');
   const segundo = majoritario && r.cands[0] && r.cands[0].pct <= 50;
@@ -415,6 +430,23 @@ function viewDef() {
     <div style="text-align:right"><div class="p">${fmtP(ev.pct)}</div><div class="meta">${fmt(ev.votos)} votos</div></div></div>`).join('');
 }
 
+/* ===== Haverá 2º turno? (presidente e governador) ===== */
+function segundoTurno(r) {
+  if (!r || r.cands.length < 2 || !r.cands.some(x => x.votos > 0)) return null;
+  const [a, b] = r.cands;
+  const definido = r.final || r.cands.some(x => catSt(x) === 'el' || catSt(x) === 't2');
+  if (a.pct > 50) return { definido, sem: true,
+    tx: definido ? `${a.nome} eleito no 1º turno` : `Sem 2º turno: ${a.nome} vence com ${fmtP(a.pct)} dos válidos` };
+  return { definido, sem: false,
+    tx: definido ? `2º turno: ${a.nome} x ${b.nome}` : `Haverá 2º turno: ${a.nome} (${fmtP(a.pct)}) x ${b.nome} (${fmtP(b.pct)})` };
+}
+function caixaTurno(r, mini) {
+  const t = segundoTurno(r);
+  if (!t) return '';
+  const lb = t.definido ? 'Definido' : 'Se terminasse agora';
+  return `<div class="turno ${t.definido ? 'def' : ''} ${mini ? 'mini' : ''}"><span class="lb">${lb}</span><span class="tx">${esc(t.tx)}</span></div>`;
+}
+
 /* ===== Renderização ===== */
 function tagSt(x) {
   const s = norm(x.st);
@@ -470,7 +502,7 @@ function viewLive(flash) {
 function viewPres() {
   const r = data[key(1, 'br')];
   if (!r || !r.cands.length) return `<div class="empty">${r && r.err ? esc(r.err) : 'Aguardando dados do TSE para Presidente.'}</div>`;
-  return `<div class="prog" style="margin-bottom:10px">${fmtP(r.pst)} das seções totalizadas · TSE ${esc(r.hora)}</div><div class="pres">` +
+  return `<div class="prog" style="margin-bottom:10px">${fmtP(r.pst)} das seções totalizadas · TSE ${esc(r.hora)}</div>${caixaTurno(r)}<div class="pres">` +
     r.cands.map(c => `<div class="prow">${img(c.foto)}
       <div><div class="nm">${esc(c.nome)} <span class="meta">${esc(c.partido)} ${esc(c.num)}</span></div><div class="bar"><i style="width:${c.pct}%"></i></div></div>
       <div class="v">${fmt(c.votos)}<div class="meta">${dl(c.sq)}</div></div>
@@ -481,7 +513,7 @@ function viewUF(c, top) {
   return '<div class="grid">' + UFS.map(uf => {
     const r = data[key(c, uf)];
     if (!r || !r.cands.length) return `<div class="card uf"><div class="ufh"><div class="ufn">${uf}</div></div><div class="meta err">${r && r.err ? esc(r.err) : 'aguardando'}</div></div>`;
-    return `<div class="card uf"><div class="ufh"><div class="ufn">${uf}</div><div class="prog">${fmtP(r.pst)} apurado</div></div>` +
+    return `<div class="card uf"><div class="ufh"><div class="ufn">${uf}</div><div class="prog">${fmtP(r.pst)} apurado</div></div>${c === 3 ? caixaTurno(r, true) : ''}` +
       r.cands.slice(0, top).map(k => `<div class="line">${img(k.foto)}<div><div class="nm">${esc(k.nome)}</div><div class="meta">${esc(k.partido)} · ${fmt(k.votos)} ${dl(k.sq)} ${tagSt(k)}</div></div><div class="p">${fmtP(k.pct)}</div><div class="bar"><i style="width:${k.pct}%"></i></div></div>`).join('') + '</div>';
   }).join('') + '</div>';
 }

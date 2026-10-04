@@ -167,7 +167,7 @@ const CARGOS = {
 const UFS = ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'];
 
 const LISTA_PADRAO = `Conrado;Estadual;27200;RJ;12:15
-Andrea Sorvetão;Senado;221;RJ;12:15
+Andréa Sorvetão;Federal;2720;RJ;12:15
 Portinho;Senado;222;RJ;12:40
 Bruno Engler;Federal;22112;MG;12:40
 Sonaira Fernandes;Estadual;2220;SP;13:20
@@ -191,7 +191,11 @@ Mariana Naime;Federal;2201;DF;19:00
 Coronel Claudia;Federal;2255;MG;19:30
 Valadares;Senado;222;SE;20:00
 Caivano;Federal;1009;SP;20:30
-Giuliano Argôlo;Federal;2226;BA;21:00`;
+Giuliano Argôlo;Federal;2226;BA;21:00
+Rebeca Ramagem;Federal;2217;RJ;
+Mário Frias;Federal;2208;SP;
+Marcelo Dino;Estadual;22190;RJ;`;
+const LISTA_VERSAO = 2; // aumente ao mudar a lista padrão
 
 /* ===== Estado ===== */
 const qs = new URLSearchParams(location.search);
@@ -200,7 +204,7 @@ const store = {
   set(k, v) { try { localStorage.setItem('tl26_' + k, JSON.stringify(v)); } catch (e) {} }
 };
 let cfg = {
-  lista: store.get('lista', LISTA_PADRAO),
+  lista: store.get('listaVer', 0) === LISTA_VERSAO ? store.get('lista', LISTA_PADRAO) : LISTA_PADRAO,
   pres: store.get('pres', true), gov: store.get('gov', true), sen: store.get('sen', true),
   intMin: store.get('intMin', 5), rot: store.get('rot', false), rotS: store.get('rotS', 20),
   sim: qs.get('sim') === '1' ? true : store.get('sim', false),
@@ -536,6 +540,7 @@ $('btnSave').onclick = () => {
     intMin: Math.max(1, Number($('oInt').value) || 5), rot: $('oRot').checked, rotS: Math.max(5, Number($('oRotS').value) || 20), sim: $('oSim').checked,
     alertas: $('oAl').checked, alertasGerais: $('oAlG').checked, alertaS: Math.max(4, Number($('oAlS').value) || 12) };
   Object.keys(cfg).forEach(k => store.set(k, cfg[k]));
+  store.set('listaVer', LISTA_VERSAO);
   if (simAntes !== cfg.sim) {
     [data, prevVotes, deltas, simState, prevCat].forEach(o => { for (const k in o) delete o[k]; });
     eventos.length = 0; fila.length = 0; jaAvisado.clear(); primeiraLeitura = true;

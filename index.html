@@ -100,6 +100,7 @@ main{padding:6px 26px 30px}
 .uf .line .nm{font-size:19px}
 .uf .line .p{font-size:20px;text-align:right}
 .uf .line .bar{grid-column:1/4;height:5px;margin-top:2px}
+.ufmais{margin-top:8px;width:100%;font-size:12px;padding:6px}
 .prog{font-size:12px;color:var(--mut);font-weight:600}
 /* Config */
 #cfg{position:fixed;inset:0;background:rgba(0,0,0,.82);display:none;z-index:20;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto}
@@ -880,10 +881,24 @@ function viewUF(c, top) {
   function cartaoUF(uf) {
     const r = data[key(c, uf)];
     if (!r || !r.cands.length) return `<div class="card uf"><div class="ufh"><div class="ufn">${uf}</div></div><div class="meta err">${r && r.err ? esc(r.err) : 'aguardando'}</div></div>`;
-    return `<div class="card uf"><div class="ufh"><div class="ufn">${uf}</div><div class="prog">${fmtP(r.pst)} apurado</div></div>${c === 3 ? caixaTurno(r, true) : ''}` +
-      r.cands.slice(0, top).map(k => `<div class="line">${img(k.foto)}<div><div class="nm">${esc(k.nome)}</div><div class="meta">${esc(k.partido)} · ${fmt(k.votos)} ${dl(k.sq)} ${tagSt(k)}</div></div><div class="p">${fmtP(k.pct)}</div><div class="bar"><i style="width:${k.pct}%"></i></div></div>`).join('') + '</div>';
+    // sem votos ainda (antes das 17h) a ordem seria alfabética: mostra todos para ninguém ficar de fora
+    const semVotos = !r.cands.some(k => k.votos > 0);
+    const aberto = semVotos || ufAberta.has(c + uf);
+    const lst = aberto ? r.cands : r.cands.slice(0, top);
+    const resto = r.cands.length - top;
+    const botao = semVotos || resto <= 0 ? '' : `<button class="ufmais" data-ufexp="${c + uf}">${aberto ? 'Mostrar menos' : 'Ver todos (+' + resto + ')'}</button>`;
+    return `<div class="card uf"><div class="ufh"><div class="ufn">${uf}</div><div class="prog">${semVotos ? r.cands.length + ' candidatos · aguardando votos' : fmtP(r.pst) + ' apurado'}</div></div>${c === 3 ? caixaTurno(r, true) : ''}` +
+      lst.map(k => `<div class="line">${img(k.foto)}<div><div class="nm">${esc(k.nome)}</div><div class="meta">${esc(k.partido)} · ${fmt(k.votos)} ${dl(k.sq)} ${tagSt(k)}</div></div><div class="p">${fmtP(k.pct)}</div><div class="bar"><i style="width:${k.pct}%"></i></div></div>`).join('') + botao + '</div>';
   }
 }
+const ufAberta = new Set();
+document.addEventListener('click', e => {
+  const b = e.target.closest && e.target.closest('[data-ufexp]');
+  if (!b) return;
+  const k = b.dataset.ufexp;
+  if (ufAberta.has(k)) ufAberta.delete(k); else ufAberta.add(k);
+  render(false);
+});
 
 const LIBERA_LIVE = Date.parse('2026-10-04T20:00:00Z'); // 17h de Brasília
 const liveTravada = () => PUBLICO && Date.now() < LIBERA_LIVE;

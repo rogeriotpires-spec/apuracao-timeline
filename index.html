@@ -79,6 +79,24 @@ input[type=number]{width:70px;background:#06102a;color:var(--tx);border:1px soli
 .empty{color:var(--mut);padding:30px;text-align:center;font-size:15px}
 .simflag{background:var(--red);color:#fff;font:700 12px Inter;padding:4px 8px;border-radius:6px;display:none}
 body.sim .simflag{display:inline-block}
+/* Resultado definido no cartão */
+.card.st-el{border:2px solid var(--green);box-shadow:0 0 26px rgba(47,191,113,.35)}
+.card.st-t2{border:2px solid var(--gold)}
+.card.st-ne{opacity:.62}
+.res{margin:10px -14px -12px;padding:6px 10px;text-align:center;font-family:"Barlow Condensed";font-weight:800;font-size:22px;letter-spacing:1px;text-transform:uppercase;background:var(--grey);color:#fff}
+.res.el{background:var(--green)}.res.t2{background:var(--gold);color:#1a1300}.res.ne{background:#3a4660}.res.su{background:var(--blue)}
+/* Alerta na tela */
+#alerta{position:fixed;left:50%;bottom:28px;transform:translate(-50%,160%);transition:transform .5s cubic-bezier(.2,.8,.2,1);z-index:15;width:min(1000px,94vw);border-radius:16px;padding:16px 24px;display:flex;gap:22px;align-items:center;background:var(--green);color:#fff;box-shadow:0 14px 50px rgba(0,0,0,.55);border:3px solid rgba(255,255,255,.35)}
+#alerta.show{transform:translate(-50%,0)}
+#alerta .k{font-family:"Barlow Condensed";font-weight:800;font-size:26px;text-transform:uppercase;letter-spacing:1px;white-space:nowrap;padding-right:22px;border-right:2px solid rgba(255,255,255,.4)}
+#alerta .who{font-family:"Barlow Condensed";font-weight:800;font-size:44px;line-height:1}
+#alerta .det{font-weight:600;font-size:16px;margin-top:4px;opacity:.95}
+#alerta .photo{width:84px;height:84px;border-color:rgba(255,255,255,.6)}
+#alerta.ne{background:#3a4660}#alerta.t2{background:var(--gold);color:#1a1300}#alerta.su{background:var(--blue)}
+#alerta.t2 .k{border-color:rgba(0,0,0,.25)}
+.ev{display:grid;grid-template-columns:70px 150px 1fr auto;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:8px;max-width:1300px}
+.ev .nm{font-size:26px}
+@media (max-width:700px){.ev{grid-template-columns:50px 1fr}.ev>:nth-child(n+3){grid-column:2}#alerta .who{font-size:30px}#alerta .k{font-size:18px}}
 @media (max-width:700px){.prow{grid-template-columns:52px 1fr 90px}.prow .v{display:none}.brand{font-size:24px}}
 </style>
 </head>
@@ -101,8 +119,10 @@ body.sim .simflag{display:inline-block}
   <button data-t="pres">Presidente</button>
   <button data-t="gov">Governadores</button>
   <button data-t="sen">Senado</button>
+  <button data-t="def">Definidos</button>
 </nav>
 <main id="view"></main>
+<div id="alerta"></div>
 
 <div id="cfg"><div class="panel">
   <h2>Lista de candidatos monitorados</h2>
@@ -117,6 +137,10 @@ body.sim .simflag{display:inline-block}
     <label>Atualizar a cada <input type="number" id="oInt" min="1" max="60"> min</label>
     <label><input type="checkbox" id="oRot"> Rodízio automático das abas a cada <input type="number" id="oRotS" min="5" max="300"> s</label>
     <label><input type="checkbox" id="oSim"> Modo simulação (votos fictícios para ensaio)</label>
+  </div>
+  <div class="opts">
+    <label><input type="checkbox" id="oAl"> Alerta na tela quando sair resultado da nossa lista, durante <input type="number" id="oAlS" min="4" max="60"> s</label>
+    <label><input type="checkbox" id="oAlG"> Alertar também presidente, governadores e senadores eleitos ou no 2º turno</label>
   </div>
   <div class="opts">
     <button class="pri" id="btnSave">Salvar e atualizar</button>
@@ -177,8 +201,10 @@ let cfg = {
   lista: store.get('lista', LISTA_PADRAO),
   pres: store.get('pres', true), gov: store.get('gov', true), sen: store.get('sen', true),
   intMin: store.get('intMin', 5), rot: store.get('rot', false), rotS: store.get('rotS', 20),
-  sim: qs.get('sim') === '1' ? true : store.get('sim', false)
+  sim: qs.get('sim') === '1' ? true : store.get('sim', false),
+  alertas: store.get('alertas', true), alertasGerais: store.get('alertasGerais', true), alertaS: store.get('alertaS', 12)
 };
+if (qs.get('alertas') === '0') cfg.alertas = false;
 if (qs.get('rotate') === '1') cfg.rot = true;
 if (qs.get('rotate') === '0') cfg.rot = false;
 let tab = qs.get('tab') || 'live';
@@ -243,7 +269,12 @@ function simular(k, r) {
   const vv = r.cands.reduce((a, x) => a + x.votos, 0) || 1;
   r.cands.forEach(x => x.pct = x.votos / vv * 100);
   r.cands.sort((a, b) => b.votos - a.votos);
-  r.cands.forEach((x, i) => { x.pos = i + 1; x.eleito = false; x.st = s.prog >= 100 ? (i < Math.max(1, r.vagas) ? 'Eleito' : 'Não eleito') : ''; });
+  const majoritario = k.startsWith('1|') || k.startsWith('3|');
+  const segundo = majoritario && r.cands[0] && r.cands[0].pct <= 50;
+  r.cands.forEach((x, i) => {
+    x.pos = i + 1; x.eleito = false;
+    x.st = s.prog < 100 ? '' : segundo ? (i < 2 ? '2º turno' : 'Não eleito') : (i < Math.max(1, r.vagas) ? 'Eleito' : 'Não eleito');
+  });
   r.pst = Math.round(s.prog * 100) / 100;
   return r;
 }
@@ -283,11 +314,86 @@ async function atualizar() {
     if (x.sq in prevVotes) deltas[x.sq] = x.votos - prevVotes[x.sq];
     prevVotes[x.sq] = x.votos;
   }
+  detectar();
   lastAt = new Date();
   nextAt = Date.now() + cfg.intMin * 60000;
   busy = false;
   document.getElementById('btnNow').textContent = 'Atualizar agora';
   render(true);
+}
+
+/* ===== Resultados definidos e alertas ===== */
+const ROTULO = { el: 'Eleito', t2: '2º turno', ne: 'Não eleito', su: 'Suplente' };
+const prevCat = {};   // sqcand -> categoria da situação no ciclo anterior
+const eventos = [];   // histórico de resultados definidos (aba Definidos)
+const fila = [];      // alertas aguardando exibição
+const jaAvisado = new Set(); // evita repetir o mesmo aviso
+let primeiraLeitura = true, mostrando = false;
+
+function catSt(x) {
+  const s = norm(x.st);
+  if (x.eleito || (s.includes('eleito') && !s.includes('nao'))) return 'el';
+  if (s.includes('2')) return 't2';
+  if (s.includes('suplente')) return 'su';
+  if (s.includes('nao')) return 'ne';
+  return '';
+}
+
+function detectar() {
+  const vistos = new Set();
+  const novos = [];
+  const checar = (c, cargo, uf, nomeLista) => {
+    if (vistos.has(c.sq)) return;
+    vistos.add(c.sq);
+    const cat = catSt(c), antes = prevCat[c.sq];
+    prevCat[c.sq] = cat;
+    if (primeiraLeitura || !cat || cat === antes) return;
+    const daLista = !!nomeLista;
+    if (!daLista && cat !== 'el' && cat !== 't2') return;
+    if (jaAvisado.has(c.sq + cat)) return;
+    jaAvisado.add(c.sq + cat);
+    novos.push({ cat, daLista, nome: nomeLista || c.nome, partido: c.partido, cargo: CARGOS[cargo].nome, uf: cargo === 1 ? 'BR' : uf.toUpperCase(),
+      votos: c.votos, pct: c.pct, st: c.st, foto: c.foto, hora: brNow().toTimeString().slice(0, 5) });
+  };
+  parseLista().forEach(x => {
+    if (!x.ok) return;
+    const r = data[key(x.cargo, x.cargo === 1 ? 'br' : x.uf)];
+    const c = r && r.cands.find(k => k.num === x.numero);
+    if (c) checar(c, x.cargo, x.uf, x.nome);
+  });
+  const p = data[key(1, 'br')];
+  if (p) p.cands.forEach(c => checar(c, 1, 'br'));
+  [3, 5].forEach(cg => UFS.forEach(u => { const r = data[key(cg, u)]; if (r) r.cands.forEach(c => checar(c, cg, u)); }));
+  primeiraLeitura = false;
+  novos.sort((a, b) => b.daLista - a.daLista);
+  novos.forEach(ev => {
+    eventos.unshift(ev);
+    if (cfg.alertas && (ev.daLista || cfg.alertasGerais)) fila.push(ev);
+  });
+  mostrarFila();
+}
+
+function mostrarFila() {
+  if (mostrando || !fila.length) return;
+  mostrando = true;
+  const ev = fila.shift();
+  const el = document.getElementById('alerta');
+  const extra = ev.st && norm(ev.st) !== norm(ROTULO[ev.cat]) ? ` · ${esc(ev.st)}` : '';
+  el.className = ev.cat;
+  el.innerHTML = `<div class="k">${ROTULO[ev.cat]}</div>${img(ev.foto)}<div><div class="who">${esc(ev.nome)}</div>
+    <div class="det">${esc(ev.partido)} · ${ev.cargo} · ${ev.uf} · ${fmt(ev.votos)} votos (${fmtP(ev.pct)})${extra}</div></div>`;
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+  setTimeout(() => {
+    el.classList.remove('show');
+    setTimeout(() => { mostrando = false; mostrarFila(); }, 700);
+  }, Math.max(4, cfg.alertaS) * 1000);
+}
+
+function viewDef() {
+  if (!eventos.length) return '<div class="empty">Nenhum resultado definido ainda. Quando o TSE marcar um candidato como eleito, não eleito, suplente ou no 2º turno, ele aparece aqui com o horário.</div>';
+  return eventos.map(ev => `<div class="ev">${img(ev.foto)}<div><span class="tag ${ev.cat === 'el' ? 'el' : ev.cat === 't2' ? 't2' : ev.cat === 'su' ? 'su' : 'ne'}" style="font-size:14px">${esc(ev.st || ROTULO[ev.cat])}</span><div class="meta" style="margin-top:4px">às ${ev.hora}${ev.daLista ? ' · nossa lista' : ''}</div></div>
+    <div><div class="nm">${esc(ev.nome)}</div><div class="meta">${esc(ev.partido)} · ${ev.cargo} · ${ev.uf}</div></div>
+    <div style="text-align:right"><div class="p">${fmtP(ev.pct)}</div><div class="meta">${fmt(ev.votos)} votos</div></div></div>`).join('');
 }
 
 /* ===== Renderização ===== */
@@ -327,11 +433,13 @@ function viewLive(flash) {
     }
     const tot = r.cands.length;
     const fl = flash && deltas[c.sq] > 0 ? 'flash' : '';
-    return `<div class="card ${isAir ? 'air' : ''} ${fl}">${hr}
+    const cat = catSt(c);
+    const faixa = cat ? `<div class="res ${cat}">${esc(c.st || ROTULO[cat])}</div>` : '';
+    return `<div class="card ${isAir ? 'air' : ''} ${fl} ${cat ? 'st-' + cat : ''}">${hr}
       <div class="row">${img(c.foto)}<div><div class="nm">${esc(x.nome)}</div><div class="meta">${esc(c.partido)} · ${sub}</div></div></div>
       <div class="votes"><div class="v">${fmt(c.votos)}</div><div class="p">${fmtP(c.pct)}</div></div>
       <div class="bar"><i style="width:${Math.min(100, c.pct * (x.cargo >= 6 ? 8 : 1))}%"></i></div>
-      <div class="foot"><span>${c.pos}º de ${tot} no ${x.cargo === 1 ? 'país' : 'estado'} · ${fmtP(r.pst)} apurado ${dl(c.sq)}</span>${tagSt(c)}</div>
+      <div class="foot"><span>${c.pos}º de ${tot} no ${x.cargo === 1 ? 'país' : 'estado'} · ${fmtP(r.pst)} apurado ${dl(c.sq)}</span></div>${faixa}
     </div>`;
   }).join('') + '</div>';
 }
@@ -363,7 +471,7 @@ function render(flash) {
     b.classList.toggle('on', t === tab);
   });
   const v = document.getElementById('view');
-  v.innerHTML = tab === 'pres' ? viewPres() : tab === 'gov' ? viewUF(3, 3) : tab === 'sen' ? viewUF(5, 4) : viewLive(flash);
+  v.innerHTML = tab === 'pres' ? viewPres() : tab === 'gov' ? viewUF(3, 3) : tab === 'sen' ? viewUF(5, 4) : tab === 'def' ? viewDef() : viewLive(flash);
   const p = data[key(1, 'br')];
   document.getElementById('gpst').textContent = p && p.cands.length ? fmtP(p.pst) : '--';
   document.getElementById('last').textContent = lastAt ? lastAt.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '--';
@@ -397,6 +505,7 @@ const $ = id => document.getElementById(id);
 function abrirCfg() {
   $('lista').value = cfg.lista; $('oPres').checked = cfg.pres; $('oGov').checked = cfg.gov; $('oSen').checked = cfg.sen;
   $('oInt').value = cfg.intMin; $('oRot').checked = cfg.rot; $('oRotS').value = cfg.rotS; $('oSim').checked = cfg.sim;
+  $('oAl').checked = cfg.alertas; $('oAlG').checked = cfg.alertasGerais; $('oAlS').value = cfg.alertaS;
   $('cfg').classList.add('open');
 }
 $('btnCfg').onclick = abrirCfg;
@@ -405,9 +514,13 @@ $('btnReset').onclick = () => { $('lista').value = LISTA_PADRAO; };
 $('btnSave').onclick = () => {
   const simAntes = cfg.sim;
   cfg = { lista: $('lista').value, pres: $('oPres').checked, gov: $('oGov').checked, sen: $('oSen').checked,
-    intMin: Math.max(1, Number($('oInt').value) || 5), rot: $('oRot').checked, rotS: Math.max(5, Number($('oRotS').value) || 20), sim: $('oSim').checked };
+    intMin: Math.max(1, Number($('oInt').value) || 5), rot: $('oRot').checked, rotS: Math.max(5, Number($('oRotS').value) || 20), sim: $('oSim').checked,
+    alertas: $('oAl').checked, alertasGerais: $('oAlG').checked, alertaS: Math.max(4, Number($('oAlS').value) || 12) };
   Object.keys(cfg).forEach(k => store.set(k, cfg[k]));
-  if (simAntes !== cfg.sim) { for (const k in data) delete data[k]; for (const k in prevVotes) delete prevVotes[k]; for (const k in deltas) delete deltas[k]; for (const k in simState) delete simState[k]; }
+  if (simAntes !== cfg.sim) {
+    [data, prevVotes, deltas, simState, prevCat].forEach(o => { for (const k in o) delete o[k]; });
+    eventos.length = 0; fila.length = 0; jaAvisado.clear(); primeiraLeitura = true;
+  }
   $('cfg').classList.remove('open');
   setRot(); atualizar();
 };

@@ -391,7 +391,7 @@ function normalizar(raw, c) {
   }
   cands.sort((a, b) => b.votos - a.votos || a.nome.localeCompare(b.nome, 'pt-BR'));
   cands.forEach((x, i) => x.pos = i + 1);
-  return { ok: true, cands, vagas: n(cg.nv), pst: pc(raw.s && raw.s.pst), hora: raw.hg || '', final: raw.tf === 's' };
+  return { ok: true, cands, vagas: n(cg.nv), pst: pc(raw.s && raw.s.pst), hora: raw.hg || '', dataTSE: raw.dg || '', final: raw.tf === 's' };
 }
 
 /* simulação para ensaio: votos fictícios que crescem a cada ciclo */
@@ -429,16 +429,28 @@ function simular(k, r) {
   return r;
 }
 
+async function baixarTSE(u) {
+  // tempo limite para nenhum arquivo travar a atualização, e marcador de tempo para furar cache de CDN
+  const tentar = async (endereco) => {
+    const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 30000);
+    try { return await fetch(endereco, { cache: 'no-store', signal: ctl.signal }); } finally { clearTimeout(t); }
+  };
+  let res = null;
+  try { res = await tentar(u + '?t=' + Math.floor(Date.now() / 60000)); } catch (e) {}
+  if (!res || !res.ok) res = await tentar(u);
+  return res;
+}
 async function fetchOne(c, uf) {
   const k = key(c, uf);
   try {
-    const res = await fetch(url(c, uf), { cache: 'no-store' });
+    const res = await baixarTSE(url(c, uf));
     if (!res.ok) throw new Error(res.status === 403 || res.status === 404 ? 'TSE ainda não publicou este arquivo' : 'TSE respondeu ' + res.status);
     let r = normalizar(await res.json(), c);
     if (cfg.sim) r = simular(k, r);
     data[k] = r;
   } catch (e) {
-    data[k] = Object.assign(data[k] || { cands: [] }, { ok: !!(data[k] && data[k].cands.length), err: e.message === 'Failed to fetch' ? 'sem conexão com o TSE' : e.message });
+    const msg = e.name === 'AbortError' ? 'TSE demorou a responder, nova tentativa na próxima atualização' : e.message === 'Failed to fetch' ? 'sem conexão com o TSE' : e.message;
+    data[k] = Object.assign(data[k] || { cands: [] }, { ok: !!(data[k] && data[k].cands.length), err: msg });
   }
 }
 
@@ -459,8 +471,7 @@ async function atualizar() {
   const ts = tarefas();
   let i = 0;
   const worker = async () => { while (i < ts.length) await ts[i++](); };
-  await Promise.all(Array.from({ length: 6 }, worker));
-  if (extAtivo) await carregarExterior();
+  try { await Promise.all(Array.from({ length: 6 }, worker)); if (extAtivo) await carregarExterior(); } catch (e) {}
   // deltas
   for (const k in data) for (const x of data[k].cands || []) {
     if (x.sq in prevVotes) deltas[x.sq] = x.votos - prevVotes[x.sq];
@@ -738,7 +749,7 @@ function viewDep(c) {
   const chips = nossos.length ? `<div class="chips"><span class="rg">Nossa lista</span>${nossos.map(o =>
     `<button data-busca="${esc(o.c.num)}">${esc(o.x.nome)} <b>${o.c.pos}º</b></button>`).join('')}</div>` : '';
   return bar + `<div class="dhead"><span class="tt">${CARGOS[cg].nome} · ${uf}</span>
-    <span class="prog">${r.vagas} vagas · ${fmt(r.cands.length)} candidatos · ${fmtP(r.pst)} apurado</span>
+    <span class="prog">${r.vagas} vagas · ${fmt(r.cands.length)} candidatos · ${fmtP(r.pst)} apurado · arquivo do TSE de ${esc(r.dataTSE || '')} ${esc(r.hora || '')}${r.final ? ' · totalização final' : ''}</span>
     <input id="depBusca" placeholder="Buscar nome ou número" value="${esc(depBusca)}">
     ${depBusca ? '<button data-busca="">Limpar busca</button>' : ''}</div>${chips}
     <div class="dtab" id="depLista">${linhasDep(c)}</div>`;
@@ -998,7 +1009,7 @@ async function revisaoCompleta() {
     while (fila.length) {
       const [c, u] = fila.shift();
       try {
-        const r = await fetch(url(c, u) + '?t=' + Date.now(), { cache: 'no-store' });
+        const r = await baixarTSE(url(c, u));
         if (!r.ok) throw new Error('HTTP ' + r.status);
         const raw = await r.json();
         res[c + '|' + u] = { raw, n: normalizar(raw, c) };

@@ -270,11 +270,17 @@ async function lerSecao(s) {
     const nomes = h => (h.nmarq || []).map(n => typeof n === 'string' ? n : (n.nm || n.nome || n.arquivo || ''));
     lista = hs.map(h => (h.st || '') + ': ' + nomes(h).join(', ')).join(' | ');
     const ach = re => { for (const h of hs) { const n = nomes(h).find(x => re.test(x)); if (n) return { h, n }; } return null; };
-    const img = ach(/imgbu/i), bu = ach(/\.bu$/i) || ach(/\.bu[^a-z]|bu\.(zip|bin)$/i);
+    let img = ach(/imgbu/i), bu = ach(/\.bu$/i) || ach(/\.bu[^a-z]|bu\.(zip|bin)$/i);
+    if (!img && !bu) { // estrutura diferente: procura em todo o JSON
+      const js = JSON.stringify(aux), hash = (js.match(/"(?:hash|hs|cd)"\s*:\s*"([0-9a-zA-Z]{16,})"/) || [])[1];
+      const fi = (js.match(/"([^"\/]+\.imgbu[^"]*)"/i) || [])[1], fb = (js.match(/"([^"\/]+\.bu)"/i) || [])[1];
+      if (hash && fi) img = { h: { hash }, n: fi }; if (hash && fb) bu = { h: { hash }, n: fb };
+      lista = js.slice(0, 900);
+    }
     let r = null, txt = '';
     if (bu) { try { r = lerBUbin(await pegar(`${base}/${bu.h.hash}/${bu.n}`, 'buf')); txt = r.txt || ('Boletim binário lido, mas sem bloco de Presidente (' + r.achados + ' blocos)'); if (!r.votos) r = null; } catch (e) { txt = 'Falha ao ler .bu: ' + (e && e.message || 'formato'); r = null; } }
     if ((!r || !Object.keys(r.votos).length) && img) { txt = textoBU(await pegar(`${base}/${img.h.hash}/${img.n}`, 'buf')); r = lerBU(txt); }
-    if (!bu && !img) throw new Error('boletim não encontrado no TSE');
+    if (!bu && !img) throw new Error('boletim não encontrado no TSE · TSE respondeu: ' + lista.slice(0, 400));
     if (!r || !Object.keys(r.votos).length) R[k(s)] = { st: 'er', err: 'não foi possível ler o voto para Presidente', txt: txt + '\n\nArquivos: ' + lista };
     else R[k(s)] = { st: 'ok', ...r, txt: DEBUG ? txt + '\n\nArquivos: ' + lista : '' };
   } catch (e) { R[k(s)] = { st: 'er', err: e.name === 'AbortError' ? 'tempo esgotado' : e.message, txt: lista ? 'Arquivos: ' + lista : '' }; }
@@ -318,7 +324,7 @@ function render() {
   // unidades
   const linhas = lst.map(s => { const r = R[k(s)] || { st: 'pe' }; const val = r.st === 'ok' ? Object.values(r.votos).reduce((a, b) => a + b, 0) : 0;
     const cel = c => r.st === 'ok' ? (r.votos[c.num] || 0) : '-';
-    return `<tr><td class="k" style="font-size:15px">${s[0]}</td><td style="text-align:left;white-space:normal;min-width:240px">${gesc(s[5])}<div style="color:var(--mut);font-size:11px">${gesc(s[2])} · zona ${s[3]} · seção ${s[4]} · ${s[6] === 's' ? 'socioeducativa' : 'prisional'}</div></td><td class="n m">${s[7]}</td><td class="n">${r.st === 'ok' && r.comp != null ? r.comp : '-'}</td>${top.slice(0, 4).map(c => `<td class="n">${cel(c)}</td>`).join('')}<td class="n m">${r.st === 'ok' ? (r.br ?? '-') : '-'}</td><td class="n m">${r.st === 'ok' ? (r.nu ?? '-') : '-'}</td><td class="${r.st === 'ok' ? 'st-ok' : r.st === 'er' ? 'st-er' : 'st-pe'}" style="font-size:12px">${r.st === 'ok' ? 'lido' : r.st === 'er' ? gesc(r.err) : 'aguardando'}</td></tr>`; }).join('');
+    return `<tr><td class="k" style="font-size:15px">${s[0]}</td><td style="text-align:left;white-space:normal;min-width:240px">${gesc(s[5])}<div style="color:var(--mut);font-size:11px">${gesc(s[2])} · zona ${s[3]} · seção ${s[4]} · ${s[6] === 's' ? 'socioeducativa' : 'prisional'}</div></td><td class="n m">${s[7]}</td><td class="n">${r.st === 'ok' && r.comp != null ? r.comp : '-'}</td>${top.slice(0, 4).map(c => `<td class="n">${cel(c)}</td>`).join('')}<td class="n m">${r.st === 'ok' ? (r.br ?? '-') : '-'}</td><td class="n m">${r.st === 'ok' ? (r.nu ?? '-') : '-'}</td><td class="${r.st === 'ok' ? 'st-ok' : r.st === 'er' ? 'st-er' : 'st-pe'}" style="font-size:12px;white-space:normal;word-break:break-all;max-width:460px;text-align:left">${r.st === 'ok' ? 'lido' : r.st === 'er' ? gesc(r.err) : 'aguardando'}</td></tr>`; }).join('');
   const unid = `<h2>Seção por seção</h2><div class="h2s">${lst.length} seções no recorte</div><div class="wrap"><table><thead><tr><th>UF</th><th style="text-align:left">Unidade</th><th>Aptos</th><th>Votaram</th>${top.slice(0, 4).map(c => `<th>${gesc(c.nome)}</th>`).join('')}<th>Brancos</th><th>Nulos</th><th>Boletim</th></tr></thead><tbody>${linhas}</tbody></table></div>`;
   let dbg = '';
   if (DEBUG) { const ex = SECOES.map(s => [s, R[k(s)]]).find(([, r]) => r && r.txt); if (ex) dbg = `<h2>Diagnóstico</h2><div class="h2s">${gesc(ex[0][5])} · ${ex[1].st} ${gesc(ex[1].err || '')}</div><pre class="dbg">${gesc(ex[1].txt.slice(0, 6000))}</pre>`; }

@@ -228,10 +228,6 @@ function berLer(b, ini, fim, prof) {
 function berInt(b, no) { if (!no || no.f) return null; const n = no.fim - no.ini; if (n < 1 || n > 6) return null; let v = 0; for (let i = no.ini; i < no.fim; i++) v = v * 256 + b[i]; if (b[no.ini] & 128) v -= Math.pow(256, n); return v; }
 function primeiroInt(b, no) { while (no && no.f && no.f.length) no = no.f[0]; return berInt(b, no); }
 const filho = (no, t) => (no.f || []).find(x => x.cls === 2 && x.tag === t);
-function ehVotavel(b, no) { // TotalVotosVotavel: [0] tipoVoto, [1] quantidade, [2]? {[0] partido, [1] código}
-  const t = filho(no, 0), q = filho(no, 1); if (!t || !q || t.f || q.f) return false;
-  const tv = berInt(b, t); return tv >= 1 && tv <= 5 && berInt(b, q) >= 0;
-}
 function berTolerante(b) { // lê do início até onde der (ignora sobras no fim do arquivo)
   const nos = []; let p = 0;
   while (p < b.length) { if (b[p] === 0 || b[p] === 0xff) { p++; continue; }
@@ -252,30 +248,40 @@ async function descomprimir(buf) {
   if (b[0] === 0x78 && (b[1] === 0x9c || b[1] === 0x01 || b[1] === 0xda)) return ds(b, 'deflate');
   return b;
 }
-function resumoArvore(b, nos, prof) { return (nos || []).slice(0, 12).map(n => (n.cls === 2 ? '[' + n.tag + ']' : n.cls === 0 ? 'U' + n.tag : 'c' + n.cls + 't' + n.tag) + (n.f ? (n.emb ? '«' : '{') + (prof < 3 ? resumoArvore(b, n.f, prof + 1) : n.f.length) + (n.emb ? '»' : '}') : '=' + (berInt(b, n) ?? (n.fim - n.ini) + 'b'))).join(' '); }
+function resumoArvore(b, nos, prof) { return (nos || []).slice(0, 12).map(n => (n.cls === 2 ? '[' + n.tag + ']' : n.cls === 0 ? 'U' + n.tag : 'c' + n.cls + 't' + n.tag) + (n.f ? (n.emb ? '«' : '{') + (prof < 6 ? resumoArvore(b, n.f, prof + 1) : n.f.length) + (n.emb ? '»' : '}') : '=' + (berInt(b, n) ?? (n.fim - n.ini) + 'b'))).join(' '); }
+const ehPrimInt = (b, n) => n && !n.f && berInt(b, n) !== null;
+function ehVotavel(b, no) { // TotalVotosVotavel: tipoVoto, quantidade, [identificação {partido, código}], [assinatura]
+  const f = no.f; if (!f || f.length < 2 || !ehPrimInt(b, f[0]) || !ehPrimInt(b, f[1])) return false;
+  const tv = berInt(b, f[0]); if (tv < 1 || tv > 5 || berInt(b, f[1]) < 0) return false;
+  if (f[2] && f[2].f && !f[2].emb && !(f[2].f.length >= 2 && f[2].f.every(x => ehPrimInt(b, x)))) return false;
+  return true;
+}
+const codVotavel = (b, x) => { const id = x.f[2]; return id && id.f && !id.emb ? String(berInt(b, id.f[id.f.length - 1])) : ''; };
 function lerBUbin(buf) {
   const b = buf instanceof Uint8Array ? buf : new Uint8Array(buf); const raiz = berTolerante(b);
   const achados = []; // {cargo, comp, aptos, eleicao, lista}
   (function anda(nos, pais) {
     nos.forEach(no => {
       if (!no.f) return;
-      // TotalVotosCargo: [0] código do cargo, [2] SEQUENCE OF TotalVotosVotavel
-      const v = filho(no, 2), c0 = filho(no, 0);
-      if (c0 && v && v.f && v.f.length && v.f.every(x => ehVotavel(b, x))) {
+      // TotalVotosCargo: código do cargo, ordem, lista de TotalVotosVotavel
+      const v = no.f.find(x => x.f && !x.emb && x.f.length && x.f.every(y => ehVotavel(b, y)));
+      if (v && v !== no.f[0]) {
         const rv = pais[pais.length - 2], rpe = pais[pais.length - 4]; // ResultadoVotacao / ResultadoVotacaoPorEleicao
-        achados.push({ cargo: primeiroInt(b, c0), comp: rv ? berInt(b, filho(rv, 1)) : null, aptos: rpe ? berInt(b, filho(rpe, 1)) : null, eleicao: rpe ? berInt(b, filho(rpe, 0)) : null, lista: v.f });
+        const pi = (n, i) => n && n.f && n.f[i] && !n.f[i].f ? berInt(b, n.f[i]) : null;
+        achados.push({ cargo: primeiroInt(b, no.f[0]), comp: pi(rv, 1), aptos: pi(rpe, 1), eleicao: pi(rpe, 0), lista: v.f });
       }
       anda(no.f, pais.concat([no]));
     });
   })(raiz, []);
   const nums = new Set(CANDS.map(c => c.num));
-  const alvo = achados.find(a => a.cargo === 1) || achados.find(a => a.eleicao === 6257) || achados.find(a => a.lista.some(x => { const id = filho(x, 2); return id && nums.has(String(berInt(b, filho(id, 1)))); }));
+  const temCand = a => a.lista.some(x => nums.has(codVotavel(b, x)));
+  const alvo = achados.find(a => a.cargo === 1 && temCand(a)) || achados.find(a => a.eleicao === 6257 && temCand(a)) || achados.find(a => a.cargo === 1) || achados.find(temCand);
   if (!alvo) return { achados: achados.length, arv: resumoArvore(b, raiz, 0), cargos: achados.map(a => a.cargo + '/' + a.eleicao).join(',') };
   const r = { votos: {}, br: 0, nu: 0, aptos: alvo.aptos, comp: alvo.comp };
   alvo.lista.forEach(x => {
-    const tv = berInt(b, filho(x, 0)), q = berInt(b, filho(x, 1));
+    const tv = berInt(b, x.f[0]), q = berInt(b, x.f[1]);
     if (tv === 2) r.br += q; else if (tv === 3) r.nu += q;
-    else if (tv === 1) { const id = filho(x, 2); const cod = id ? String(berInt(b, filho(id, 1))) : ''; if (cod) r.votos[cod] = (r.votos[cod] || 0) + q; }
+    else if (tv === 1) { const cod = codVotavel(b, x); if (cod) r.votos[cod] = (r.votos[cod] || 0) + q; }
   });
   r.txt = `Boletim binário (.bu) · ${achados.length} bloco(s) de cargo · cargo lido ${alvo.cargo} · eleição ${alvo.eleicao}\nAptos ${alvo.aptos} · comparecimento ${alvo.comp}\n` +
     Object.entries(r.votos).map(([n, q]) => `${n}  ${q}`).join('\n') + `\nBrancos ${r.br} · Nulos ${r.nu}`;

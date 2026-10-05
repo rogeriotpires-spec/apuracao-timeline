@@ -147,6 +147,17 @@ body.publico #btnCfg{display:none}
 .sel{background:var(--deep);color:var(--tx);border:1px solid var(--line);border-radius:999px;padding:5px 10px;font:600 12px Inter}
 .navlink{font-family:"Barlow Condensed","Arial Narrow",Inter,sans-serif;font-size:18px;font-weight:700;padding:6px 14px 10px;text-transform:uppercase;letter-spacing:1.4px;color:var(--gold2);text-decoration:none;white-space:nowrap;align-self:center}
 .navlink:hover{color:var(--tx)}
+.atab{max-width:1400px;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow-x:auto}
+.atab table{border-collapse:collapse;width:100%;min-width:980px}
+.atab th,.atab td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.atab th{font:700 11px Inter;letter-spacing:.6px;text-transform:uppercase;color:var(--mut);background:var(--deep);position:sticky;top:0}
+.atab th:first-child,.atab td:first-child{text-align:left}
+.atab td{font-family:"Barlow Condensed","Arial Narrow",Inter,sans-serif;font-weight:700;font-size:18px}
+.atab td.k{color:var(--gold2);font-weight:800}.atab td.hl{color:var(--tx)}.atab td.mt{color:var(--mut);font-size:14px}
+.atab td .bar{height:4px;margin-top:3px}
+.atab tr.rgl td{font-family:"Playfair Display",Georgia,serif;font-size:18px;color:var(--tx);text-align:left;background:rgba(255,255,255,.02);padding-top:12px}
+.atab tr.sub td{background:rgba(224,122,44,.07);font-weight:800}
+.atab tr.tot td{background:rgba(224,122,44,.16);font-weight:800;font-size:20px}
 /* Exterior */
 .etab{max-width:1300px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .erow{display:grid;grid-template-columns:40px 1fr 120px 120px 100px 110px;align-items:center;gap:10px;padding:7px 14px;border-bottom:1px solid var(--line)}
@@ -233,6 +244,7 @@ body.publico #btnCfg{display:none}
   <button data-t="est">Dep. Estaduais</button>
   <button data-t="ext">Exterior</button>
   <button data-t="par">Eleitos por partido</button>
+  <button data-t="abs">Brancos e nulos</button>
   <button data-t="def">Definidos</button>
   <a class="navlink" href="https://rogeriotpires-spec.github.io/apuracao-timeline/comparacao/">Hoje × 2027 ↗</a>
 </nav>
@@ -404,7 +416,7 @@ function normalizar(raw, c) {
   }
   cands.sort((a, b) => b.votos - a.votos || a.nome.localeCompare(b.nome, 'pt-BR'));
   cands.forEach((x, i) => x.pos = i + 1);
-  return { ok: true, cands, vagas: n(cg.nv), pst: pc(raw.s && raw.s.pst), hora: raw.hg || '', dataTSE: raw.dg || '', final: raw.tf === 's' };
+  return { ok: true, cands, vagas: n(cg.nv), pst: pc(raw.s && raw.s.pst), ev: (raw.e || raw.v) ? { te: n(raw.e && raw.e.te), c: n(raw.e && raw.e.c), a: n(raw.e && raw.e.a), tv: n(raw.v && raw.v.tv), vv: n(raw.v && raw.v.vv), vb: n(raw.v && raw.v.vb), vn: n(raw.v && raw.v.tvn) } : null, hora: raw.hg || '', dataTSE: raw.dg || '', final: raw.tf === 's' };
 }
 
 /* simulação para ensaio: votos fictícios que crescem a cada ciclo */
@@ -805,6 +817,48 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('change', e => { if (e.target.id === 'parUF') { parUF = e.target.value; render(false); } });
 
+
+/* ===== Brancos, nulos e abstenções ===== */
+let absCargo = 1, absReg = 'Brasil';
+const ABS_CARGOS = [[1, 'Presidente'], [3, 'Governador'], [5, 'Senado'], [6, 'Dep. Federal'], [7, 'Dep. Estadual/Distrital']];
+function viewAbs() {
+  const chip = (attr, val, atual, txt) => `<button ${attr}="${val}" style="${String(val) === String(atual) ? 'border-color:var(--gold);color:var(--gold2)' : ''}">${txt}</button>`;
+  const filtros = `<div class="chips"><span class="rg">Cargo</span>${ABS_CARGOS.map(([c, t]) => chip('data-ac', c, absCargo, t)).join('')}</div>
+    <div class="chips"><span class="rg">Região</span>${['Brasil', 'Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'].map(r => chip('data-ar', r, absReg, r)).join('')}</div>`;
+  const z = () => ({ te: 0, c: 0, a: 0, tv: 0, vv: 0, vb: 0, vn: 0, ok: 0 });
+  const soma = (acc, r) => { if (!r || !r.ev) return; const e = r.ev; acc.te += e.te; acc.c += e.c; acc.a += e.a; acc.tv += e.tv; acc.vv += e.vv; acc.vb += e.vb; acc.vn += e.vn; acc.ok++; };
+  const pct = (a, b) => b ? fmtP(a / b * 100) : '-';
+  const linha = (rot, s, cls, pst) => `<tr class="${cls || ''}"><td class="k">${rot}</td><td>${s.ok ? fmt(s.te) : '-'}</td><td>${s.ok ? pct(s.c, s.te) : '-'}</td>
+    <td>${s.ok ? fmt(s.a) : '-'}</td><td class="hl">${s.ok ? pct(s.a, s.te) : '-'}<div class="bar"><i style="width:${s.te ? Math.min(100, s.a / s.te * 100 * 2.5) : 0}%"></i></div></td>
+    <td>${s.ok ? fmt(s.vb) : '-'}</td><td class="hl">${s.ok ? pct(s.vb, s.tv) : '-'}</td><td>${s.ok ? fmt(s.vn) : '-'}</td><td class="hl">${s.ok ? pct(s.vn, s.tv) : '-'}</td>
+    <td>${s.ok ? pct(s.vb + s.vn, s.tv) : '-'}</td><td>${s.ok ? pct(s.vv, s.tv) : '-'}</td><td class="mt">${pst != null ? fmtP(pst) : ''}</td></tr>`;
+  const regs = ['Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'].filter(r => absReg === 'Brasil' || r === absReg);
+  const br = z(); let h = '', carregando = 0;
+  regs.forEach(rg => {
+    const sr = z(); h += `<tr class="rgl"><td colspan="12">${rg}</td></tr>`;
+    ufsPorRegiao().filter(u => REGIAO[u] === rg).forEach(u => {
+      const cg = absCargo === 7 ? depCargo(7, u) : absCargo; garantir(cg, u);
+      const r = data[key(cg, u)]; if (!r || !r.ev) carregando++;
+      const s = z(); soma(s, r); soma(sr, r); soma(br, r);
+      h += linha(u + (cg === 8 ? ' <small>(distrital)</small>' : ''), s, '', r ? r.pst : null);
+    });
+    h += linha('Total ' + rg, sr, 'sub');
+  });
+  if (absCargo === 1 && absReg === 'Brasil') { garantir(1, 'zz'); const r = data[key(1, 'zz')]; const s = z(); soma(s, r); soma(br, r); h += `<tr class="rgl"><td colspan="12">Exterior</td></tr>` + linha('Exterior', s, '', r ? r.pst : null); }
+  if (absReg === 'Brasil') h += linha('Brasil', br, 'tot');
+  const head = `<tr><th>Estado</th><th>Eleitorado</th><th>Comparec.</th><th>Abstenções</th><th>% abst.</th><th>Brancos</th><th>% brancos</th><th>Nulos</th><th>% nulos</th><th>Brancos + nulos</th><th>% válidos</th><th>Apurado</th></tr>`;
+  return filtros + `<div class="atab"><table><thead>${head}</thead><tbody>${h}</tbody></table></div>`
+    + (carregando ? `<div class="meta" style="margin-top:6px">Carregando ${carregando} estado(s)...</div>` : '')
+    + `<div class="meta" style="margin-top:8px">Dados oficiais do TSE. Abstenção em relação ao eleitorado apto; brancos, nulos e válidos em relação ao total de votos do cargo. A abstenção é a mesma para todos os cargos de um estado; brancos e nulos mudam conforme o cargo.${absCargo === 1 ? ' Presidente: o total Brasil inclui o eleitorado do exterior.' : ''}</div>`;
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest && e.target.closest('[data-ac],[data-ar]');
+  if (!b) return;
+  if (b.dataset.ac) absCargo = Number(b.dataset.ac);
+  if (b.dataset.ar) absReg = b.dataset.ar;
+  render(false);
+});
+
 /* ===== Deputados por estado ===== */
 const depSel = { 6: store.get('uf6', 'RJ'), 7: store.get('uf7', 'RJ') };
 const extras = new Set();      // arquivos de deputados abertos nas abas, entram na atualização
@@ -818,7 +872,7 @@ function garantir(cg, uf) {
   extras.add(k);
   if (data[k] || pedindo.has(k)) return;
   pedindo.add(k);
-  fetchOne(cg, uf).then(() => { pedindo.delete(k); if (tab === 'fed' || tab === 'est' || tab === 'par') render(false); });
+  fetchOne(cg, uf).then(() => { pedindo.delete(k); if (tab === 'fed' || tab === 'est' || tab === 'par' || tab === 'abs') render(false); });
 }
 
 function viewDep(c) {
@@ -1032,7 +1086,7 @@ function render(flash) {
     if (on && nav.scrollWidth > nav.clientWidth) nav.scrollLeft = on.offsetLeft - nav.clientWidth / 2 + on.offsetWidth / 2;
   }
   const v = document.getElementById('view');
-  v.innerHTML = tab === 'pres' ? viewPres() : tab === 'gov' ? viewUF(3, 3) : tab === 'sen' ? viewUF(5, 4) : tab === 'def' ? viewDef() : tab === 'fed' ? viewDep(6) : tab === 'est' ? viewDep(7) : tab === 'ext' ? viewExt() : tab === 'par' ? viewPar() : viewLive(flash);
+  v.innerHTML = tab === 'pres' ? viewPres() : tab === 'gov' ? viewUF(3, 3) : tab === 'sen' ? viewUF(5, 4) : tab === 'def' ? viewDef() : tab === 'fed' ? viewDep(6) : tab === 'est' ? viewDep(7) : tab === 'ext' ? viewExt() : tab === 'abs' ? viewAbs() : tab === 'par' ? viewPar() : viewLive(flash);
   const p = data[key(1, 'br')];
   document.getElementById('gpst').textContent = p && p.cands.length ? fmtP(p.pst) : '--';
   document.getElementById('last').textContent = lastAt ? lastAt.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '--';

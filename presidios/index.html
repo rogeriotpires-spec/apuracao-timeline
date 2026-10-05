@@ -207,20 +207,77 @@ function lerBU(txt) {
   const pega = re => { const m = bloco.match(re); return m ? Number(m[1]) : null; };
   return { votos, br: pega(/BRANCOS?\D{0,40}?(\d+)/), nu: pega(/NULOS?\D{0,40}?(\d+)/), aptos: pega(/APTOS\D{0,40}?(\d+)/), comp: pega(/COMPARECIMENTO\D{0,40}?(\d+)/), bloco };
 }
+// ---- Leitor do boletim binário (.bu, ASN.1 BER do TSE) ----
+function berLer(b, ini, fim, prof) {
+  const nos = []; let p = ini;
+  while (p < fim) {
+    const t0 = b[p++]; if (t0 === undefined) throw 0;
+    const cls = t0 >> 6, cons = !!(t0 & 32); let tag = t0 & 31;
+    if (tag === 31) { tag = 0; let x; do { x = b[p++]; if (x === undefined) throw 0; tag = tag * 128 + (x & 127); } while (x & 128); }
+    let len = b[p++]; if (len === undefined) throw 0;
+    if (len === 128) throw 0; // comprimento indefinido: não usado no BU
+    if (len > 128) { const n = len & 127; if (n > 4) throw 0; len = 0; for (let i = 0; i < n; i++) len = len * 256 + b[p++]; }
+    const ini2 = p, fim2 = p + len; if (fim2 > fim) throw 0;
+    const no = { cls, cons, tag, ini: ini2, fim: fim2 };
+    if (cons) no.f = berLer(b, ini2, fim2, prof + 1);
+    else if (len > 12 && prof < 12) { try { no.f = berLer(b, ini2, fim2, prof + 1); no.emb = true; } catch (e) { } } // OCTET STRING com BER dentro
+    nos.push(no); p = fim2;
+  }
+  return nos;
+}
+function berInt(b, no) { if (!no || no.f) return null; const n = no.fim - no.ini; if (n < 1 || n > 6) return null; let v = 0; for (let i = no.ini; i < no.fim; i++) v = v * 256 + b[i]; if (b[no.ini] & 128) v -= Math.pow(256, n); return v; }
+function primeiroInt(b, no) { while (no && no.f && no.f.length) no = no.f[0]; return berInt(b, no); }
+const filho = (no, t) => (no.f || []).find(x => x.cls === 2 && x.tag === t);
+function ehVotavel(b, no) { // TotalVotosVotavel: [0] tipoVoto, [1] quantidade, [2]? {[0] partido, [1] código}
+  const t = filho(no, 0), q = filho(no, 1); if (!t || !q || t.f || q.f) return false;
+  const tv = berInt(b, t); return tv >= 1 && tv <= 5 && berInt(b, q) >= 0;
+}
+function lerBUbin(buf) {
+  const b = new Uint8Array(buf); const raiz = berLer(b, 0, b.length, 0);
+  const achados = []; // {cargo, comp, aptos, eleicao, lista}
+  (function anda(nos, pais) {
+    nos.forEach(no => {
+      if (!no.f) return;
+      // TotalVotosCargo: [0] código do cargo, [2] SEQUENCE OF TotalVotosVotavel
+      const v = filho(no, 2), c0 = filho(no, 0);
+      if (c0 && v && v.f && v.f.length && v.f.every(x => ehVotavel(b, x))) {
+        const rv = pais[pais.length - 2], rpe = pais[pais.length - 4]; // ResultadoVotacao / ResultadoVotacaoPorEleicao
+        achados.push({ cargo: primeiroInt(b, c0), comp: rv ? berInt(b, filho(rv, 1)) : null, aptos: rpe ? berInt(b, filho(rpe, 1)) : null, eleicao: rpe ? berInt(b, filho(rpe, 0)) : null, lista: v.f });
+      }
+      anda(no.f, pais.concat([no]));
+    });
+  })(raiz, []);
+  const nums = new Set(CANDS.map(c => c.num));
+  const alvo = achados.find(a => a.cargo === 1) || achados.find(a => a.eleicao === 6257) || achados.find(a => a.lista.some(x => { const id = filho(x, 2); return id && nums.has(String(berInt(b, filho(id, 1)))); }));
+  if (!alvo) return { achados: achados.length };
+  const r = { votos: {}, br: 0, nu: 0, aptos: alvo.aptos, comp: alvo.comp };
+  alvo.lista.forEach(x => {
+    const tv = berInt(b, filho(x, 0)), q = berInt(b, filho(x, 1));
+    if (tv === 2) r.br += q; else if (tv === 3) r.nu += q;
+    else if (tv === 1) { const id = filho(x, 2); const cod = id ? String(berInt(b, filho(id, 1))) : ''; if (cod) r.votos[cod] = (r.votos[cod] || 0) + q; }
+  });
+  r.txt = `Boletim binário (.bu) · ${achados.length} bloco(s) de cargo · cargo lido ${alvo.cargo} · eleição ${alvo.eleicao}\nAptos ${alvo.aptos} · comparecimento ${alvo.comp}\n` +
+    Object.entries(r.votos).map(([n, q]) => `${n}  ${q}`).join('\n') + `\nBrancos ${r.br} · Nulos ${r.nu}`;
+  return r;
+}
 async function lerSecao(s) {
   const [uf, mun, , z, sec] = s; const a = uf.toLowerCase(), Z = pad(z, 4), S = pad(sec, 4);
   const base = `${URNA}/${a}/${mun}/${Z}/${S}`;
+  let lista = '';
   try {
     const aux = await pegar(`${base}/p003220-${a}-m${mun}-z${Z}-s${S}-aux.json`);
-    const h = (aux.hashes || []).find(x => (x.nmarq || []).some(n => /\.imgbu$/i.test(n))) || (aux.hashes || [])[0];
-    if (!h) throw new Error('sem boletim publicado');
-    const arq = (h.nmarq || []).find(n => /\.imgbu$/i.test(n));
-    if (!arq) throw new Error('boletim em imagem indisponível');
-    const txt = textoBU(await pegar(`${base}/${h.hash}/${arq}`, 'buf'));
-    const r = lerBU(txt);
-    if (!r || !Object.keys(r.votos).length) R[k(s)] = { st: 'er', err: 'não foi possível ler o bloco de Presidente', txt };
-    else R[k(s)] = { st: 'ok', ...r, txt: DEBUG ? txt : '' };
-  } catch (e) { R[k(s)] = { st: 'er', err: e.name === 'AbortError' ? 'tempo esgotado' : e.message }; }
+    const hs = aux.hashes || []; if (!hs.length) throw new Error('sem boletim publicado');
+    const nomes = h => (h.nmarq || []).map(n => typeof n === 'string' ? n : (n.nm || n.nome || n.arquivo || ''));
+    lista = hs.map(h => (h.st || '') + ': ' + nomes(h).join(', ')).join(' | ');
+    const ach = re => { for (const h of hs) { const n = nomes(h).find(x => re.test(x)); if (n) return { h, n }; } return null; };
+    const img = ach(/imgbu/i), bu = ach(/\.bu$/i) || ach(/\.bu[^a-z]|bu\.(zip|bin)$/i);
+    let r = null, txt = '';
+    if (bu) { try { r = lerBUbin(await pegar(`${base}/${bu.h.hash}/${bu.n}`, 'buf')); txt = r.txt || ('Boletim binário lido, mas sem bloco de Presidente (' + r.achados + ' blocos)'); if (!r.votos) r = null; } catch (e) { txt = 'Falha ao ler .bu: ' + (e && e.message || 'formato'); r = null; } }
+    if ((!r || !Object.keys(r.votos).length) && img) { txt = textoBU(await pegar(`${base}/${img.h.hash}/${img.n}`, 'buf')); r = lerBU(txt); }
+    if (!bu && !img) throw new Error('boletim não encontrado no TSE');
+    if (!r || !Object.keys(r.votos).length) R[k(s)] = { st: 'er', err: 'não foi possível ler o voto para Presidente', txt: txt + '\n\nArquivos: ' + lista };
+    else R[k(s)] = { st: 'ok', ...r, txt: DEBUG ? txt + '\n\nArquivos: ' + lista : '' };
+  } catch (e) { R[k(s)] = { st: 'er', err: e.name === 'AbortError' ? 'tempo esgotado' : e.message, txt: lista ? 'Arquivos: ' + lista : '' }; }
   feitos++; if (feitos % 10 === 0) render();
 }
 async function carregar() {

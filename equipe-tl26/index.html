@@ -136,6 +136,16 @@ body.publico #btnCfg{display:none}
   nav button{white-space:nowrap;font-size:16px;padding:6px 10px 10px;flex:none}
   main{padding:6px 14px 30px}.turno .tx{font-size:17px!important}
 }
+.ptab{max-width:1300px;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow-x:auto}
+.prw{display:grid;gap:8px;align-items:center;padding:8px 14px;border-bottom:1px solid var(--line);min-width:640px;cursor:pointer}
+.prw.hd{background:var(--deep);font:700 11px Inter;text-transform:uppercase;letter-spacing:.6px;color:var(--mut);cursor:default}
+.prw.hd span:not(:first-child){text-align:right}.prw.tt{color:var(--tx);font-size:13px}
+.prw .psg{font-family:"Barlow Condensed","Arial Narrow",Inter,sans-serif;font-weight:800;font-size:21px}
+.prw .pn{text-align:right;font-family:"Barlow Condensed","Arial Narrow",Inter,sans-serif;font-weight:700;font-size:20px}
+.prw .pn i{color:var(--line);font-style:normal}.prw .pt{color:var(--gold2);font-size:23px}.prw small{font-size:12px;color:var(--mut)}
+.pdet{display:flex;flex-wrap:wrap;gap:6px 14px;padding:8px 14px 12px 32px;border-bottom:1px solid var(--line);font-size:12px;color:var(--mut);background:rgba(255,255,255,.015)}
+.pdet b{color:var(--tx);font-weight:600}
+.sel{background:var(--deep);color:var(--tx);border:1px solid var(--line);border-radius:999px;padding:5px 10px;font:600 12px Inter}
 /* Exterior */
 .etab{max-width:1300px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .erow{display:grid;grid-template-columns:40px 1fr 120px 120px 100px 110px;align-items:center;gap:10px;padding:7px 14px;border-bottom:1px solid var(--line)}
@@ -221,6 +231,7 @@ body.publico #btnCfg{display:none}
   <button data-t="fed">Dep. Federais</button>
   <button data-t="est">Dep. Estaduais</button>
   <button data-t="ext">Exterior</button>
+  <button data-t="par">Eleitos por partido</button>
   <button data-t="def">Definidos</button>
 </nav>
 <main id="view"></main>
@@ -735,6 +746,63 @@ function viewExtParcial() {
     `${paises.length} países com votação encerrada. Percentuais sobre os votos dos candidatos listados. Candidatos não citados na compilação não aparecem. Fontes: ${(P.links || []).map(([n, u]) => `<a href="${u}" target="_blank" rel="noopener" style="color:var(--gold2)">${esc(n)}</a>`).join(' e ')}. Números não oficiais até a divulgação do TSE.`);
 }
 
+
+
+
+/* ===== Eleitos por partido ===== */
+let parCargo = 'todos', parReg = 'Brasil', parUF = '';
+const parAberto = new Set();
+const PAR_CARGOS = [[3, 'Governador'], [5, 'Senado'], [6, 'Dep. Federal'], [7, 'Dep. Estadual/Distrital']];
+function viewPar() {
+  const ufs = ufsPorRegiao().filter(u => (parReg === 'Brasil' || REGIAO[u] === parReg) && (!parUF || u === parUF));
+  const P = {}, pend = [], aguard = [];
+  const add = (x, u, cg, c, campo) => {
+    const p = P[x.partido] || (P[x.partido] = { sg: x.partido, c: { 3: 0, 5: 0, 6: 0, 7: 0 }, t2: 0, lista: [] });
+    if (campo === 't2') p.t2++; else { p.c[c]++; p.lista.push({ nome: x.nome, uf: u, cargo: CARGOS[cg].nome, st: x.st || 'Eleito' }); }
+  };
+  ufs.forEach(u => PAR_CARGOS.forEach(([c]) => {
+    if (parCargo !== 'todos' && Number(parCargo) !== c) return;
+    const cg = c === 7 ? depCargo(7, u) : c;
+    if (c >= 6) garantir(cg, u);
+    const r = data[key(cg, u)];
+    if (!r || !r.cands.length) { aguard.push(u); return; }
+    const els = r.cands.filter(x => catSt(x) === 'el'), t2 = r.cands.filter(x => catSt(x) === 't2');
+    if (!els.length && !t2.length) { if (r.pst >= 99.99) pend.push(CARGOS[cg].nome + ' ' + u); return; }
+    els.forEach(x => add(x, u, cg, c));
+    if (c === 3) t2.forEach(x => add(x, u, cg, c, 't2'));
+  }));
+  const lst = Object.values(P).map(p => ({ ...p, tot: p.c[3] + p.c[5] + p.c[6] + p.c[7] })).sort((a, b) => b.tot - a.tot || b.t2 - a.t2 || a.sg.localeCompare(b.sg));
+  const tot = { 3: 0, 5: 0, 6: 0, 7: 0, t2: 0, all: 0 };
+  lst.forEach(p => { [3, 5, 6, 7].forEach(c => tot[c] += p.c[c]); tot.t2 += p.t2; tot.all += p.tot; });
+  const max = Math.max(1, ...lst.map(p => p.tot));
+  const chip = (attr, val, atual, txt) => `<button ${attr}="${val}" style="${String(val) === String(atual) ? 'border-color:var(--gold);color:var(--gold2)' : ''}">${txt}</button>`;
+  const filtros = `<div class="chips"><span class="rg">Cargo</span>${chip('data-pc', 'todos', parCargo, 'Todos')}${PAR_CARGOS.map(([c, n]) => chip('data-pc', c, parCargo, n)).join('')}</div>
+    <div class="chips"><span class="rg">Região</span>${['Brasil', 'Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'].map(r => chip('data-pr', r, parReg, r)).join('')}
+    <span class="rg" style="margin-left:10px">Estado</span><select id="parUF" class="sel"><option value="">Todos</option>${ufsPorRegiao().filter(u => parReg === 'Brasil' || REGIAO[u] === parReg).map(u => `<option ${u === parUF ? 'selected' : ''}>${u}</option>`).join('')}</select></div>`;
+  const colunas = PAR_CARGOS.filter(([c]) => parCargo === 'todos' || Number(parCargo) === c);
+  const cols = `minmax(120px,1.2fr) ${colunas.map(() => '92px').join(' ')} 92px minmax(120px,2fr)`;
+  const head = `<div class="prw hd" style="grid-template-columns:${cols}"><span>Partido</span>${colunas.map(([c, n]) => `<span>${n}${c === 3 ? ' <small>(2º turno)</small>' : ''}</span>`).join('')}<span>Total</span><span></span></div>`;
+  const linhas = lst.map(p => {
+    const aberto = parAberto.has(p.sg);
+    const det = aberto ? `<div class="pdet">${p.lista.sort((a, b) => a.cargo.localeCompare(b.cargo) || a.uf.localeCompare(b.uf) || a.nome.localeCompare(b.nome)).map(e => `<span><b>${esc(e.nome)}</b> · ${esc(e.cargo)} · ${e.uf}</span>`).join('')}</div>` : '';
+    return `<div class="prw" data-pp="${esc(p.sg)}" style="grid-template-columns:${cols}"><span class="psg">${aberto ? '▾' : '▸'} ${esc(p.sg)}</span>${colunas.map(([c]) => `<span class="pn">${p.c[c] || '<i>-</i>'}${c === 3 && p.t2 ? ` <small>(${p.t2})</small>` : ''}</span>`).join('')}<span class="pn pt">${p.tot}</span><span><div class="bar"><i style="width:${p.tot / max * 100}%"></i></div></span></div>${det}`;
+  }).join('');
+  const total = `<div class="prw hd tt" style="grid-template-columns:${cols}"><span>Total</span>${colunas.map(([c]) => `<span>${tot[c]}${c === 3 && tot.t2 ? ` <small>(${tot.t2})</small>` : ''}</span>`).join('')}<span>${tot.all}</span><span></span></div>`;
+  const avisos = (pend.length ? `<div class="meta" style="margin-top:8px;color:var(--gold2)">Ainda sem eleitos oficializados pelo TSE (não entram na contagem): ${pend.join(', ')}.</div>` : '')
+    + (aguard.length ? `<div class="meta" style="margin-top:4px">Carregando dados de ${[...new Set(aguard)].length} estado(s)...</div>` : '');
+  return filtros + `<div class="ptab">${head}${linhas || '<div class="empty">Nenhum eleito para os filtros escolhidos.</div>'}${lst.length ? total : ''}</div>` + avisos
+    + `<div class="meta" style="margin-top:8px">Eleitos conforme o TSE. Governador: entre parênteses, candidatos do partido que disputam o 2º turno. Toque em um partido para ver os nomes.</div>`;
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest && e.target.closest('[data-pc],[data-pr],[data-pp]');
+  if (!b) return;
+  if (b.dataset.pc) parCargo = b.dataset.pc;
+  if (b.dataset.pr) { parReg = b.dataset.pr; parUF = ''; }
+  if (b.dataset.pp) { const k = b.dataset.pp; if (parAberto.has(k)) parAberto.delete(k); else parAberto.add(k); }
+  render(false);
+});
+document.addEventListener('change', e => { if (e.target.id === 'parUF') { parUF = e.target.value; render(false); } });
+
 /* ===== Deputados por estado ===== */
 const depSel = { 6: store.get('uf6', 'RJ'), 7: store.get('uf7', 'RJ') };
 const extras = new Set();      // arquivos de deputados abertos nas abas, entram na atualização
@@ -748,7 +816,7 @@ function garantir(cg, uf) {
   extras.add(k);
   if (data[k] || pedindo.has(k)) return;
   pedindo.add(k);
-  fetchOne(cg, uf).then(() => { pedindo.delete(k); if (tab === 'fed' || tab === 'est') render(false); });
+  fetchOne(cg, uf).then(() => { pedindo.delete(k); if (tab === 'fed' || tab === 'est' || tab === 'par') render(false); });
 }
 
 function viewDep(c) {
@@ -962,7 +1030,7 @@ function render(flash) {
     if (on && nav.scrollWidth > nav.clientWidth) nav.scrollLeft = on.offsetLeft - nav.clientWidth / 2 + on.offsetWidth / 2;
   }
   const v = document.getElementById('view');
-  v.innerHTML = tab === 'pres' ? viewPres() : tab === 'gov' ? viewUF(3, 3) : tab === 'sen' ? viewUF(5, 4) : tab === 'def' ? viewDef() : tab === 'fed' ? viewDep(6) : tab === 'est' ? viewDep(7) : tab === 'ext' ? viewExt() : viewLive(flash);
+  v.innerHTML = tab === 'pres' ? viewPres() : tab === 'gov' ? viewUF(3, 3) : tab === 'sen' ? viewUF(5, 4) : tab === 'def' ? viewDef() : tab === 'fed' ? viewDep(6) : tab === 'est' ? viewDep(7) : tab === 'ext' ? viewExt() : tab === 'par' ? viewPar() : viewLive(flash);
   const p = data[key(1, 'br')];
   document.getElementById('gpst').textContent = p && p.cands.length ? fmtP(p.pst) : '--';
   document.getElementById('last').textContent = lastAt ? lastAt.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '--';

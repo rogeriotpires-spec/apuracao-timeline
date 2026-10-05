@@ -158,6 +158,7 @@ body.publico #btnCfg{display:none}
 .atab tr.rgl td{font-family:"Playfair Display",Georgia,serif;font-size:18px;color:var(--tx);text-align:left;background:rgba(255,255,255,.02);padding-top:12px}
 .atab tr.sub td{background:rgba(224,122,44,.07);font-weight:800}
 .atab tr.tot td{background:rgba(224,122,44,.16);font-weight:800;font-size:20px}
+.rtit{font-family:"Playfair Display",Georgia,serif;font-size:24px;margin:26px 0 4px}
 /* Exterior */
 .etab{max-width:1300px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .erow{display:grid;grid-template-columns:40px 1fr 120px 120px 100px 110px;align-items:center;gap:10px;padding:7px 14px;border-bottom:1px solid var(--line)}
@@ -822,37 +823,45 @@ document.addEventListener('change', e => { if (e.target.id === 'parUF') { parUF 
 let absCargo = 1, absReg = 'Brasil';
 const ABS_CARGOS = [[1, 'Presidente'], [3, 'Governador'], [5, 'Senado'], [6, 'Dep. Federal'], [7, 'Dep. Estadual/Distrital']];
 function viewAbs() {
-  const chip = (attr, val, atual, txt) => `<button ${attr}="${val}" style="${String(val) === String(atual) ? 'border-color:var(--gold);color:var(--gold2)' : ''}">${txt}</button>`;
-  const filtros = `<div class="chips"><span class="rg">Cargo</span>${ABS_CARGOS.map(([c, t]) => chip('data-ac', c, absCargo, t)).join('')}</div>
-    <div class="chips"><span class="rg">Região</span>${['Brasil', 'Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'].map(r => chip('data-ar', r, absReg, r)).join('')}</div>`;
+  // Base: votação para Presidente, o único cargo votado por todo o eleitorado, inclusive no exterior
+  const chip = (val, txt) => `<button data-ar="${val}" style="${val === absReg ? 'border-color:var(--gold);color:var(--gold2)' : ''}">${txt}</button>`;
+  const filtros = `<div class="chips"><span class="rg">Região</span>${['Brasil', 'Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'].map(r => chip(r, r)).join('')}</div>`;
   const z = () => ({ te: 0, c: 0, a: 0, tv: 0, vv: 0, vb: 0, vn: 0, ok: 0 });
   const soma = (acc, r) => { if (!r || !r.ev) return; const e = r.ev; acc.te += e.te; acc.c += e.c; acc.a += e.a; acc.tv += e.tv; acc.vv += e.vv; acc.vb += e.vb; acc.vn += e.vn; acc.ok++; };
   const pct = (a, b) => b ? fmtP(a / b * 100) : '-';
-  const linha = (rot, s, cls, pst) => `<tr class="${cls || ''}"><td class="k">${rot}</td><td>${s.ok ? fmt(s.te) : '-'}</td><td>${s.ok ? pct(s.c, s.te) : '-'}</td>
-    <td>${s.ok ? fmt(s.a) : '-'}</td><td class="hl">${s.ok ? pct(s.a, s.te) : '-'}<div class="bar"><i style="width:${s.te ? Math.min(100, s.a / s.te * 100 * 2.5) : 0}%"></i></div></td>
-    <td>${s.ok ? fmt(s.vb) : '-'}</td><td class="hl">${s.ok ? pct(s.vb, s.tv) : '-'}</td><td>${s.ok ? fmt(s.vn) : '-'}</td><td class="hl">${s.ok ? pct(s.vn, s.tv) : '-'}</td>
-    <td>${s.ok ? pct(s.vb + s.vn, s.tv) : '-'}</td><td>${s.ok ? pct(s.vv, s.tv) : '-'}</td><td class="mt">${pst != null ? fmtP(pst) : ''}</td></tr>`;
-  const regs = ['Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'].filter(r => absReg === 'Brasil' || r === absReg);
-  const br = z(); let h = '', carregando = 0;
-  regs.forEach(rg => {
-    const sr = z(); h += `<tr class="rgl"><td colspan="12">${rg}</td></tr>`;
+  const ok = s => s.ok > 0;
+  const linha = (rot, s, cls, pst) => `<tr class="${cls || ''}"><td class="k">${rot}</td><td>${ok(s) ? fmt(s.te) : '-'}</td>
+    <td>${ok(s) ? fmt(s.a) : '-'}</td><td class="hl">${ok(s) ? pct(s.a, s.te) : '-'}</td>
+    <td>${ok(s) ? fmt(s.vb) : '-'}</td><td class="hl">${ok(s) ? pct(s.vb, s.tv) : '-'}</td><td>${ok(s) ? fmt(s.vn) : '-'}</td><td class="hl">${ok(s) ? pct(s.vn, s.tv) : '-'}</td>
+    <td>${ok(s) ? fmt(s.a + s.vb + s.vn) : '-'}</td><td class="hl">${ok(s) ? pct(s.a + s.vb + s.vn, s.te) : '-'}<div class="bar"><i style="width:${s.te ? Math.min(100, (s.a + s.vb + s.vn) / s.te * 100 * 2) : 0}%"></i></div></td>
+    <td class="mt">${pst != null ? fmtP(pst) : ''}</td></tr>`;
+  const REGS = ['Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'];
+  const porReg = {}, br = z(); let h = '', carregando = 0;
+  REGS.forEach(rg => {
+    const sr = porReg[rg] = z(); const mostra = absReg === 'Brasil' || rg === absReg;
+    if (mostra) h += `<tr class="rgl"><td colspan="11">${rg}</td></tr>`;
     ufsPorRegiao().filter(u => REGIAO[u] === rg).forEach(u => {
-      const cg = absCargo === 7 ? depCargo(7, u) : absCargo; garantir(cg, u);
-      const r = data[key(cg, u)]; if (!r || !r.ev) carregando++;
+      garantir(1, u); const r = data[key(1, u)]; if (!r || !r.ev) carregando++;
       const s = z(); soma(s, r); soma(sr, r); soma(br, r);
-      h += linha(u + (cg === 8 ? ' <small>(distrital)</small>' : ''), s, '', r ? r.pst : null);
+      if (mostra) h += linha(u, s, '', r ? r.pst : null);
     });
-    h += linha('Total ' + rg, sr, 'sub');
+    if (mostra) h += linha('Total ' + rg, sr, 'sub');
   });
-  if (absCargo === 1 && absReg === 'Brasil') { garantir(1, 'zz'); const r = data[key(1, 'zz')]; const s = z(); soma(s, r); soma(br, r); h += `<tr class="rgl"><td colspan="12">Exterior</td></tr>` + linha('Exterior', s, '', r ? r.pst : null); }
-  if (absReg === 'Brasil') h += linha('Brasil', br, 'tot');
-  const head = `<tr><th>Estado</th><th>Eleitorado</th><th>Comparec.</th><th>Abstenções</th><th>% abst.</th><th>Brancos</th><th>% brancos</th><th>Nulos</th><th>% nulos</th><th>Brancos + nulos</th><th>% válidos</th><th>Apurado</th></tr>`;
+  garantir(1, 'zz'); const rz = data[key(1, 'zz')]; const ex = z(); soma(ex, rz); soma(br, rz);
+  if (absReg === 'Brasil') h += `<tr class="rgl"><td colspan="11">Exterior</td></tr>` + linha('Exterior', ex, '', rz ? rz.pst : null);
+  const head = `<tr><th>Estado</th><th>Eleitorado</th><th>Abstenções</th><th>% abst.</th><th>Brancos</th><th>% brancos</th><th>Nulos</th><th>% nulos</th><th>Abst. + brancos + nulos</th><th>% do eleitorado</th><th>Apurado</th></tr>`;
+  // tabela resumo: regiões, exterior e Brasil
+  const rl = (rot, s, cls) => `<tr class="${cls || ''}"><td class="k">${rot}</td><td>${ok(s) ? fmt(s.te) : '-'}</td><td>${ok(s) ? fmt(s.a) : '-'}</td><td>${ok(s) ? fmt(s.vb) : '-'}</td><td>${ok(s) ? fmt(s.vn) : '-'}</td>
+    <td class="hl">${ok(s) ? fmt(s.a + s.vb + s.vn) : '-'}</td><td class="hl">${ok(s) ? pct(s.a + s.vb + s.vn, s.te) : '-'}</td><td>${ok(s) ? fmt(s.vv) : '-'}</td><td>${ok(s) ? pct(s.vv, s.te) : '-'}</td></tr>`;
+  const resumo = `<h3 class="rtit">Resumo: quem não escolheu ninguém</h3><div class="meta" style="margin-bottom:8px">Soma de abstenções, votos brancos e votos nulos, comparada com os votos válidos, sobre o eleitorado apto.</div>
+    <div class="atab"><table><thead><tr><th>Recorte</th><th>Eleitorado</th><th>Abstenções</th><th>Brancos</th><th>Nulos</th><th>Soma</th><th>Soma / eleitorado</th><th>Votos válidos</th><th>Válidos / eleitorado</th></tr></thead>
+    <tbody>${REGS.map(rg => rl(rg, porReg[rg])).join('')}${rl('Exterior', ex)}${rl('Brasil', br, 'tot')}</tbody></table></div>`;
   return filtros + `<div class="atab"><table><thead>${head}</thead><tbody>${h}</tbody></table></div>`
-    + (carregando ? `<div class="meta" style="margin-top:6px">Carregando ${carregando} estado(s)...</div>` : '')
-    + `<div class="meta" style="margin-top:8px">Dados oficiais do TSE. Abstenção em relação ao eleitorado apto; brancos, nulos e válidos em relação ao total de votos do cargo. A abstenção é a mesma para todos os cargos de um estado; brancos e nulos mudam conforme o cargo.${absCargo === 1 ? ' Presidente: o total Brasil inclui o eleitorado do exterior.' : ''}</div>`;
+    + (carregando ? `<div class="meta" style="margin-top:6px">Carregando ${carregando} estado(s)...</div>` : '') + resumo
+    + `<div class="meta" style="margin-top:8px">Dados oficiais do TSE, com base na votação para Presidente, o único cargo votado por todo o eleitorado, inclusive no exterior. Abstenções e a soma são calculadas sobre o eleitorado apto; brancos e nulos, sobre o total de votos.</div>`;
 }
 document.addEventListener('click', e => {
-  const b = e.target.closest && e.target.closest('[data-ac],[data-ar]');
+  const b = e.target.closest && e.target.closest('[data-ar]');
   if (!b) return;
   if (b.dataset.ac) absCargo = Number(b.dataset.ac);
   if (b.dataset.ar) absReg = b.dataset.ar;

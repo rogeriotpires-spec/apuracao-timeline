@@ -255,6 +255,7 @@ body.publico #btnCfg{display:none}
     <button class="pri" id="btnSave">Salvar e atualizar</button>
     <button id="btnClose">Fechar</button>
     <button id="btnCsv">Baixar CSV da lista</button>
+    <button id="btnRev">Revisão completa (CSV)</button>
     <button id="btnReset">Restaurar lista original</button>
   </div>
 </div></div>
@@ -391,7 +392,7 @@ function normalizar(raw, c) {
   const cg = (raw.carg || []).find(x => Number(x.cd) === c) || (raw.carg || [])[0] || { agr: [] };
   const cands = [];
   for (const agr of cg.agr || []) for (const par of agr.par || []) for (const k of par.cand || []) {
-    cands.push({ sq: k.sqcand, num: k.n, nome: k.nmu || k.nm, partido: par.sg, votos: n(k.vap), pct: pc(k.pvap), eleito: k.e === 's', st: k.st || '', foto: foto(c, raw.cdabr || 'br', k.sqcand),
+    cands.push({ sq: k.sqcand, num: k.n, nome: k.nmu || k.nm, partido: par.sg, votos: n(k.vap), pct: pc(k.pvap), eleito: String(k.e || '').toLowerCase() === 's', eRaw: k.e || '', seq: n(k.seq), st: (k.st || '').trim(), foto: foto(c, raw.cdabr || 'br', k.sqcand),
       vs: (k.vs || []).map(v => ({ tp: v.tp, sq: v.sqcand, nome: v.nmu || v.nm, nomeCompleto: v.nm || '', foto: foto(c, raw.cdabr || 'br', v.sqcand) })) });
   }
   cands.sort((a, b) => b.votos - a.votos || a.nome.localeCompare(b.nome, 'pt-BR'));
@@ -786,22 +787,32 @@ function listaFiltrada(c) {
   const uf = depSel[c], cg = depCargo(c, uf), r = data[key(cg, uf)];
   if (!r) return { r: null, lst: [] };
   const q = norm(depBusca);
-  return { r, lst: q ? r.cands.filter(x => norm(x.nome).includes(q) || x.num.startsWith(q)) : r.cands };
+  const definido = r.cands.some(x => catSt(x));
+  const ORD = { el: 0, t2: 1, su: 2, ne: 3, '': 4 };
+  const base = definido ? r.cands.slice().sort((a, b) => ORD[catSt(a)] - ORD[catSt(b)] || b.votos - a.votos) : r.cands;
+  return { r, definido, lst: q ? base.filter(x => norm(x.nome).includes(q) || x.num.startsWith(q)) : base };
 }
 function linhasDep(c) {
-  const { r, lst } = listaFiltrada(c);
+  const { r, lst, definido } = listaFiltrada(c);
   if (!r) return '';
   if (!lst.length) return '<div class="empty">Nenhum candidato encontrado.</div>';
   const uf = depSel[c], cg = depCargo(c, uf);
   const nossos = new Set(parseLista().filter(x => x.ok && x.cargo === cg && x.uf === uf).map(x => x.numero));
-  const linha = x => `<div class="drow ${nossos.has(x.num) ? 'nossa' : ''}"><div class="pos">${x.pos}º</div>${img(x.foto)}
+  const linha = x => `<div class="drow ${nossos.has(x.num) ? 'nossa' : ''}"><div class="pos" title="posição em votos no estado">${x.pos}º</div>${img(x.foto)}
     <div><div class="nm">${esc(x.nome)}</div><div class="meta">${esc(x.partido)} · ${esc(x.num)} ${dl(x.sq)}</div></div>
     <div class="v">${fmt(x.votos)}</div><div class="p">${fmtP(x.pct)}</div><div style="text-align:right">${tagSt(x)}</div></div>`;
   const mostra = lst.slice(0, depLimite);
   let html = '';
-  mostra.forEach((x, i) => {
+  let grupo = null;
+  const NOMES = { el: 'Eleitos', t2: '2º turno', su: 'Suplentes', ne: 'Não eleitos', '': 'Sem situação definida' };
+  if (definido && !depBusca) {
+    const nEl = r.cands.filter(x => catSt(x) === 'el').length;
+    html += `<div class="dsep">Resultado do TSE: ${nEl} eleitos para ${r.vagas} vagas${nEl !== r.vagas ? ' (confira: número diferente das vagas)' : ''}. O número à esquerda é a posição em votos no estado; a eleição depende do quociente partidário.</div>`;
+  }
+  mostra.forEach(x => {
+    if (definido && !depBusca && catSt(x) !== grupo) { grupo = catSt(x); html += `<div class="dsep" style="color:var(--tx)">${NOMES[grupo]}</div>`; }
     html += linha(x);
-    if (!depBusca && x.pos === r.vagas && r.vagas > 0)
+    if (!definido && !depBusca && x.pos === r.vagas && r.vagas > 0)
       html += `<div class="dsep">Até aqui: ${r.vagas} posições, o número de vagas. Linha indicativa: quem se elege depende do quociente partidário.</div>`;
   });
   if (lst.length > mostra.length) html += `<div class="dmais" id="depMais">Carregando mais candidatos... (${fmt(mostra.length)} de ${fmt(lst.length)})</div>`;
@@ -894,7 +905,7 @@ function viewLive(flash) {
       <div class="row">${img(sup ? sup.foto : c.foto)}<div><div class="nm">${esc(x.nome)}</div><div class="meta">${esc(c.partido)} · ${sub}</div>${aviso}</div></div>
       <div class="votes"><div class="v">${fmt(c.votos)}</div><div class="p">${fmtP(c.pct)}</div></div>
       <div class="bar"><i style="width:${Math.min(100, c.pct * (x.cargo >= 6 ? 8 : 1))}%"></i></div>
-      <div class="foot"><span>${c.pos}º de ${tot} no ${x.cargo === 1 ? 'país' : 'estado'} · ${fmtP(r.pst)} apurado ${dl(c.sq)}</span></div>${faixa}
+      <div class="foot"><span>${c.pos}º mais votado de ${tot} no ${x.cargo === 1 ? 'país' : 'estado'} · ${fmtP(r.pst)} apurado ${dl(c.sq)}</span></div>${faixa}
     </div>`;
   }
 }
@@ -1011,6 +1022,63 @@ $('btnSave').onclick = () => {
   $('cfg').classList.remove('open');
   setRot(); atualizar();
 };
+
+/* ===== Revisão completa: baixa todos os arquivos do TSE e gera um CSV de conferência ===== */
+async function revisaoCompleta() {
+  const btn = document.getElementById('btnRev');
+  const alvos = [[1, 'br']];
+  UFS.forEach(u => { alvos.push([3, u], [5, u], [6, u], [u === 'DF' ? 8 : 7, u]); });
+  const res = {}; let feitos = 0, falhas = [];
+  const fila = alvos.slice();
+  const w = async () => {
+    while (fila.length) {
+      const [c, u] = fila.shift();
+      try {
+        const r = await fetch(url(c, u) + '?t=' + Date.now(), { cache: 'no-store' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const raw = await r.json();
+        res[c + '|' + u] = { raw, n: normalizar(raw, c) };
+      } catch (e) { falhas.push(CARGOS[c].nome + ' ' + u.toUpperCase() + ' (' + e.message + ')'); }
+      feitos++; if (btn) btn.textContent = `Revisando... ${feitos}/${alvos.length}`;
+    }
+  };
+  await Promise.all(Array.from({ length: 6 }, w));
+  const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const resumo = [['RESUMO'], ['Cargo', 'UF', 'Vagas', 'Eleitos (TSE)', 'Em 2º turno', 'Suplentes', 'Não eleitos', 'Sem situação', 'Apurado %', 'Totalização final', 'Hora TSE', 'Alerta']];
+  const linhas = [['CANDIDATOS'], ['Cargo', 'UF', 'Numero', 'Nome na urna', 'Partido', 'Votos', 'Percentual', 'Posicao em votos', 'Classificacao TSE (seq)', 'Situacao TSE (st)', 'Eleito TSE (e)', 'Categoria no painel', 'Alerta']];
+  let nCand = 0, nEl = 0, nAl = 0;
+  Object.keys(res).sort().forEach(k => {
+    const [c, u] = k.split('|'); const { raw, n: r } = res[k];
+    const cont = { el: 0, t2: 0, su: 0, ne: 0, '': 0 };
+    // maior votação de não eleito por partido, para achar eleitos "abaixo" de não eleitos do mesmo partido
+    const maxNaoEl = {};
+    r.cands.forEach(x => { const ct = catSt(x); cont[ct]++; if (ct === 'ne' || ct === 'su') maxNaoEl[x.partido] = Math.max(maxNaoEl[x.partido] || 0, x.votos); });
+    const fin = raw.tf === 's';
+    let alertaUF = '';
+    if (cont.el > r.vagas) alertaUF = 'mais eleitos que vagas';
+    else if (Number(c) >= 6 && fin && cont.el !== r.vagas) alertaUF = 'eleitos diferente do número de vagas';
+    if (fin && cont[''] > 0) alertaUF += (alertaUF ? '; ' : '') + 'candidatos sem situação com totalização final';
+    resumo.push([CARGOS[c].nome, u.toUpperCase(), r.vagas, cont.el, cont.t2, cont.su, cont.ne, cont[''], String(r.pst).replace('.', ','), fin ? 'sim' : 'não', `${raw.dg || ''} ${raw.hg || ''}`, alertaUF]);
+    r.cands.forEach(x => {
+      const ct = catSt(x); const s = norm(x.st); const al = [];
+      if (x.eleito && !(s.includes('eleito') && !s.includes('nao'))) al.push('e=s mas situação não diz eleito');
+      if (!x.eleito && s.includes('eleito') && !s.includes('nao')) al.push('situação eleito mas e=n');
+      if (Number(c) >= 6 && ct === 'el' && (maxNaoEl[x.partido] || 0) > x.votos) al.push('eleito com menos votos que não eleito/suplente do mesmo partido');
+      if (x.st && !ct) al.push('situação não reconhecida pelo painel');
+      if (al.length) nAl++; if (ct === 'el') nEl++; nCand++;
+      linhas.push([CARGOS[c].nome, u.toUpperCase(), x.num, x.nome, x.partido, x.votos, x.pct.toFixed(2).replace('.', ','), x.pos, x.seq || '', x.st, x.eRaw, ct || '-', al.join('; ')]);
+    });
+  });
+  const csv = '﻿' + [...resumo, [], ...(falhas.length ? [['FALHAS DE LEITURA'], ...falhas.map(f => [f]), []] : []), ...linhas].map(l => l.map(q).join(';')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  a.download = 'revisao-completa-' + brNow().toISOString().slice(0, 10) + '-' + brNow().toTimeString().slice(0, 5).replace(':', 'h') + '.csv';
+  a.click();
+  if (btn) btn.textContent = 'Revisão completa (CSV)';
+  alert(`Revisão concluída: ${Object.keys(res).length} de ${alvos.length} arquivos lidos, ${fmt(nCand)} candidatos, ${fmt(nEl)} eleitos, ${fmt(nAl)} candidatos com alerta.${falhas.length ? '\nFalhas: ' + falhas.length + ' (listadas no CSV).' : ''}\nO CSV foi baixado.`);
+  atualizar();
+}
+$('btnRev').onclick = () => { $('cfg').classList.remove('open'); revisaoCompleta(); };
 $('btnCsv').onclick = () => {
   const linhas = [['Nome', 'Cargo', 'Numero', 'UF', 'Horario', 'Nome na urna', 'Partido', 'Votos', 'Percentual', 'Posicao', 'Situacao', 'Apurado']];
   parseLista().forEach(x => {

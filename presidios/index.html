@@ -267,10 +267,10 @@ async function lerSecao(s) {
   try {
     const aux = await pegar(`${base}/p003220-${a}-m${mun}-z${Z}-s${S}-aux.json`);
     const hs = aux.hashes || []; if (!hs.length) throw new Error('sem boletim publicado');
-    const nomes = h => (h.nmarq || []).map(n => typeof n === 'string' ? n : (n.nm || n.nome || n.arquivo || ''));
+    const nomes = h => (h.nmarq || h.arq || []).map(n => typeof n === 'string' ? n : ((n.nm || n.nome || n.arquivo || '') + (n.tp ? '#' + n.tp : '')));
     lista = hs.map(h => (h.st || '') + ': ' + nomes(h).join(', ')).join(' | ');
-    const ach = re => { for (const h of hs) { const n = nomes(h).find(x => re.test(x)); if (n) return { h, n }; } return null; };
-    let img = ach(/imgbu/i), bu = ach(/\.bu$/i) || ach(/\.bu[^a-z]|bu\.(zip|bin)$/i);
+    const ach = re => { for (const h of hs) { const n = nomes(h).find(x => re.test(x)); if (n) return { h, n: n.replace(/#.*$/, '') }; } return null; };
+    let img = ach(/imgbu/i), bu = ach(/#bu$/i) || ach(/[-.]bu(\.dat)?(#|$)/i);
     if (!img && !bu) { // estrutura diferente: procura em todo o JSON
       const js = JSON.stringify(aux), hash = (js.match(/"(?:hash|hs|cd)"\s*:\s*"([0-9a-zA-Z]{16,})"/) || [])[1];
       const fi = (js.match(/"([^"\/]+\.imgbu[^"]*)"/i) || [])[1], fb = (js.match(/"([^"\/]+\.bu)"/i) || [])[1];
@@ -278,7 +278,7 @@ async function lerSecao(s) {
       lista = js.slice(0, 900);
     }
     let r = null, txt = '';
-    if (bu) { try { r = lerBUbin(await pegar(`${base}/${bu.h.hash}/${bu.n}`, 'buf')); txt = r.txt || ('Boletim binário lido, mas sem bloco de Presidente (' + r.achados + ' blocos)'); if (!r.votos) r = null; } catch (e) { txt = 'Falha ao ler .bu: ' + (e && e.message || 'formato'); r = null; } }
+    if (bu) { let bb; try { bb = await pegar(`${base}/${bu.h.hash}/${bu.n}`, 'buf'); r = lerBUbin(bb); txt = r.txt || ('Boletim binário lido, mas sem bloco de Presidente (' + r.achados + ' blocos)'); if (!r.votos) r = null; } catch (e) { txt = 'Falha ao ler ' + bu.n + ': ' + (e && e.message || 'formato') + (bb ? ' · ' + bb.byteLength + ' bytes · início ' + Array.from(new Uint8Array(bb).slice(0, 24)).map(x => x.toString(16).padStart(2, '0')).join(' ') : ''); r = null; } }
     if ((!r || !Object.keys(r.votos).length) && img) { txt = textoBU(await pegar(`${base}/${img.h.hash}/${img.n}`, 'buf')); r = lerBU(txt); }
     if (!bu && !img) throw new Error('boletim não encontrado no TSE · TSE respondeu: ' + lista.slice(0, 400));
     if (!r || !Object.keys(r.votos).length) R[k(s)] = { st: 'er', err: 'não foi possível ler o voto para Presidente', txt: txt + '\n\nArquivos: ' + lista };

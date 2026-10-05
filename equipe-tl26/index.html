@@ -160,6 +160,36 @@ body.publico #btnCfg{display:none}
 .atab tr.sub td{background:rgba(224,122,44,.07);font-weight:800}
 .atab tr.tot td{background:rgba(224,122,44,.16);font-weight:800;font-size:20px}
 .rtit{font-family:"Playfair Display",Georgia,serif;font-size:24px;margin:26px 0 4px}
+/* Gráficos */
+.gcard{max-width:1300px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:0 0 14px}
+.gtit{font-family:"Playfair Display",Georgia,serif;font-size:21px;margin-bottom:2px}.gsub{color:var(--mut);font-size:12px;margin-bottom:12px}
+#gtip{position:fixed;z-index:50;display:none;pointer-events:none;background:#1b1512;border:1px solid #3a2d24;border-radius:10px;padding:8px 11px;font:500 12px Inter;color:#f6f2ee;box-shadow:0 10px 30px rgba(0,0,0,.55);max-width:280px}
+#gtip b{font-weight:700}#gtip div{margin-top:3px;color:#d9cfc6}#gtip i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.glg{display:flex;flex-wrap:wrap;gap:6px 16px;font:500 12px Inter;color:var(--mut);margin-top:10px}.glg span{display:inline-flex;align-items:center;gap:6px}.glg b{color:var(--tx)}
+.glg i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.gb100{display:flex;flex-direction:column;gap:7px}
+.gr{display:grid;grid-template-columns:120px 1fr;gap:12px;align-items:center;cursor:default}
+.gr .grl{font:600 13px Inter;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gr .grl small{display:block;color:var(--mut);font-weight:500;font-size:11px}
+.gb100.gx .gr{grid-template-columns:120px 1fr 190px}.grx{font:500 12px Inter;color:var(--mut);text-align:right;white-space:nowrap}.grx b{color:var(--tx);font-weight:700}
+.gr.tot .grl{font-weight:800;color:var(--gold2)}.gr.tot .grb{height:26px}
+.grb{display:flex;gap:2px;height:20px}.grb span{display:flex;align-items:center;justify-content:center;min-width:0}
+.grb span:first-child{border-radius:4px 0 0 4px}.grb span:last-child{border-radius:0 4px 4px 0}.grb span:only-child{border-radius:4px}
+.grb em{font:700 11px Inter;font-style:normal;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.45);white-space:nowrap}
+.gr:hover .grb{filter:brightness(1.12)}
+.ghemi svg{width:100%;max-width:620px;display:block;margin:0 auto}.ghemi g{cursor:default}.ghemi g:hover{filter:brightness(1.25)}
+.ghemi .gh1{font:800 44px "Barlow Condensed","Arial Narrow",sans-serif;fill:#f6f2ee;text-anchor:middle}.ghemi .gh2{font:600 12px Inter;fill:#a89c92;text-anchor:middle;letter-spacing:1.5px;text-transform:uppercase}
+.ghemi .glg{justify-content:center}
+.gdv{display:flex;flex-direction:column;gap:5px}
+.gdr{display:grid;grid-template-columns:130px 1fr 1px 1fr 90px;align-items:center;gap:0 8px;padding:2px 0}
+.gdn{font:700 13px Inter}.gdh{font:500 12px Inter;color:var(--mut);text-align:right}.gdh b{color:var(--tx)}
+.gdm{height:22px;background:#3a302a}
+.gdl,.gdp{display:flex;align-items:center;gap:6px;height:20px}.gdl{justify-content:flex-end}
+.gdl span,.gdp span{height:16px;display:block}.gdl span{border-radius:4px 0 0 4px}.gdp span{border-radius:0 4px 4px 0}
+.gdl .neg{background:#e66767}.gdp .pos{background:#3987e5}
+.gdl em,.gdp em{font:700 13px "Barlow Condensed","Arial Narrow",Inter,sans-serif;font-size:16px;font-style:normal;color:var(--tx)}.gdp em.z{color:var(--mut)}
+.gdr:hover{background:rgba(255,255,255,.03)}
+@media(max-width:700px){.gr,.gb100.gx .gr{grid-template-columns:70px 1fr}.grx{grid-column:2;text-align:left}.gdr{grid-template-columns:84px 1fr 1px 1fr 64px}.gdn{font-size:12px}}
+
 /* Exterior */
 .etab{max-width:1300px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .erow{display:grid;grid-template-columns:40px 1fr 120px 120px 100px 110px;align-items:center;gap:10px;padding:7px 14px;border-bottom:1px solid var(--line)}
@@ -806,7 +836,7 @@ function viewPar() {
   const total = `<div class="prw hd tt" style="grid-template-columns:${cols}"><span>Total</span>${colunas.map(([c]) => `<span>${tot[c]}${c === 3 && tot.t2 ? ` <small>(${tot.t2})</small>` : ''}</span>`).join('')}<span>${tot.all}</span><span></span></div>`;
   const avisos = (pend.length ? `<div class="meta" style="margin-top:8px;color:var(--gold2)">Ainda sem eleitos oficializados pelo TSE (não entram na contagem): ${pend.join(', ')}.</div>` : '')
     + (aguard.length ? `<div class="meta" style="margin-top:4px">Carregando dados de ${[...new Set(aguard)].length} estado(s)...</div>` : '');
-  return filtros + `<div class="ptab">${head}${linhas || '<div class="empty">Nenhum eleito para os filtros escolhidos.</div>'}${lst.length ? total : ''}</div>` + avisos
+  return filtros + graficoHemiciclo(P, parCargo) + `<div class="ptab">${head}${linhas || '<div class="empty">Nenhum eleito para os filtros escolhidos.</div>'}${lst.length ? total : ''}</div>` + avisos
     + `<div class="meta" style="margin-top:8px">Eleitos conforme o TSE. Governador: entre parênteses, candidatos do partido que disputam o 2º turno. Toque em um partido para ver os nomes.</div>`;
 }
 document.addEventListener('click', e => {
@@ -857,7 +887,7 @@ function viewAbs() {
   const resumo = `<h3 class="rtit">Resumo: quem não escolheu ninguém</h3><div class="meta" style="margin-bottom:8px">Soma de abstenções, votos brancos e votos nulos, comparada com os votos válidos, sobre o eleitorado apto.</div>
     <div class="atab"><table><thead><tr><th>Recorte</th><th>Eleitorado</th><th>Abstenções</th><th>Brancos</th><th>Nulos</th><th>Soma</th><th>Soma / eleitorado</th><th>Votos válidos</th><th>Válidos / eleitorado</th></tr></thead>
     <tbody>${REGS.map(rg => rl(rg, porReg[rg])).join('')}${rl('Exterior', ex)}${rl('Brasil', br, 'tot')}</tbody></table></div>`;
-  return filtros + `<div class="atab"><table><thead>${head}</thead><tbody>${h}</tbody></table></div>`
+  return filtros + graficoAbs(porReg, ex, br) + `<div class="atab"><table><thead>${head}</thead><tbody>${h}</tbody></table></div>`
     + (carregando ? `<div class="meta" style="margin-top:6px">Carregando ${carregando} estado(s)...</div>` : '') + resumo
     + `<div class="meta" style="margin-top:8px">Dados oficiais do TSE, com base na votação para Presidente, o único cargo votado por todo o eleitorado, inclusive no exterior. Abstenções e a soma são calculadas sobre o eleitorado apto; brancos e nulos, sobre o total de votos.</div>`;
 }
@@ -868,6 +898,103 @@ document.addEventListener('click', e => {
   if (b.dataset.ar) absReg = b.dataset.ar;
   render(false);
 });
+
+/* ===== Gráficos (SVG/HTML, cores validadas para daltonismo no fundo escuro) ===== */
+const COR_PARTIDO = { PL: '#3987e5', PSD: '#d95926', 'UNIÃO': '#199e70', PP: '#c98500', REPUBLICANOS: '#d55181', MDB: '#008300', PSB: '#9085e9', PT: '#e66767' };
+const ORDEM_PARTIDO = ['PL', 'PSD', 'UNIÃO', 'PP', 'REPUBLICANOS', 'MDB', 'PSB', 'PT'];
+const COR_OUTROS = '#5d534c';
+const corPartido = p => COR_PARTIDO[String(p || '').toUpperCase().replace('UNIAO', 'UNIÃO')] || COR_OUTROS;
+const gfmt = x => Math.round(x).toLocaleString('pt-BR');
+const gpct = (x, d = 1) => x.toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d }) + '%';
+const gesc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+(function () {
+  if (document.getElementById('gtip')) return;
+  const t = document.createElement('div'); t.id = 'gtip'; document.body.appendChild(t);
+  const mostra = (el, x, y) => { t.innerHTML = el.dataset.tip; t.style.display = 'block'; const w = t.offsetWidth, h = t.offsetHeight; t.style.left = Math.min(window.innerWidth - w - 8, Math.max(8, x + 14)) + 'px'; t.style.top = Math.max(8, y - h - 12) + 'px'; };
+  document.addEventListener('mousemove', e => { const el = e.target.closest && e.target.closest('[data-tip]'); if (el) mostra(el, e.clientX, e.clientY); else t.style.display = 'none'; });
+  document.addEventListener('touchstart', e => { const el = e.target.closest && e.target.closest('[data-tip]'); if (el) { const p = e.touches[0]; mostra(el, p.clientX, p.clientY); } else t.style.display = 'none'; }, { passive: true });
+})();
+function legenda(itens) { return `<div class="glg">${itens.map(([cor, txt]) => `<span><i style="background:${cor}"></i>${txt}</span>`).join('')}</div>`; }
+// Barras 100% empilhadas: linhas [{rot, segs:[{v, cor, nome}], sub}]
+function barras100(linhas, opts = {}) {
+  return `<div class="gb100 ${linhas.some(l => l.extra) ? 'gx' : ''}">${linhas.map(l => {
+    const tot = l.segs.reduce((a, s) => a + s.v, 0) || 1;
+    const tip = `<b>${gesc(l.rot)}</b>` + l.segs.map(s => `<div><i style="background:${s.cor}"></i>${gesc(s.nome)}: <b>${gpct(s.v / tot * 100)}</b> · ${gfmt(s.v)}</div>`).join('');
+    return `<div class="gr ${l.cls || ''}" data-tip="${gesc(tip)}"><div class="grl">${gesc(l.rot)}${l.sub ? `<small>${gesc(l.sub)}</small>` : ''}</div><div class="grb">${l.segs.filter(s => s.v > 0).map(s => {
+      const p = s.v / tot * 100; return `<span style="flex:${p} 0 0;background:${s.cor}">${p >= (opts.min || 9) ? `<em>${gpct(p, p >= 99.95 ? 0 : 1)}</em>` : ''}</span>`; }).join('')}</div>${l.extra ? `<div class="grx">${l.extra}</div>` : ''}</div>`;
+  }).join('')}</div>`;
+}
+// Hemiciclo: grupos [{nome, n, cor}] na ordem desenhada (esquerda -> direita)
+function hemiciclo(grupos, titulo) {
+  const total = grupos.reduce((a, g) => a + g.n, 0);
+  if (!total) return '';
+  const r0 = 0.38; let k = 2, d, linhas;
+  for (k = 2; k < 40; k++) { d = (1 - r0) / (k - 1 + 1e-9); const rs = Array.from({ length: k }, (_, i) => r0 + (1 - r0) * i / (k - 1)); const cap = rs.map(r => Math.floor(Math.PI * r / (d * 1.05)) + 1); if (cap.reduce((a, b) => a + b, 0) >= total) { linhas = rs.map((r, i) => ({ r, cap: cap[i] })); break; } }
+  if (!linhas) return '';
+  const capT = linhas.reduce((a, l) => a + l.cap, 0); let resto = total;
+  linhas.forEach((l, i) => { l.n = i === linhas.length - 1 ? resto : Math.min(resto, Math.round(l.cap / capT * total)); resto -= l.n; });
+  const pts = [];
+  linhas.forEach(l => { for (let j = 0; j < l.n; j++) { const a = l.n === 1 ? Math.PI / 2 : Math.PI - Math.PI * j / (l.n - 1); pts.push({ a, r: l.r }); } });
+  pts.sort((p, q) => q.a - p.a || p.r - q.r);
+  const W = 600, H = 318, cx = 300, cy = 300, R = 285, rad = Math.max(1.6, Math.min(9, d * R * 0.42));
+  let idx = 0; const dots = [];
+  grupos.forEach(g => { const tip = gesc(`<b>${gesc(g.nome)}</b><div>${g.n} de ${total} cadeiras · ${gpct(g.n / total * 100)}</div>`); let s = ''; for (let j = 0; j < g.n; j++, idx++) { const p = pts[idx]; s += `<circle cx="${(cx + R * p.r * Math.cos(p.a)).toFixed(1)}" cy="${(cy - R * p.r * Math.sin(p.a)).toFixed(1)}" r="${rad.toFixed(2)}"/>`; } dots.push(`<g fill="${g.cor}" data-tip="${tip}">${s}</g>`); });
+  return `<div class="ghemi"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${gesc(titulo)}: ${total} cadeiras">${dots.join('')}<text x="${cx}" y="${cy - 26}" class="gh1">${total}</text><text x="${cx}" y="${cy + 2}" class="gh2">${gesc(titulo)}</text></svg>
+    ${legenda(grupos.filter(g => g.n).map(g => [g.cor, `${gesc(g.nome)} <b>${g.n}</b>`]))}</div>`;
+}
+// Barras divergentes: [{nome, d, h, f}] ordenadas por d
+function divergente(itens) {
+  const max = Math.max(1, ...itens.map(i => Math.abs(i.d)));
+  return `<div class="gdv">${itens.map(i => {
+    const w = Math.abs(i.d) / max * 100; const tip = gesc(`<b>${gesc(i.nome)}</b><div>Hoje: ${i.h} · 2027: ${i.f}</div><div>Variação: ${i.d > 0 ? '+' : i.d < 0 ? '−' : ''}${Math.abs(i.d)}</div>`);
+    const lab = i.d > 0 ? '+' + i.d : i.d < 0 ? '−' + (-i.d) : '0';
+    return `<div class="gdr" data-tip="${tip}"><div class="gdn">${gesc(i.nome)}</div><div class="gdl">${i.d < 0 ? `<em>${lab}</em><span class="neg" style="width:${w}%"></span>` : ''}</div><div class="gdm"></div><div class="gdp">${i.d > 0 ? `<span class="pos" style="width:${w}%"></span><em>${lab}</em>` : i.d === 0 ? '<em class="z">0</em>' : ''}</div><div class="gdh">${i.h} → <b>${i.f}</b></div></div>`;
+  }).join('')}</div>`;
+}
+
+function graficoPresUF(r) {
+  const [a, b] = r.cands; if (!a || !b) return '';
+  const corA = corPartido(a.partido), corB0 = corPartido(b.partido), corB = corB0 === corA ? '#d95926' : corB0;
+  const linhas = [];
+  ufsPorRegiao().concat(['ZZ']).forEach(u => {
+    garantir(1, u.toLowerCase() === 'zz' ? 'zz' : u);
+    const x = data[key(1, u.toLowerCase() === 'zz' ? 'zz' : u)]; if (!x || !x.cands.length) return;
+    const va = (x.cands.find(c => c.num === a.num) || {}).votos || 0, vb = (x.cands.find(c => c.num === b.num) || {}).votos || 0;
+    const tot = x.cands.reduce((s, c) => s + c.votos, 0); if (!tot) return;
+    linhas.push({ rot: u === 'ZZ' ? 'Exterior' : u, sub: u === 'ZZ' ? '' : REGIAO[u], segs: [{ v: va, cor: corA, nome: a.nome }, { v: tot - va - vb, cor: COR_OUTROS, nome: 'Demais candidatos' }, { v: vb, cor: corB, nome: b.nome }] });
+  });
+  if (!linhas.length) return '';
+  const tot = r.cands.reduce((s, c) => s + c.votos, 0);
+  linhas.push({ rot: 'Brasil', cls: 'tot', segs: [{ v: a.votos, cor: corA, nome: a.nome }, { v: tot - a.votos - b.votos, cor: COR_OUTROS, nome: 'Demais candidatos' }, { v: b.votos, cor: corB, nome: b.nome }] });
+  return `<div class="gcard" style="margin-top:16px"><div class="gtit">Votação por estado</div><div class="gsub">Participação nos votos válidos para Presidente em cada estado e no exterior. Passe o cursor ou toque numa linha para ver os números.</div>
+    ${legenda([[corA, gesc(a.nome)], [COR_OUTROS, 'Demais candidatos'], [corB, gesc(b.nome)]])}<div style="height:10px"></div>${barras100(linhas)}</div>`;
+}
+
+function graficoHemiciclo(P, cargoSel) {
+  // P: mapa partido -> {c:{3,5,6,7}}; usa o cargo filtrado (ou Dep. Federal quando "Todos")
+  const c = cargoSel === 'todos' ? 6 : Number(cargoSel);
+  const nomes = { 3: 'Governadores', 5: 'Senado · eleitos em 2026', 6: 'Câmara dos Deputados', 7: 'Assembleias Legislativas' };
+  const cont = {}; Object.values(P).forEach(p => { if (p.c[c]) cont[p.sg] = (cont[p.sg] || 0) + p.c[c]; });
+  const grupos = ORDEM_PARTIDO.map(sg => ({ nome: sg, n: cont[sg] || 0, cor: COR_PARTIDO[sg] }));
+  const outros = Object.entries(cont).filter(([sg]) => !ORDEM_PARTIDO.includes(sg)).sort((x, y) => y[1] - x[1]);
+  const nOut = outros.reduce((s, [, n]) => s + n, 0);
+  if (nOut) grupos.push({ nome: 'Outros (' + outros.map(([sg, n]) => `${sg} ${n}`).join(', ') + ')', n: nOut, cor: COR_OUTROS });
+  const svg = hemiciclo(grupos.filter(g => g.n), nomes[c]);
+  if (!svg) return '';
+  return `<div class="gcard"><div class="gtit">${nomes[c]}${cargoSel === 'todos' ? '' : ''}</div><div class="gsub">Cadeiras conquistadas por partido no recorte escolhido${cargoSel === 'todos' ? ' (com "Todos" selecionado, o hemiciclo mostra os deputados federais)' : ''}. Passe o cursor sobre um bloco para ver o número.</div>${svg}</div>`;
+}
+
+function graficoAbs(porReg, ex, br) {
+  const L = [];
+  const ex2 = s => s.te ? `brancos <b>${gpct(s.vb / s.te * 100)}</b> · nulos <b>${gpct(s.vn / s.te * 100)}</b>` : '';
+  const seg = s => [{ v: s.vv, cor: '#3987e5', nome: 'Votos válidos' }, { v: s.vb, cor: '#d95926', nome: 'Brancos' }, { v: s.vn, cor: '#199e70', nome: 'Nulos' }, { v: s.a, cor: '#9085e9', nome: 'Abstenções' }];
+  Object.entries(porReg).forEach(([rg, s]) => { if (s.ok) L.push({ rot: rg, segs: seg(s), extra: ex2(s) }); });
+  if (ex.ok) L.push({ rot: 'Exterior', segs: seg(ex), extra: ex2(ex) });
+  if (br.ok) L.push({ rot: 'Brasil', cls: 'tot', segs: seg(br), extra: ex2(br) });
+  if (!L.length) return '';
+  return `<div class="gcard"><div class="gtit">Como votou o eleitorado</div><div class="gsub">Divisão de todo o eleitorado apto entre votos válidos, brancos, nulos e abstenções, na votação para Presidente.</div>
+    ${legenda([['#3987e5', 'Votos válidos'], ['#d95926', 'Brancos'], ['#199e70', 'Nulos'], ['#9085e9', 'Abstenções']])}<div style="height:10px"></div>${barras100(L, { min: 6 })}</div>`;
+}
 
 /* ===== Deputados por estado ===== */
 const depSel = { 6: store.get('uf6', 'RJ'), 7: store.get('uf7', 'RJ') };
@@ -882,7 +1009,7 @@ function garantir(cg, uf) {
   extras.add(k);
   if (data[k] || pedindo.has(k)) return;
   pedindo.add(k);
-  fetchOne(cg, uf).then(() => { pedindo.delete(k); if (tab === 'fed' || tab === 'est' || tab === 'par' || tab === 'abs') render(false); });
+  fetchOne(cg, uf).then(() => { pedindo.delete(k); if (tab === 'fed' || tab === 'est' || tab === 'par' || tab === 'abs' || tab === 'pres') render(false); });
 }
 
 function viewDep(c) {
@@ -1047,7 +1174,7 @@ function viewPres() {
     r.cands.map(c => `<div class="prow">${img(c.foto)}
       <div><div class="nm">${esc(c.nome)} <span class="meta">${esc(c.partido)} ${esc(c.num)}</span></div><div class="bar"><i style="width:${c.pct}%"></i></div></div>
       <div class="v">${fmt(c.votos)}<div class="meta">${dl(c.sq)}</div></div>
-      <div><div class="p">${fmtP(c.pct)}</div><div style="text-align:right">${tagSt(c)}</div></div></div>`).join('') + '</div>';
+      <div><div class="p">${fmtP(c.pct)}</div><div style="text-align:right">${tagSt(c)}</div></div></div>`).join('') + '</div>' + graficoPresUF(r);
 }
 
 function viewUF(c, top) {

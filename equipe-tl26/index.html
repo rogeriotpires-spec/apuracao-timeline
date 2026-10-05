@@ -803,10 +803,12 @@ function linhasDep(c) {
     const nEl = r.cands.filter(x => catSt(x) === 'el').length;
     html += `<div class="dsep">Resultado do TSE: ${nEl} eleitos para ${r.vagas} vagas${nEl !== r.vagas ? ' (confira: número diferente das vagas)' : ''}. O número à esquerda é a posição em votos no estado; a eleição depende do quociente partidário.</div>`;
   }
+  if (!definido && !depBusca && r.pst >= 99.99 && !r.final)
+    html += `<div class="dsep" style="color:var(--tx);background:rgba(197,59,38,.18);border-left:4px solid var(--brand);text-transform:none;letter-spacing:0;font-size:13px;line-height:1.5">Apuração 100% concluída, mas <b>o TSE ainda não oficializou os eleitos deste estado</b> no sistema de divulgação (totalização não finalizada, possivelmente por candidaturas sub judice). Listas de eleitos divulgadas na imprensa são cálculos dos próprios veículos. Assim que o TSE publicar, o painel marca eleitos, suplentes e não eleitos automaticamente.</div>`;
   mostra.forEach(x => {
     if (definido && !depBusca && catSt(x) !== grupo) { grupo = catSt(x); html += `<div class="dsep" style="color:var(--tx)">${NOMES[grupo]}</div>`; }
     html += linha(x);
-    if (!definido && !depBusca && x.pos === r.vagas && r.vagas > 0)
+    if (!definido && !depBusca && x.pos === r.vagas && r.vagas > 0 && r.pst < 99.99)
       html += `<div class="dsep">Até aqui: ${r.vagas} posições, o número de vagas. Linha indicativa: quem se elege depende do quociente partidário.</div>`;
   });
   if (lst.length > mostra.length) html += `<div class="dmais" id="depMais">Carregando mais candidatos... (${fmt(mostra.length)} de ${fmt(lst.length)})</div>`;

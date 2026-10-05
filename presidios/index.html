@@ -232,8 +232,29 @@ function ehVotavel(b, no) { // TotalVotosVotavel: [0] tipoVoto, [1] quantidade, 
   const t = filho(no, 0), q = filho(no, 1); if (!t || !q || t.f || q.f) return false;
   const tv = berInt(b, t); return tv >= 1 && tv <= 5 && berInt(b, q) >= 0;
 }
+function berTolerante(b) { // lê do início até onde der (ignora sobras no fim do arquivo)
+  const nos = []; let p = 0;
+  while (p < b.length) { if (b[p] === 0 || b[p] === 0xff) { p++; continue; }
+    let um; for (let fim = b.length; ; ) { try { um = berLer(b, p, fim, 0); break; } catch (e) { um = null; break; } }
+    if (um && um.length) { nos.push(...um); break; }
+    // tenta só o primeiro elemento
+    try { const t = berUm(b, p); nos.push(t); p = t.fim; } catch (e) { break; } }
+  return nos;
+}
+function berUm(b, p) { let q = p; const t0 = b[q++]; let tag = t0 & 31; if (tag === 31) { let x; do { x = b[q++]; } while (x & 128); }
+  let len = b[q++]; if (len > 128) { const n = len & 127; len = 0; for (let i = 0; i < n; i++) len = len * 256 + b[q++]; }
+  if (q + len > b.length) throw 0; return berLer(b, p, q + len, 0)[0]; }
+async function descomprimir(buf) {
+  let b = new Uint8Array(buf);
+  const ds = async (dados, tipo) => new Uint8Array(await new Response(new Blob([dados]).stream().pipeThrough(new DecompressionStream(tipo))).arrayBuffer());
+  if (b[0] === 0x1f && b[1] === 0x8b) return ds(b, 'gzip');
+  if (b[0] === 0x50 && b[1] === 0x4b && b[2] === 3 && b[3] === 4) { const dv = new DataView(b.buffer, b.byteOffset); const met = dv.getUint16(8, true), tam = dv.getUint32(18, true), nl = dv.getUint16(26, true), el = dv.getUint16(28, true); const ini = 30 + nl + el; const d = b.slice(ini, tam ? ini + tam : undefined); return met === 8 ? ds(d, 'deflate-raw') : d; }
+  if (b[0] === 0x78 && (b[1] === 0x9c || b[1] === 0x01 || b[1] === 0xda)) return ds(b, 'deflate');
+  return b;
+}
+function resumoArvore(b, nos, prof) { return (nos || []).slice(0, 12).map(n => (n.cls === 2 ? '[' + n.tag + ']' : n.cls === 0 ? 'U' + n.tag : 'c' + n.cls + 't' + n.tag) + (n.f ? (n.emb ? '«' : '{') + (prof < 3 ? resumoArvore(b, n.f, prof + 1) : n.f.length) + (n.emb ? '»' : '}') : '=' + (berInt(b, n) ?? (n.fim - n.ini) + 'b'))).join(' '); }
 function lerBUbin(buf) {
-  const b = new Uint8Array(buf); const raiz = berLer(b, 0, b.length, 0);
+  const b = buf instanceof Uint8Array ? buf : new Uint8Array(buf); const raiz = berTolerante(b);
   const achados = []; // {cargo, comp, aptos, eleicao, lista}
   (function anda(nos, pais) {
     nos.forEach(no => {
@@ -249,7 +270,7 @@ function lerBUbin(buf) {
   })(raiz, []);
   const nums = new Set(CANDS.map(c => c.num));
   const alvo = achados.find(a => a.cargo === 1) || achados.find(a => a.eleicao === 6257) || achados.find(a => a.lista.some(x => { const id = filho(x, 2); return id && nums.has(String(berInt(b, filho(id, 1)))); }));
-  if (!alvo) return { achados: achados.length };
+  if (!alvo) return { achados: achados.length, arv: resumoArvore(b, raiz, 0), cargos: achados.map(a => a.cargo + '/' + a.eleicao).join(',') };
   const r = { votos: {}, br: 0, nu: 0, aptos: alvo.aptos, comp: alvo.comp };
   alvo.lista.forEach(x => {
     const tv = berInt(b, filho(x, 0)), q = berInt(b, filho(x, 1));
@@ -278,10 +299,10 @@ async function lerSecao(s) {
       lista = js.slice(0, 900);
     }
     let r = null, txt = '';
-    if (bu) { let bb; try { bb = await pegar(`${base}/${bu.h.hash}/${bu.n}`, 'buf'); r = lerBUbin(bb); txt = r.txt || ('Boletim binário lido, mas sem bloco de Presidente (' + r.achados + ' blocos)'); if (!r.votos) r = null; } catch (e) { txt = 'Falha ao ler ' + bu.n + ': ' + (e && e.message || 'formato') + (bb ? ' · ' + bb.byteLength + ' bytes · início ' + Array.from(new Uint8Array(bb).slice(0, 24)).map(x => x.toString(16).padStart(2, '0')).join(' ') : ''); r = null; } }
+    if (bu) { let bb; try { bb = await pegar(`${base}/${bu.h.hash}/${bu.n}`, 'buf'); r = lerBUbin(await descomprimir(bb)); txt = r.txt || ('BU lido · ' + bb.byteLength + ' bytes · início ' + Array.from(new Uint8Array(bb).slice(0, 16)).map(x => x.toString(16).padStart(2, '0')).join(' ') + ' · blocos de cargo ' + r.achados + ' (' + r.cargos + ') · estrutura: ' + r.arv); if (!r.votos) r = null; } catch (e) { txt = 'Falha ao ler ' + bu.n + ': ' + (e && e.message || 'formato') + (bb ? ' · ' + bb.byteLength + ' bytes · início ' + Array.from(new Uint8Array(bb).slice(0, 24)).map(x => x.toString(16).padStart(2, '0')).join(' ') : ''); r = null; } }
     if ((!r || !Object.keys(r.votos).length) && img) { txt = textoBU(await pegar(`${base}/${img.h.hash}/${img.n}`, 'buf')); r = lerBU(txt); }
     if (!bu && !img) throw new Error('boletim não encontrado no TSE · TSE respondeu: ' + lista.slice(0, 400));
-    if (!r || !Object.keys(r.votos).length) R[k(s)] = { st: 'er', err: 'não foi possível ler o voto para Presidente', txt: txt + '\n\nArquivos: ' + lista };
+    if (!r || !Object.keys(r.votos).length) R[k(s)] = { st: 'er', err: 'não foi possível ler o voto para Presidente · ' + txt.slice(0, 500), txt: txt + '\n\nArquivos: ' + lista };
     else R[k(s)] = { st: 'ok', ...r, txt: DEBUG ? txt + '\n\nArquivos: ' + lista : '' };
   } catch (e) { R[k(s)] = { st: 'er', err: e.name === 'AbortError' ? 'tempo esgotado' : e.message, txt: lista ? 'Arquivos: ' + lista : '' }; }
   feitos++; if (feitos % 10 === 0) render();

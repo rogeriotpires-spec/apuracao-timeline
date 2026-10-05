@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hoje × 2027: a nova composição política | Timeline</title>
+<meta name="description" content="Compare a composição atual de Assembleias, Câmara, Senado e governos com a que toma posse em 2027, por estado, região e Brasil.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Hoje × 2027: como muda o mapa político do Brasil">
+<meta property="og:description" content="Assembleias, Câmara, Senado e governos: quem ganhou e quem perdeu espaço, por estado, região e Brasil.">
+<meta property="og:url" content="https://rogeriotpires-spec.github.io/apuracao-timeline/comparacao/">
+<meta property="og:image" content="https://rogeriotpires-spec.github.io/apuracao-timeline/og-image.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#060504">
+<link rel="icon" type="image/png" href="https://rogeriotpires-spec.github.io/apuracao-timeline/icone.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060504;--card:#100d0b;--card2:#171210;--line:#2c221c;--deep:#0a0807;--tx:#f6f2ee;--mut:#a89c92;--gold:#e07a2c;--gold2:#f4a65a;--brand:#c53b26;--up:#3fcf86;--down:#ff6b5a;--glow:linear-gradient(90deg,#b5361f,#e07a2c 55%,#f4a65a)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(900px 520px at 12% -12%,rgba(197,59,38,.2),transparent 62%),radial-gradient(900px 520px at 92% -8%,rgba(224,122,44,.12),transparent 60%),var(--bg);background-attachment:fixed;color:var(--tx);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.c{font-family:"Barlow Condensed","Arial Narrow",Inter,sans-serif}
+header{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:14px 26px;background:#050403;position:relative;overflow:hidden;box-shadow:0 1px 0 rgba(224,122,44,.35)}
+header::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0 46px,rgba(224,122,44,.09) 46px 48px,transparent 48px 94px),radial-gradient(55% 170% at 22% 130%,rgba(214,96,30,.38),transparent 70%)}
+header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--glow)}
+header>*{position:relative}
+.logo{width:50px;height:50px;border-radius:12px}
+.wm{font-family:"Playfair Display",Georgia,serif;font-weight:700;font-size:28px}
+.ap{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:700;font-size:15px;letter-spacing:3px;text-transform:uppercase;background:var(--glow);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{font-size:11px;color:var(--mut);letter-spacing:1.6px;text-transform:uppercase;margin-top:4px}
+.sp{flex:1}.st{font-size:12px;color:var(--mut);text-align:right}.st b{color:var(--tx)}
+button,select{font:600 12px Inter;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--tx);padding:6px 12px;border-radius:999px;cursor:pointer}
+button.on{border-color:var(--gold);color:var(--gold2);background:rgba(224,122,44,.1)}
+button.pri{background:var(--glow);color:#140a04;border:0}
+select{background:var(--deep)}
+main{padding:18px 26px 40px;max-width:1400px}
+.intro{color:var(--mut);font-size:14px;line-height:1.55;max-width:980px;margin-bottom:14px}.intro b{color:var(--tx)}
+.fil{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:6px 0}
+.lb{font:700 11px Inter;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-right:4px;min-width:62px}
+.prog{font-size:12px;color:var(--mut);margin:8px 0 4px}
+h2{font-family:"Playfair Display",Georgia,serif;font-size:26px;margin:26px 0 4px;display:flex;align-items:center;gap:10px}
+h2::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--brand);box-shadow:0 0 12px rgba(197,59,38,.8)}
+.h2s{color:var(--mut);font-size:13px;margin-bottom:10px}
+.wrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;text-align:right}
+th{font:700 11px Inter;letter-spacing:.6px;text-transform:uppercase;color:var(--mut);background:var(--deep);position:sticky;top:0}
+th.g{border-left:1px solid var(--line);text-align:center}td.g{border-left:1px solid var(--line)}
+td:first-child,th:first-child{text-align:left;position:sticky;left:0;background:var(--card);z-index:1}
+th:first-child{background:var(--deep);z-index:2}
+td.k{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:800;font-size:19px;color:var(--gold2)}
+td.n{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:700;font-size:18px}
+td.n.m{color:var(--mut)}
+.up{color:var(--up)}.down{color:var(--down)}.eq{color:var(--mut)}
+.d{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:800;font-size:18px}
+tr.tot td{font-weight:800;background:rgba(255,255,255,.03)}
+.cell{display:inline-flex;gap:6px;align-items:baseline}
+.pill{display:inline-block;font:700 10px Inter;padding:2px 6px;border-radius:5px;background:#3a2a1a;color:var(--gold2);margin-left:4px;letter-spacing:.4px}
+.bar2{display:flex;align-items:center;gap:6px;min-width:140px}
+.bar2 i{display:block;height:6px;border-radius:3px}
+.nota{color:var(--mut);font-size:12px;line-height:1.6;margin-top:10px;max-width:1100px}.nota b{color:var(--tx)}
+.aviso{color:var(--gold2);font-size:12px;margin-top:8px;line-height:1.5}
+footer{color:var(--mut);font-size:12px;text-align:center;padding:20px;border-top:1px solid var(--line)}footer a{color:var(--gold2)}
+@media(max-width:700px){header{padding:12px 16px}main{padding:14px}.wm{font-size:22px}h2{font-size:21px}.lb{min-width:auto}}
+</style>
+</head>
+<body>
+<header>
+  <img class="logo" alt="Timeline" src="data:image/jpeg;base64,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">
+  <div><div><span class="wm">Timeline</span> <span class="ap">Hoje × 2027</span></div><div class="sub">Como muda a composição política do Brasil</div></div>
+  <div class="sp"></div>
+  <div class="st" id="status">Carregando...</div>
+  <button class="pri" id="btn">Atualizar</button>
+</header>
+<main>
+  <p class="intro">Compare a <b>composição de hoje</b> com a que toma posse em <b>2027</b>, após a eleição de 4 de outubro. Use os filtros para escolher a casa, a região, o estado e um partido. A variação mostra quantas cadeiras cada partido ganha (<span class="up">+</span>) ou perde (<span class="down">−</span>).</p>
+  <div class="fil"><span class="lb">Casa</span><span id="fCasa"></span></div>
+  <div class="fil"><span class="lb">Região</span><span id="fReg"></span><span class="lb" style="margin-left:10px">Estado</span><select id="fUF"></select><span class="lb" style="margin-left:10px">Partido</span><select id="fPar"></select></div>
+  <div class="prog" id="prog"></div>
+  <div id="conteudo"></div>
+  <div class="nota" id="fontes"></div>
+</main>
+<footer>Revista Timeline · dados do TSE, da Câmara dos Deputados e do Senado Federal · <a href="https://rogeriotpires-spec.github.io/apuracao-timeline/painel/">Voltar à apuração</a></footer>
+<script>
+const T26 = 'https://resultados.tse.jus.br/oficial/ele2026/6259/dados';
+const T22 = 'https://resultados.tse.jus.br/oficial/ele2022/546/dados-simplificados';
+const REG = [['Norte',['AC','AM','AP','PA','RO','RR','TO']],['Nordeste',['AL','BA','CE','MA','PB','PE','PI','RN','SE']],['Centro-Oeste',['DF','GO','MS','MT']],['Sudeste',['ES','MG','RJ','SP']],['Sul',['PR','RS','SC']]];
+const UFS = REG.flatMap(r => r[1]); const REGIAO = {}; REG.forEach(([n, l]) => l.forEach(u => REGIAO[u] = n));
+const CASAS = [['ale', 'Assembleias'], ['cam', 'Câmara'], ['sen', 'Senado'], ['gov', 'Governos']];
+// Governadores em exercício em out/2026 (levantamento em reportagens; ver nota de fontes)
+const GOV_HOJE = {AC:['Mailza Assis','PP'],AL:['Paulo Dantas','MDB'],AP:['Clécio Luís','UNIÃO'],AM:['Roberto Cidade','UNIÃO'],BA:['Jerônimo Rodrigues','PT'],CE:['Elmano de Freitas','PT'],DF:['Celina Leão','PP'],ES:['Ricardo Ferraço','MDB'],GO:['Daniel Vilela','MDB'],MA:['Carlos Brandão','SEM PARTIDO'],MT:['Otaviano Pivetta','PP'],MS:['Eduardo Riedel','PP'],MG:['Mateus Simões','PSD'],PA:['Hana Ghassan','MDB'],PB:['Lucas Ribeiro','PP'],PR:['Ratinho Junior','PSD'],PE:['Raquel Lyra','PSD'],PI:['Rafael Fonteles','PT'],RJ:['Douglas Ruas','PL'],RN:['Fátima Bezerra','PT'],RS:['Eduardo Leite','PSD'],RO:['Marcos Rocha','UNIÃO'],RR:['Edilson Damião','MDB'],SC:['Jorginho Mello','PL'],SP:['Tarcísio de Freitas','REPUBLICANOS'],SE:['Fábio Mitidieri','PSD'],TO:['Laurez Moreira','PSD']};
+// Número do partido em 2022 -> partido hoje (fusões e incorporações de 2023 em diante)
+const NUM22 = {10:'REPUBLICANOS',11:'PP',12:'PDT',13:'PT',14:'PRD',15:'MDB',16:'PSTU',18:'REDE',19:'PODE',20:'PODE',21:'PCB',22:'PL',23:'CIDADANIA',25:'PRD',27:'DC',28:'PRTB',29:'PCO',30:'NOVO',33:'MOBILIZA',35:'PMB',36:'AGIR',40:'PSB',43:'PV',44:'UNIÃO',45:'PSDB',50:'PSOL',51:'PRD',55:'PSD',65:'PCdoB',70:'AVANTE',77:'SOLIDARIEDADE',80:'UP',90:'SOLIDARIEDADE'};
+const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+const ALIAS = {UNIAO:'UNIÃO',UNIAOBRASIL:'UNIÃO',PODEMOS:'PODE',PCDOB:'PCdoB',SDD:'SOLIDARIEDADE',SOLIDARIEDADE:'SOLIDARIEDADE',REPUBLICANOS:'REPUBLICANOS',MISSAO:'MISSÃO',SPART:'SEM PARTIDO',SPARTIDO:'SEM PARTIDO',SEMPARTIDO:'SEM PARTIDO',PMN:'MOBILIZA',PTB:'PRD',PATRIOTA:'PRD',PSC:'PODE',PROS:'SOLIDARIEDADE'};
+const sigla = s => { const k = norm(s); return ALIAS[k] || String(s || '').trim().toUpperCase().replace('PCDOB', 'PCdoB') || 'SEM PARTIDO'; };
+const n = s => (s ? Number(String(s).replace(/\./g, '').replace(',', '.')) || 0 : 0);
+const pc = s => (s ? Number(String(s).replace(',', '.')) || 0 : 0);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const catEl = (st, e) => { const s = norm(st); return String(e).toLowerCase() === 's' || (s.includes('ELEITO') && !s.includes('NAO')); };
+
+// Estrutura: D[casa][uf] = { hoje: {partido: n}, f: {partido: n}, pend: texto|null, det: {...} }
+const D = {}; CASAS.forEach(([c]) => { D[c] = {}; UFS.forEach(u => D[c][u] = { hoje: null, f: null, pend: null }); });
+const erros = new Set();
+let fCasa = 'cam', fReg = 'Brasil', fUF = '', fPar = '', carregando = false, feitos = 0, total = 0;
+
+async function pegar(url, opt) {
+  const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 30000);
+  try { const r = await fetch(url, { cache: 'no-store', signal: ctl.signal, ...(opt || {}) }); if (!r.ok) throw new Error('HTTP ' + r.status); return await r.json(); }
+  finally { clearTimeout(t); feitos++; }
+}
+const conta = (obj, p) => { obj[p] = (obj[p] || 0) + 1; };
+
+async function tse26(cg, uf) {
+  const a = uf.toLowerCase(), base = `${T26}/${a}/${a}-c${String(cg).padStart(4, '0')}-e006259`;
+  let j; try { j = await pegar(`${base}-u.json?t=${Math.floor(Date.now() / 60000)}`); } catch (e) { j = await pegar(`${base}-u.json`); }
+  const carg = (j.carg || []).find(x => Number(x.cd) === cg) || (j.carg || [])[0] || { agr: [] };
+  const cands = [];
+  (carg.agr || []).forEach(ag => (ag.par || []).forEach(p => (p.cand || []).forEach(k => cands.push({ sq: String(k.sqcand), num: String(k.n), nome: k.nmu || k.nm, p: sigla(p.sg), el: catEl(k.st, k.e), t2: norm(k.st).includes('2'), votos: n(k.vap) }))));
+  const pst = pc(j.s && j.s.pst);
+  if (!cands.some(c => c.el || c.t2) && pst >= 99.99) {
+    try { const e = await pegar(`${base}-e.json`); const ids = new Set(); (e.abr || []).forEach(x => (x.cand || []).forEach(k => { ids.add(String(k.sqcand)); ids.add('n' + k.n); })); cands.forEach(c => { if (ids.has(c.sq) || ids.has('n' + c.num)) c.el = true; }); } catch (e) {}
+  }
+  return { cands, vagas: n(carg.nv), pst };
+}
+async function carregar() {
+  if (carregando) return; carregando = true; feitos = 0; erros.clear();
+  const tarefas = [];
+  // 2027: TSE 2026
+  UFS.forEach(u => {
+    [['gov', 3], ['sen', 5], ['cam', 6], ['ale', u === 'DF' ? 8 : 7]].forEach(([casa, cg]) => tarefas.push(async () => {
+      try {
+        const r = await tse26(cg, u); const f = {}; const els = r.cands.filter(c => c.el);
+        if (casa === 'gov') {
+          if (els.length) { conta(f, els[0].p); D.gov[u].f = f; D.gov[u].nome27 = els[0].nome; D.gov[u].pend = null; }
+          else { const t2 = r.cands.filter(c => c.t2); D.gov[u].f = null; D.gov[u].pend = t2.length ? '2º turno: ' + t2.map(c => `${c.nome} (${c.p})`).join(' × ') : 'resultado não oficializado'; }
+        } else if (casa === 'sen') {
+          if (els.length) { els.forEach(c => conta(f, c.p)); D.sen[u].novos = f; D.sen[u].pendNovos = null; } else { D.sen[u].novos = null; D.sen[u].pendNovos = 'eleitos ao Senado não oficializados'; }
+        } else {
+          if (els.length) { els.forEach(c => conta(f, c.p)); D[casa][u].f = f; D[casa][u].pend = null; } else { D[casa][u].f = null; D[casa][u].pend = 'eleitos não oficializados pelo TSE'; }
+        }
+      } catch (e) { erros.add('TSE 2026'); if (casa !== 'sen') D[casa][u].pend = 'dados do TSE indisponíveis'; else D.sen[u].pendNovos = 'dados do TSE indisponíveis'; }
+    }));
+    // Hoje: Assembleias = eleitos em 2022 (TSE)
+    tarefas.push(async () => {
+      const a = u.toLowerCase(), cg = u === 'DF' ? 8 : 7;
+      try {
+        const j = await pegar(`${T22}/${a}/${a}-c000${cg}-e000546-r.json`); const h = {};
+        (j.cand || []).forEach(k => { if (catEl(k.st, k.e)) conta(h, NUM22[Number(String(k.n).slice(0, 2))] || 'OUTROS'); });
+        D.ale[u].hoje = Object.keys(h).length ? h : null;
+      } catch (e) { erros.add('TSE 2022'); }
+    });
+    // Hoje: Câmara (bancada atual)
+    tarefas.push(async () => {
+      try { const j = await pegar(`https://dadosabertos.camara.leg.br/api/v2/deputados?siglaUf=${u}&itens=100&ordem=ASC&ordenarPor=nome`, { headers: { Accept: 'application/json' } }); const h = {}; (j.dados || []).forEach(d => conta(h, sigla(d.siglaPartido))); D.cam[u].hoje = h; }
+      catch (e) { erros.add('Câmara dos Deputados'); }
+    });
+    // Hoje: governador em exercício
+    const g = GOV_HOJE[u]; D.gov[u].hoje = { [g[1]]: 1 }; D.gov[u].nomeHoje = g[0];
+  });
+  // Hoje: Senado (em exercício) e quem permanece em 2027
+  tarefas.push(async () => {
+    try {
+      const j = await pegar('https://legis.senado.leg.br/dadosabertos/senador/lista/atual.json', { headers: { Accept: 'application/json' } });
+      let lst = (((j.ListaParlamentarEmExercicio || {}).Parlamentares || {}).Parlamentar) || []; if (!Array.isArray(lst)) lst = [lst];
+      UFS.forEach(u => { D.sen[u].hoje = {}; D.sen[u].fica = {}; });
+      lst.forEach(s => {
+        const id = s.IdentificacaoParlamentar || {}, u = id.UfParlamentar, p = sigla(id.SiglaPartidoParlamentar);
+        if (!D.sen[u]) return; conta(D.sen[u].hoje, p);
+        let m = s.Mandato || {}; if (Array.isArray(m)) m = m[0] || {};
+        const fim = Number(((m.SegundaLegislaturaDoMandato || {}).NumeroLegislatura) || 0);
+        if (fim >= 58) conta(D.sen[u].fica, p);
+      });
+    } catch (e) { erros.add('Senado Federal'); }
+  });
+  total = tarefas.length;
+  const fila = tarefas.slice(); const w = async () => { while (fila.length) { await fila.shift()(); if (feitos % 12 === 0) render(); } };
+  await Promise.all(Array.from({ length: 6 }, w));
+  // Senado 2027 = senadores que ficam (eleitos em 2022) + eleitos em 2026
+  UFS.forEach(u => { const s = D.sen[u]; if (s.hoje && s.novos) { const f = { ...(s.fica || {}) }; Object.entries(s.novos).forEach(([p, q]) => f[p] = (f[p] || 0) + q); s.f = f; s.pend = null; } else { s.f = null; s.pend = s.pendNovos || (s.hoje ? null : 'dados do Senado indisponíveis'); } });
+  carregando = false;
+  document.getElementById('status').innerHTML = 'Atualizado às <b>' + new Date().toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' }) + '</b>';
+  render();
+}
+
+// ---------- agregação ----------
+function casasSel() { return fCasa === 'todas' ? CASAS.map(c => c[0]) : [fCasa]; }
+function ufsSel() { return UFS.filter(u => (fReg === 'Brasil' || REGIAO[u] === fReg) && (!fUF || u === fUF)); }
+function somar(ufs, casas) {
+  const hoje = {}, f = {}, pend = [];
+  casas.forEach(c => ufs.forEach(u => {
+    const x = D[c][u];
+    if (!x.hoje || !x.f) { if (x.pend || !x.hoje) pend.push(`${CASAS.find(k => k[0] === c)[1]} ${u}`); return; }
+    Object.entries(x.hoje).forEach(([p, q]) => hoje[p] = (hoje[p] || 0) + q);
+    Object.entries(x.f).forEach(([p, q]) => f[p] = (f[p] || 0) + q);
+  }));
+  return { hoje, f, pend };
+}
+const dl = d => d > 0 ? `<span class="d up">+${d}</span>` : d < 0 ? `<span class="d down">−${-d}</span>` : `<span class="d eq">0</span>`;
+const partidosOrdem = s => [...new Set([...Object.keys(s.hoje), ...Object.keys(s.f)])].sort((a, b) => (s.f[b] || 0) - (s.f[a] || 0) || (s.hoje[b] || 0) - (s.hoje[a] || 0) || a.localeCompare(b));
+
+function tabelaGeral(titulo, sub, ufs) {
+  const s = somar(ufs, casasSel());
+  let ps = partidosOrdem(s); if (fPar) ps = ps.filter(p => p === fPar);
+  const th = Object.values(s.hoje).reduce((a, b) => a + b, 0), tf = Object.values(s.f).reduce((a, b) => a + b, 0);
+  const max = Math.max(1, ...ps.map(p => Math.abs((s.f[p] || 0) - (s.hoje[p] || 0))));
+  const rows = ps.map(p => { const h = s.hoje[p] || 0, f = s.f[p] || 0, d = f - h;
+    return `<tr><td class="k">${esc(p)}</td><td class="n m">${h}</td><td class="n">${f}</td><td>${dl(d)}</td><td class="n m">${th ? (h / th * 100).toFixed(1).replace('.', ',') : '0'}%</td><td class="n">${tf ? (f / tf * 100).toFixed(1).replace('.', ',') : '0'}%</td>
+      <td><div class="bar2" style="justify-content:${d < 0 ? 'flex-end' : 'flex-start'}"><i style="width:${Math.abs(d) / max * 120}px;background:${d < 0 ? 'var(--down)' : 'var(--up)'}"></i></div></td></tr>`; }).join('');
+  return `<h2>${titulo}</h2><div class="h2s">${sub}</div><div class="wrap"><table><thead><tr><th>Partido</th><th>Hoje</th><th>2027</th><th>Variação</th><th>% hoje</th><th>% 2027</th><th></th></tr></thead><tbody>${rows || '<tr><td colspan="7">Sem dados para os filtros escolhidos.</td></tr>'}${fPar ? '' : `<tr class="tot"><td>Total</td><td class="n">${th}</td><td class="n">${tf}</td><td>${dl(tf - th)}</td><td></td><td></td><td></td></tr>`}</tbody></table></div>
+    ${s.pend.length ? `<div class="aviso">Fora da conta por falta de dado oficial: ${[...new Set(s.pend)].join(', ')}.</div>` : ''}`;
+}
+function matriz(titulo, sub, linhas) {
+  // linhas: [[rótulo, ufs]]; colunas: partido filtrado ou os 8 maiores do recorte
+  const geral = somar(linhas.flatMap(l => l[1]), casasSel());
+  const cols = fPar ? [fPar] : partidosOrdem(geral).slice(0, 8);
+  const hd = `<tr><th>${titulo.includes('região') ? 'Região' : 'Estado'}</th>${cols.map(p => `<th class="g">${esc(p)}<br><small>hoje → 2027</small></th>`).join('')}${fCasa === 'gov' || fCasa === 'todas' ? '<th class="g">Governo hoje → 2027</th>' : ''}</tr>`;
+  const rows = linhas.map(([rot, ufs]) => {
+    const s = somar(ufs, casasSel());
+    const pend = s.pend.length && !Object.keys(s.f).length;
+    const gov = (fCasa === 'gov' || fCasa === 'todas') ? `<td class="g" style="text-align:left;font-size:12px">${ufs.length === 1 ? (() => { const g = D.gov[ufs[0]]; const h = Object.keys(g.hoje || {})[0] || '-'; const f = g.f ? Object.keys(g.f)[0] : null; return `${esc(h)} → ${f ? `<b>${esc(f)}</b>` : `<span class="pill">${esc(g.pend || 'aguardando')}</span>`}`; })() : ''}</td>` : '';
+    return `<tr><td class="k">${rot}${pend ? '<span class="pill">pendente</span>' : ''}</td>${cols.map(p => { const h = s.hoje[p] || 0, f = s.f[p] || 0; return `<td class="g"><span class="cell"><span class="n m" style="font-family:inherit">${h}</span>→<b class="c" style="font-size:18px">${f}</b>${dl(f - h)}</span></td>`; }).join('')}${gov}</tr>`;
+  }).join('');
+  return `<h2>${titulo}</h2><div class="h2s">${sub}</div><div class="wrap"><table><thead>${hd}</thead><tbody>${rows}</tbody></table></div>`;
+}
+function render() {
+  document.getElementById('fCasa').innerHTML = [['todas', 'Todas as casas'], ...CASAS].map(([k, t]) => `<button data-casa="${k}" class="${k === fCasa ? 'on' : ''}">${t}</button>`).join(' ');
+  document.getElementById('fReg').innerHTML = ['Brasil', ...REG.map(r => r[0])].map(r => `<button data-reg="${r}" class="${r === fReg ? 'on' : ''}">${r}</button>`).join(' ');
+  document.getElementById('fUF').innerHTML = `<option value="">Todos</option>` + UFS.filter(u => fReg === 'Brasil' || REGIAO[u] === fReg).map(u => `<option ${u === fUF ? 'selected' : ''}>${u}</option>`).join('');
+  const todos = somar(UFS, CASAS.map(c => c[0])); const lp = partidosOrdem(todos);
+  document.getElementById('fPar').innerHTML = `<option value="">Todos</option>` + lp.map(p => `<option ${p === fPar ? 'selected' : ''}>${esc(p)}</option>`).join('');
+  document.getElementById('prog').textContent = carregando ? `Carregando dados oficiais... ${feitos} de ${total}` : (erros.size ? `Algumas fontes não responderam: ${[...erros].join(', ')}. Toque em Atualizar para tentar de novo.` : '');
+  const casaNome = fCasa === 'todas' ? 'todas as casas somadas' : CASAS.find(c => c[0] === fCasa)[1];
+  const ufs = ufsSel();
+  const blocos = [];
+  blocos.push(matriz('Por estado', `${casaNome} · ${fPar ? 'partido ' + fPar : 'os 8 maiores partidos do recorte'} · cadeiras hoje → 2027`, ufs.map(u => [u, [u]])));
+  if (!fUF) blocos.push(matriz('Por região', `${casaNome} · soma dos estados de cada região`, REG.filter(r => fReg === 'Brasil' || r[0] === fReg).map(([nm, l]) => [nm, l])));
+  blocos.push(tabelaGeral(fUF ? `Total · ${fUF}` : fReg === 'Brasil' ? 'Brasil' : `Total · ${fReg}`, `${casaNome} · todos os partidos`, ufs));
+  document.getElementById('conteudo').innerHTML = blocos.join('');
+  document.getElementById('fontes').innerHTML = `<b>Fontes e critérios.</b> <b>2027:</b> eleitos de 2026 conforme o TSE; no Senado, os 27 senadores eleitos em 2022 (mandato até 2031, pelo partido atual) somados aos 54 eleitos agora; governos que vão ao 2º turno ficam como pendentes. <b>Hoje:</b> Câmara e Senado pela composição em exercício informada pelas bases oficiais da Câmara dos Deputados e do Senado Federal (inclui suplentes no exercício do mandato); Assembleias pelos <b>eleitos em 2022</b> (TSE), sem as trocas de partido feitas depois, com partidos extintos atribuídos ao sucessor (PTB e Patriota → PRD; PSC → Podemos; PROS → Solidariedade; PMN → Mobiliza); governadores em exercício conforme levantamento da Timeline em reportagens (renúncias de abril de 2026; Carlos Brandão, MA, deixou o PSB em ago/2025). Estados sem resultado oficializado pelo TSE ficam fora da conta e aparecem como pendentes.`;
+}
+document.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.casa) fCasa = b.dataset.casa; else if (b.dataset.reg) { fReg = b.dataset.reg; fUF = ''; } else if (b.id === 'btn') { carregar(); return; } else return; render(); });
+document.addEventListener('change', e => { if (e.target.id === 'fUF') fUF = e.target.value; if (e.target.id === 'fPar') fPar = e.target.value; render(); });
+render(); carregar();
+</script>
+</body>
+</html>

@@ -61,6 +61,11 @@ tr.tot td{font-weight:800;background:rgba(255,255,255,.03)}
 .bar2 i{display:block;height:6px;border-radius:3px}
 .nota{color:var(--mut);font-size:12px;line-height:1.6;margin-top:10px;max-width:1100px}.nota b{color:var(--tx)}
 .aviso{color:var(--gold2);font-size:12px;margin-top:8px;line-height:1.5}
+.menu{display:flex;gap:4px;padding:14px 26px 6px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.menu a{font-family:"Barlow Condensed","Arial Narrow",Inter,sans-serif;font-size:18px;font-weight:700;padding:6px 14px 10px;text-transform:uppercase;letter-spacing:1.4px;color:var(--mut);text-decoration:none;position:relative;white-space:nowrap}
+.menu a:hover{color:var(--tx)}.menu a.on{color:var(--tx)}
+.menu a.on::after{content:"";position:absolute;left:12px;right:12px;bottom:-1px;height:3px;border-radius:3px;background:var(--glow);box-shadow:0 0 12px rgba(224,122,44,.6)}
+@media(max-width:700px){.menu{flex-wrap:nowrap;overflow-x:auto;padding:8px 10px 2px;scrollbar-width:none}.menu::-webkit-scrollbar{display:none}.menu a{font-size:16px;padding:6px 10px 10px}}
 footer{color:var(--mut);font-size:12px;text-align:center;padding:20px;border-top:1px solid var(--line)}footer a{color:var(--gold2)}
 @media(max-width:700px){header{padding:12px 16px}main{padding:14px}.wm{font-size:22px}h2{font-size:21px}.lb{min-width:auto}}
 </style>
@@ -73,6 +78,7 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px;border-top
   <div class="st" id="status">Carregando...</div>
   <button class="pri" id="btn">Atualizar</button>
 </header>
+<nav class="menu"><a href="https://rogeriotpires-spec.github.io/apuracao-timeline/painel/?tab=live">Nossa live</a><a href="https://rogeriotpires-spec.github.io/apuracao-timeline/painel/?tab=pres">Presidente</a><a href="https://rogeriotpires-spec.github.io/apuracao-timeline/painel/?tab=gov">Governadores</a><a href="https://rogeriotpires-spec.github.io/apuracao-timeline/painel/?tab=sen">Senado</a><a href="https://rogeriotpires-spec.github.io/apuracao-timeline/painel/?tab=fed">Dep. Federais</a><a href="https://rogeriotpires-spec.github.io/apuracao-timeline/painel/?tab=est">Dep. Estaduais</a><a href="https://rogeriotpires-spec.github.io/apuracao-timeline/painel/?tab=ext">Exterior</a><a href="https://rogeriotpires-spec.github.io/apuracao-timeline/painel/?tab=quo">Quociente</a><a href="https://rogeriotpires-spec.github.io/apuracao-timeline/painel/?tab=par">Eleitos por partido</a><a href="https://rogeriotpires-spec.github.io/apuracao-timeline/painel/?tab=def">Definidos</a><a class="on" href="./">Hoje × 2027</a></nav>
 <main>
   <p class="intro">Compare a <b>composição de hoje</b> com a que toma posse em <b>2027</b>, após a eleição de 4 de outubro. Use os filtros para escolher a casa, a região, o estado e um partido. A variação mostra quantas cadeiras cada partido ganha (<span class="up">+</span>) ou perde (<span class="down">−</span>).</p>
   <div class="fil"><span class="lb">Casa</span><span id="fCasa"></span></div>
@@ -244,6 +250,7 @@ document.addEventListener('click', e => { const b = e.target.closest('button'); 
   if (b.dataset.casa) fCasa = b.dataset.casa; else if (b.dataset.reg) { fReg = b.dataset.reg; fUF = ''; } else if (b.id === 'btn') { carregar(); return; } else return; render(); });
 document.addEventListener('change', e => { if (e.target.id === 'fUF') fUF = e.target.value; if (e.target.id === 'fPar') fPar = e.target.value; render(); });
 render(); carregar();
+const _on = document.querySelector('.menu a.on'); if (_on) _on.scrollIntoView({ inline: 'center', block: 'nearest' });
 </script>
 </body>
 </html>

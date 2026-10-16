@@ -55,7 +55,16 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-ui);font-weight:600;font-size:.95rem;background:var(--accent);color:var(--accent-ink);padding:10px 16px;border-radius:3px;white-space:nowrap}
 .btn:hover{filter:brightness(1.08)}
 .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
-@media (max-width:860px){.nav{display:none}.top .btn{margin-left:auto}}
+.menu-btn{display:none;align-items:center;justify-content:center;width:44px;height:44px;margin-left:4px;background:none;border:1px solid var(--rule);border-radius:3px;color:var(--ink);cursor:pointer}
+.menu-btn svg{width:22px;height:22px}
+@media (max-width:860px){
+  .top .wrap{flex-wrap:wrap}
+  .menu-btn{display:inline-flex}
+  .top .btn{margin-left:auto}
+  .nav{display:none;order:3;flex-basis:100%;flex-direction:column;gap:0;margin:0;border-top:1px solid var(--rule)}
+  .nav.open{display:flex}
+  .nav a{padding:14px 0;border-bottom:1px solid var(--rule);font-size:1.05rem;color:var(--ink)}
+}
 
 /* Faixa de edição */
 .dateline{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 24px;padding-block:18px 0;font-family:var(--f-ui);font-size:var(--s1);color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
@@ -143,14 +152,15 @@ footer a:hover{color:var(--ink)}
       <svg viewBox="0 0 40 16" aria-hidden="true"><rect x="0" y="7" width="40" height="2" fill="var(--accent)"/><circle cx="5" cy="8" r="3" fill="var(--accent)"/><circle cx="19" cy="8" r="3" fill="var(--accent)"/><circle cx="34" cy="8" r="4.5" fill="var(--signal)"/></svg>
       <b>Timeline</b>
     </a>
-    <nav class="nav" aria-label="Seções">
+    <nav class="nav" id="nav" aria-label="Seções">
       <a href="#artigos">Artigos</a>
       <a href="https://observatorio.revistatimeline.com/">Observatório</a>
       <a href="#conversa">Conversa Timeline</a>
       <a href="#almanaque">Almanaque 2026</a>
       <a href="#anuncie">Anuncie</a>
     </nav>
-    <a class="btn" href="https://www.revistatimeline.com/subscribe">Assinar grátis</a>
+    <a class="btn" href="https://www.revistatimeline.com/subscribe">Inscreva-se</a>
+    <button class="menu-btn" id="menu-btn" aria-label="Abrir menu" aria-expanded="false" aria-controls="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
   </div>
 </header>
 
@@ -197,10 +207,10 @@ footer a:hover{color:var(--ink)}
     <div class="wrap">
       <div>
         <h2>Receba a Timeline no seu e-mail</h2>
-        <p>Reportagem e opinião sem filtro, direto na sua caixa de entrada. Gratuito.</p>
-        <div class="count" id="subs">Mais de 46 mil assinantes</div>
+        <p>Reportagem e opinião direto na sua caixa de entrada.</p>
+        <div class="count" id="subs">Mais de 46 mil inscritos</div>
       </div>
-      <a class="btn" href="https://www.revistatimeline.com/subscribe">Assinar grátis</a>
+      <a class="btn" href="https://www.revistatimeline.com/subscribe">Inscreva-se</a>
     </div>
   </section>
 </main>
@@ -235,6 +245,9 @@ footer a:hover{color:var(--ink)}
 
 <script>
 (function(){
+  const nav=document.getElementById("nav"), mb=document.getElementById("menu-btn");
+  mb.addEventListener("click",()=>{const o=nav.classList.toggle("open");mb.setAttribute("aria-expanded",o);mb.setAttribute("aria-label",o?"Fechar menu":"Abrir menu");});
+  nav.addEventListener("click",e=>{if(e.target.closest("a")){nav.classList.remove("open");mb.setAttribute("aria-expanded","false");}});
   const TZ = "America/Sao_Paulo";
   const fmtDay = new Intl.DateTimeFormat("pt-BR",{timeZone:TZ,day:"2-digit",month:"short"});
   const fmtLong = new Intl.DateTimeFormat("pt-BR",{timeZone:TZ,weekday:"long",day:"numeric",month:"long",year:"numeric"});
@@ -263,7 +276,7 @@ footer a:hover{color:var(--ink)}
     const posts = (data.posts||[]).slice().sort((a,b)=>new Date(b.date)-new Date(a.date));
     if(!posts.length) return;
     document.getElementById("edition").textContent = fmtLong.format(new Date(posts[0].date));
-    if(data.subscribers) document.getElementById("subs").textContent = "Mais de "+data.subscribers+" assinantes";
+    if(data.subscribers) document.getElementById("subs").textContent = "Mais de "+data.subscribers+" inscritos";
 
     // Régua: um ponto por dia, do mais antigo ao mais recente
     const byDay = new Map();

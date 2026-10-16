@@ -67,19 +67,6 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:
 .hero-actions{display:flex;gap:10px;flex-wrap:wrap}
 @media(max-width:850px){.hero{grid-template-columns:1fr;gap:26px;padding-block:36px 28px}.hero-pic{order:-1}}
 
-/* Linha do tempo */
-.timeline{border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,var(--card-2),var(--card));box-shadow:var(--shadow);padding:20px 22px 8px;overflow-x:auto}
-.tl-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:14px}
-.tl-head span{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
-.tl-track{position:relative;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(170px,1fr);padding-top:22px}
-.tl-track::before{content:"";position:absolute;left:0;right:0;top:10px;height:2px;background:var(--grad)}
-.day{position:relative;padding:12px 16px 12px 0}
-.day::before{content:"";position:absolute;left:0;top:-17px;width:11px;height:11px;border-radius:50%;background:var(--black);border:2px solid var(--orange)}
-.day.now::before{background:var(--cream);border-color:var(--cream);box-shadow:0 0 14px rgba(244,166,90,.6)}
-.day time{font-family:var(--f-mono);font-size:11px;color:var(--cream);text-transform:uppercase}
-.day a{display:block;font-size:13px;line-height:1.35;margin-top:7px;color:var(--soft-ink)}
-.day a:hover{color:#fff}
-
 /* Seções */
 .section{padding-top:64px}
 .section-head{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:24px}
@@ -165,11 +152,6 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:
   <div class="wrap">
     <section class="hero" id="hero" aria-label="Destaque"></section>
 
-    <section class="timeline" aria-label="Linha do tempo">
-      <div class="tl-head"><span class="eyebrow">Linha do tempo</span><span id="edition"></span></div>
-      <div class="tl-track" id="ruler"></div>
-    </section>
-
     <section class="section" id="artigos">
       <div class="section-head">
         <div><span class="section-num">Últimos artigos</span><h2>Reportagem e opinião</h2></div>
@@ -240,8 +222,6 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:
 (function(){
   const TZ = "America/Sao_Paulo";
   const fmtDay = new Intl.DateTimeFormat("pt-BR",{timeZone:TZ,day:"2-digit",month:"short"});
-  const fmtLong = new Intl.DateTimeFormat("pt-BR",{timeZone:TZ,weekday:"long",day:"numeric",month:"long"});
-  const dayKey = d => new Intl.DateTimeFormat("en-CA",{timeZone:TZ}).format(d);
   const esc = s => String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const day = p => fmtDay.format(new Date(p.date)).replace(".","");
 
@@ -277,7 +257,6 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:
     if(!posts.length) return;
     const [lead, ...rest] = posts;
     if(data.subscribers) document.getElementById("subs").textContent = "Mais de "+data.subscribers+" inscritos na newsletter";
-    document.getElementById("edition").textContent = fmtLong.format(new Date(lead.date));
 
     document.getElementById("hero").innerHTML =
       '<div class="hero-text"><span class="eyebrow">'+esc(kind(lead))+' · Destaque</span>'+
@@ -285,15 +264,6 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:
       '<p class="dek">'+esc(lead.subtitle)+'</p><div class="card-foot">'+meta(lead)+stats(lead)+'</div>'+
       '<div class="hero-actions"><a class="btn primary" href="'+esc(lead.url)+'">Ler o artigo</a><a class="btn" href="#artigos">Mais artigos</a></div></div>'+
       '<a class="hero-pic" href="'+esc(lead.url)+'" aria-hidden="true" tabindex="-1"><img alt="" src="'+esc(imgUrl(lead.image,1400))+'" onerror="this.parentNode.remove()"></a>';
-
-    const byDay = new Map();
-    posts.forEach(p=>{const k=dayKey(new Date(p.date)); if(!byDay.has(k)) byDay.set(k,[]); byDay.get(k).push(p);});
-    const days = [...byDay.keys()].sort();
-    document.getElementById("ruler").innerHTML = days.map((k,i)=>{
-      const list = byDay.get(k).sort((a,b)=>new Date(a.date)-new Date(b.date));
-      return '<div class="day'+(i===days.length-1?' now':'')+'"><time datetime="'+k+'">'+esc(day(list[0]))+'</time>'+
-        list.map(p=>'<a href="'+esc(p.url)+'">'+esc(p.title)+'</a>').join("")+'</div>';
-    }).join("");
 
     document.getElementById("grid").innerHTML = rest.slice(0,9).map(card).join("");
   }

@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Revista Timeline</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Revista Timeline. Informação para leitores exigentes: reportagem, opinião e análise política.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,800;1,6..72,400&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: capa de revista em grade de 12 colunas, com uma régua de linha do tempo como assinatura visual */
+:root{
+  --paper:#FFFFFF;
+  --surface:#F3F6F4;    /* cinza levemente esverdeado */
+  --ink:#0F1612;        /* tinta verde-noite */
+  --muted:#58635C;
+  --rule:#DCE3DE;
+  --accent:#0B5D3B;     /* verde fechado */
+  --accent-ink:#FFFFFF;
+  --signal:#D9A400;     /* amarelo ouro, só em detalhes */
+  --signal-ink:#0F1612;
+  --deep:#08321F;       /* faixas escuras */
+  --f-display:"Newsreader", "Iowan Old Style", Georgia, serif;
+  --f-ui:"IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --s1:.8125rem; --s2:1rem; --s3:1.25rem; --s4:1.6rem; --s5:2.25rem; --s6:clamp(2.2rem,5vw,3.6rem);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0D1310; --surface:#141C18; --ink:#E9EEEA; --muted:#A0ABA4; --rule:#26322C;
+  --accent:#4CB383; --accent-ink:#0D1310; --signal:#E8B923; --signal-ink:#0D1310; --deep:#0A2418; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0D1310; --surface:#141C18; --ink:#E9EEEA; --muted:#A0ABA4; --rule:#26322C;
+  --accent:#4CB383; --accent-ink:#0D1310; --signal:#E8B923; --signal-ink:#0D1310; --deep:#0A2418; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-display);font-size:var(--s2);line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.label{font-family:var(--f-ui);font-size:var(--s1);font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.muted{color:var(--muted)}
+h1,h2,h3{text-wrap:balance;margin:0;font-weight:800;letter-spacing:-.01em}
+
+/* Cabeçalho */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--rule)}
+.top .wrap{display:flex;align-items:center;gap:24px;padding-block:14px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand svg{width:40px;height:16px;flex:none}
+.brand b{font-family:var(--f-display);font-size:1.75rem;font-weight:800;letter-spacing:-.02em;line-height:1}
+.nav{display:flex;gap:20px;margin-left:auto;font-family:var(--f-ui);font-size:.95rem;font-weight:500}
+.nav a{color:var(--muted)} .nav a:hover{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-ui);font-weight:600;font-size:.95rem;background:var(--accent);color:var(--accent-ink);padding:10px 16px;border-radius:3px;white-space:nowrap}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+@media (max-width:860px){.nav{display:none}.top .btn{margin-left:auto}}
+
+/* Faixa de edição */
+.dateline{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 24px;padding-block:18px 0;font-family:var(--f-ui);font-size:var(--s1);color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+
+/* Régua da linha do tempo */
+.ruler{margin-top:14px;overflow-x:auto;scrollbar-width:thin}
+.ruler-track{position:relative;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(150px,1fr);min-width:100%;padding-top:22px}
+.ruler-track::before{content:"";position:absolute;left:0;right:0;top:10px;height:2px;background:var(--accent)}
+.day{position:relative;padding:12px 14px 4px 0}
+.day::before{content:"";position:absolute;left:0;top:-17px;width:10px;height:10px;border-radius:50%;background:var(--paper);border:2px solid var(--accent)}
+.day.now::before{background:var(--signal);border-color:var(--signal);box-shadow:0 0 0 4px color-mix(in srgb,var(--signal) 30%,transparent)}
+.day time{font-family:var(--f-mono);font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.day a{display:block;font-size:.92rem;line-height:1.3;margin-top:6px;font-weight:600}
+.day a:hover{color:var(--accent)}
+
+/* Capa */
+.cover{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:28px;padding-block:36px 8px;border-top:1px solid var(--rule);margin-top:20px}
+.lead{grid-column:span 8;display:grid;gap:16px;min-width:0}
+.side{grid-column:span 4;display:grid;gap:24px;align-content:start;min-width:0}
+.lead h1{font-size:var(--s6);line-height:1.04}
+.lead p.dek{font-size:var(--s3);line-height:1.4;color:var(--muted);margin:0;max-width:60ch}
+.byline{font-family:var(--f-ui);font-size:var(--s1);color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.byline strong{color:var(--ink);font-weight:600}
+.kicker{color:var(--accent)}
+.story{display:grid;gap:10px;min-width:0}
+.story h3{font-size:var(--s3);line-height:1.2}
+.story:hover h3,.lead:hover h1{color:var(--accent)}
+.story p{margin:0;color:var(--muted);font-size:.98rem;line-height:1.45}
+.side .story + .story{border-top:1px solid var(--rule);padding-top:24px}
+@media (max-width:860px){.lead,.side{grid-column:1/-1}}
+
+/* Imagem: se a foto não carregar, o bloco some e o card fica só com texto */
+.pic{position:relative;aspect-ratio:1.91/1;max-width:100%;overflow:hidden;background:var(--surface);border-radius:2px}
+.pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+
+/* Seções */
+.section{padding-block:44px 8px}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;border-bottom:2px solid var(--accent);padding-bottom:10px;margin-bottom:24px}
+.section-head h2{font-size:var(--s4)}
+.section-head a{font-family:var(--f-ui);font-size:.9rem;color:var(--accent);font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:32px 28px}
+
+/* Faixas institucionais */
+.bands{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:28px;padding-block:52px 8px}
+.band{border:1px solid var(--rule);background:var(--surface);padding:28px;display:grid;gap:12px;align-content:start;min-width:0}
+.band.almanaque{grid-column:span 7;background:var(--deep);color:#F2F5F3;border-color:var(--deep)}
+.band.almanaque .label{color:var(--signal)}
+.band.almanaque h2{font-size:var(--s5);line-height:1.05}
+.band.almanaque p{color:rgba(242,245,243,.78);margin:0;max-width:52ch}
+.band.almanaque .btn{background:var(--signal);color:var(--signal-ink);justify-self:start}
+.band.live{grid-column:span 5}
+.band.live h2{font-size:var(--s4)}
+.band.live p{margin:0;color:var(--muted)}
+.clock{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:1.05rem}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--accent);flex:none}
+@media (max-width:860px){.band.almanaque,.band.live{grid-column:1/-1}}
+
+/* Assinatura */
+.subscribe{margin-top:56px;background:var(--deep);color:#F2F5F3;border-top:4px solid var(--signal)}
+.subscribe .wrap{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:28px;align-items:center;padding-block:44px}
+.subscribe h2{font-size:var(--s5);line-height:1.05}
+.subscribe p{margin:8px 0 0;opacity:.85;max-width:50ch}
+.subscribe .btn{background:var(--signal);color:var(--signal-ink);justify-self:start;font-size:1.05rem;padding:14px 22px}
+.count{font-family:var(--f-mono);font-size:.85rem;opacity:.85;margin-top:10px}
+@media (max-width:760px){.subscribe .wrap{grid-template-columns:1fr}}
+
+/* Rodapé */
+footer{padding-block:36px 48px;font-family:var(--f-ui);font-size:.9rem;color:var(--muted)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:16px 32px;justify-content:space-between;align-items:center}
+footer nav{display:flex;flex-wrap:wrap;gap:8px 20px}
+footer a:hover{color:var(--ink)}
+
+@media (prefers-reduced-motion:no-preference){
+  .story,.lead{transition:transform .2s ease}
+  .story h3,.lead h1{transition:color .15s ease}
+}
+</style>
+</head>
+<body>
+
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./" aria-label="Revista Timeline, página inicial">
+      <svg viewBox="0 0 40 16" aria-hidden="true"><rect x="0" y="7" width="40" height="2" fill="var(--accent)"/><circle cx="5" cy="8" r="3" fill="var(--accent)"/><circle cx="19" cy="8" r="3" fill="var(--accent)"/><circle cx="34" cy="8" r="4.5" fill="var(--signal)"/></svg>
+      <b>Timeline</b>
+    </a>
+    <nav class="nav" aria-label="Seções">
+      <a href="#artigos">Artigos</a>
+      <a href="https://observatorio.revistatimeline.com/">Observatório</a>
+      <a href="#conversa">Conversa Timeline</a>
+      <a href="#almanaque">Almanaque 2026</a>
+      <a href="#anuncie">Anuncie</a>
+    </nav>
+    <a class="btn" href="https://www.revistatimeline.com/subscribe">Assinar grátis</a>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="dateline">
+      <span id="edition">Edição de hoje</span>
+      <span>Informação para leitores exigentes</span>
+    </div>
+    <div class="ruler" aria-label="Linha do tempo dos últimos dias">
+      <div class="ruler-track" id="ruler"></div>
+    </div>
+
+    <section class="cover" aria-label="Destaques">
+      <a class="lead" id="lead" href="#"></a>
+      <div class="side" id="side"></div>
+    </section>
+
+    <section class="section" id="artigos">
+      <div class="section-head">
+        <h2>Últimos artigos</h2>
+        <a href="https://www.revistatimeline.com/archive">Arquivo completo</a>
+      </div>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <section class="bands">
+      <div class="band almanaque" id="almanaque">
+        <span class="label">Lançamento · Black Friday, 27 de novembro</span>
+        <h2>Almanaque Político Timeline 2026</h2>
+        <p>A retrospectiva ilustrada do ano eleitoral, construída a partir dos artigos da revista e dos programas gravados. Edição digital e impressa.</p>
+        <a class="btn" href="https://www.revistatimeline.com/subscribe">Quero ser avisado</a>
+      </div>
+      <div class="band live" id="conversa">
+        <span class="label kicker">Ao vivo</span>
+        <h2>Conversa Timeline</h2>
+        <div class="clock"><span class="dot" aria-hidden="true"></span>Segunda a sexta, 12h00</div>
+        <p>O programa diário da redação, com os temas que vão pautar o dia em Brasília e no Rio.</p>
+      </div>
+    </section>
+  </div>
+
+  <section class="subscribe" id="anuncie">
+    <div class="wrap">
+      <div>
+        <h2>Receba a Timeline no seu e-mail</h2>
+        <p>Reportagem e opinião sem filtro, direto na sua caixa de entrada. Gratuito.</p>
+        <div class="count" id="subs">Mais de 46 mil assinantes</div>
+      </div>
+      <a class="btn" href="https://www.revistatimeline.com/subscribe">Assinar grátis</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Revista Timeline</span>
+    <nav aria-label="Rodapé">
+      <a href="https://www.revistatimeline.com/archive">Arquivo</a>
+      <a href="https://observatorio.revistatimeline.com/">Observatório Eleitoral</a>
+      <a href="https://www.revistatimeline.com/about">Sobre</a>
+      <a href="https://www.revistatimeline.com/tos">Termos</a>
+      <a href="https://www.revistatimeline.com/privacy">Privacidade</a>
+    </nav>
+  </div>
+</footer>
+
+<script type="application/json" id="seed">
+{"updated":"2026-10-14T04:20:45Z","subscribers":"46 mil","posts":[
+{"title":"A pergunta era sobre estupro. A resposta deixou o Brasil perplexo","subtitle":"A resposta de Jones Manoel a denúncias de violência sexual atribuídas ao Hamas provoca revolta e reacende uma questão fundamental sobre nossos valores","author":"Rogerio Pires","date":"2026-10-13T17:30:25Z","url":"https://www.revistatimeline.com/p/a-pergunta-era-sobre-estupro-a-resposta","image":"https://substack-post-media.s3.amazonaws.com/public/images/aabfa7eb-fe67-44e4-9448-1b7e72c01f34_1734x907.png"},
+{"title":"O fogo voltou à Amazônia. Mas onde estão as vozes que prometiam defendê-la?","subtitle":"Com Manaus sufocada pela fumaça e 36 municípios em emergência, a tragédia expõe cobranças ao governo e reacende o debate sobre a mobilização de artistas","author":"Rogerio Pires","date":"2026-10-13T09:30:20Z","url":"https://www.revistatimeline.com/p/o-fogo-voltou-a-amazonia-mas-onde","image":"https://substack-post-media.s3.amazonaws.com/public/images/22ae8f26-c5b2-4c97-880e-2bf016642e51_1729x910.png"},
+{"title":"A conta da gasolina chega depois da eleição","subtitle":"Quem vai pagar e o que acontece com o preço quando o benefício acabar","author":"Rogerio Pires","date":"2026-10-11T23:01:46Z","url":"https://www.revistatimeline.com/p/a-conta-da-gasolina-chega-depois","image":"https://substack-post-media.s3.amazonaws.com/public/images/3a2e5047-2ff4-4ff3-a737-f2071c1dc782_1730x909.png"},
+{"title":"A porta fechada do Supremo e o relógio da eleição","subtitle":"Fux pediu os autos em 48 horas e Fachin respondeu que antes vêm 104 procedimentos. A pergunta que ficou sem resposta muda o peso das provas","author":"Rogerio Pires","date":"2026-10-11T09:01:22Z","url":"https://www.revistatimeline.com/p/a-porta-fechada-do-supremo-e-o-relogio","image":"https://substack-post-media.s3.amazonaws.com/public/images/908db9e6-769e-4403-a249-51db87d58b5d_1730x909.png"},
+{"title":"Luiz Philippe pede a Fux apuração sobre atuação de Moraes em ações de Allan dos Santos","subtitle":"Ofício questiona uso de inquéritos, sigilo e cassação de decisões favoráveis ao jornalista","author":"Redação Timeline","date":"2026-10-10T21:32:45Z","url":"https://www.revistatimeline.com/p/luiz-philippe-pede-a-fux-apuracao","image":"https://substack-post-media.s3.amazonaws.com/public/images/a6bff57e-29c8-4f57-8645-29084def68e9_3936x2624.jpeg"},
+{"title":"A régua que errou sempre para o mesmo lado","subtitle":"Pesquisa vira manchete e manchete vira voto. E se o número já vier torto?","author":"Rogerio Pires","date":"2026-10-10T09:30:52Z","url":"https://www.revistatimeline.com/p/o-que-o-eleitor-leva-para-a-urna","image":"https://substack-post-media.s3.amazonaws.com/public/images/3e193152-c5ed-41c8-95d4-deada50c152d_1734x907.png"},
+{"title":"Imparável: Allan dos Santos agora está nos Canais do WhatsApp; veja como participar","subtitle":"Jornalista exilado já conta com milhares de seguidores","author":"Redação Timeline","date":"2026-10-09T17:17:55Z","url":"https://www.revistatimeline.com/p/imparavel-allan-dos-santos-agora","image":"https://substack-post-media.s3.amazonaws.com/public/images/045818c1-5ecf-4e31-95e0-c9c46cc925ff_1008x675.jpeg"},
+{"title":"A caneta que escolheu o dia","subtitle":"A ordem contra Eduardo Bolsonaro saiu a 17 dias do segundo turno, e o motivo oficial não explica a data","author":"Rogerio Pires","date":"2026-10-09T13:04:32Z","url":"https://www.revistatimeline.com/p/a-caneta-que-escolheu-o-dia","image":"https://substack-post-media.s3.amazonaws.com/public/images/5ed49ae8-c0e8-4f51-969a-f6986dd0a36f_1733x907.png"},
+{"title":"16 dias para consertar 1989","subtitle":"Lula culpa quem votou, e os 2,2 milhões de votos a mais de Flávio respondem","author":"Rogerio Pires","date":"2026-10-09T09:30:29Z","url":"https://www.revistatimeline.com/p/16-dias-para-consertar-1989","image":"https://substack-post-media.s3.amazonaws.com/public/images/cc2481b3-8701-4016-a301-e07fc0a2f89f_1729x910.png"},
+{"title":"A Justiça que olha o calendário eleitoral","subtitle":"Se a data influencia o voto, o silêncio e a omissão também influenciam","author":"Rogerio Pires","date":"2026-10-08T22:01:37Z","url":"https://www.revistatimeline.com/p/a-justica-que-olha-o-calendario-eleitoral","image":"https://substack-post-media.s3.amazonaws.com/public/images/82851d53-51d1-4b72-85f8-60460205b1a2_1733x908.png"}
+]}
+</script>
+
+<script>
+(function(){
+  const TZ = "America/Sao_Paulo";
+  const fmtDay = new Intl.DateTimeFormat("pt-BR",{timeZone:TZ,day:"2-digit",month:"short"});
+  const fmtLong = new Intl.DateTimeFormat("pt-BR",{timeZone:TZ,weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  const fmtTime = new Intl.DateTimeFormat("pt-BR",{timeZone:TZ,hour:"2-digit",minute:"2-digit"});
+  const dayKey = d => new Intl.DateTimeFormat("en-CA",{timeZone:TZ}).format(d);
+  const esc = s => String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+  function imgUrl(u, w){
+    if(!u) return "";
+    if(u.includes("substack-post-media.s3.amazonaws.com")) return "https://substackcdn.com/image/fetch/w_"+w+",c_limit,f_auto,q_auto:good/"+encodeURIComponent(u);
+    return u;
+  }
+  function kind(p){ return /reda[cç][aã]o/i.test(p.author) ? "Reportagem" : "Opinião"; }
+
+  function pic(p, w){
+    return '<div class="pic"><img alt="" loading="lazy" src="'+esc(imgUrl(p.image,w))+'" onerror="this.parentNode.remove()"></div>';
+  }
+  function byline(p){
+    return '<div class="byline"><span class="label kicker">'+esc(kind(p))+'</span><strong>'+esc(p.author)+'</strong><time datetime="'+esc(p.date)+'">'+esc(fmtDay.format(new Date(p.date)))+'</time></div>';
+  }
+  function story(p, withPic){
+    return '<a class="story" href="'+esc(p.url)+'">'+(withPic?pic(p,800):"")+byline(p)+'<h3>'+esc(p.title)+'</h3><p>'+esc(p.subtitle)+'</p></a>';
+  }
+
+  function render(data){
+    const posts = (data.posts||[]).slice().sort((a,b)=>new Date(b.date)-new Date(a.date));
+    if(!posts.length) return;
+    document.getElementById("edition").textContent = fmtLong.format(new Date(posts[0].date));
+    if(data.subscribers) document.getElementById("subs").textContent = "Mais de "+data.subscribers+" assinantes";
+
+    // Régua: um ponto por dia, do mais antigo ao mais recente
+    const byDay = new Map();
+    posts.forEach(p=>{const k=dayKey(new Date(p.date)); if(!byDay.has(k)) byDay.set(k,[]); byDay.get(k).push(p);});
+    const days = [...byDay.keys()].sort();
+    document.getElementById("ruler").innerHTML = days.map((k,i)=>{
+      const list = byDay.get(k).sort((a,b)=>new Date(a.date)-new Date(b.date));
+      return '<div class="day'+(i===days.length-1?' now':'')+'"><time datetime="'+k+'">'+esc(fmtDay.format(new Date(list[0].date)))+'</time>'+
+        list.map(p=>'<a href="'+esc(p.url)+'" title="'+esc(fmtTime.format(new Date(p.date)))+'">'+esc(p.title)+'</a>').join("")+'</div>';
+    }).join("");
+
+    const [lead, ...rest] = posts;
+    const leadEl = document.getElementById("lead");
+    leadEl.href = lead.url;
+    leadEl.innerHTML = pic(lead,1400)+byline(lead)+'<h1>'+esc(lead.title)+'</h1><p class="dek">'+esc(lead.subtitle)+'</p>';
+    document.getElementById("side").innerHTML = rest.slice(0,3).map(p=>story(p,false)).join("");
+    document.getElementById("grid").innerHTML = rest.slice(3).map(p=>story(p,true)).join("");
+  }
+
+  let seed = {};
+  try{ seed = JSON.parse(document.getElementById("seed").textContent); }catch(e){}
+  render(seed);
+  // No GitHub Pages, data/posts.json é atualizado automaticamente a partir do Substack
+  fetch("data/posts.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(d=>{ if(d && d.posts && d.posts.length) render(d); }).catch(()=>{});
+})();
+</script>
+
+</body>
+</html>

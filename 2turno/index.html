@@ -54,6 +54,17 @@ h2{font-family:"Playfair Display",Georgia,serif;font-size:24px;margin:44px 0 14p
 .grid span{display:block;margin-top:4px;font-size:13px;color:var(--mut);line-height:1.45}
 footer{color:var(--mut);font-size:12px;text-align:center;padding:20px;border-top:1px solid var(--line)}footer a{color:var(--gold2)}
 @media(max-width:700px){header{padding:12px 16px}.wm{font-size:22px}main{padding:36px 16px 44px}.cd div{min-width:0;flex:1;padding:12px 8px}.cd b{font-size:38px}}
+.cred{margin:34px auto 0;max-width:1100px;padding:0 26px 26px}
+.cred .in{display:flex;align-items:center;justify-content:space-between;gap:18px 28px;flex-wrap:wrap;background:linear-gradient(135deg,rgba(197,59,38,.14),rgba(224,122,44,.06) 45%,rgba(16,13,11,.9));border:1px solid var(--line);border-radius:18px;padding:20px 24px;position:relative;overflow:hidden}
+.cred .in::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:var(--glow)}
+.cred .k{font:800 12px "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:3px;text-transform:uppercase;color:var(--gold2)}
+.cred .nm{font-family:"Playfair Display",Georgia,serif;font-weight:700;font-size:30px;line-height:1.1;margin-top:4px;color:var(--tx)}
+.cred .ds{font-size:13px;color:var(--mut);margin-top:4px}
+.cred .so{display:flex;gap:10px;flex-wrap:wrap}
+.cred .so a{display:flex;align-items:center;gap:10px;padding:8px 16px 8px 8px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--tx);text-decoration:none;font:700 15px Inter;transition:border-color .15s,transform .15s,background .15s}
+.cred .so a:hover{border-color:var(--gold);background:rgba(224,122,44,.08);transform:translateY(-1px)}
+.cred .so svg{width:32px;height:32px;flex:none;border-radius:9px}
+@media(max-width:700px){.cred{padding:0 16px 20px}.cred .in{padding:18px}.cred .nm{font-size:25px}.cred .so{width:100%}.cred .so a{flex:1;justify-content:center}}
 </style>
 </head>
 <body>
@@ -81,6 +92,13 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px;border-top
     <a href="https://rogeriotpires-spec.github.io/apuracao-timeline/presidios/"><b>Presídios</b><span>Votos nas 243 seções especiais</span></a>
   </div>
 </main>
+<section class="cred" aria-label="Créditos"><div class="in">
+  <div><div class="k">Idealização e desenvolvimento</div><div class="nm">Rogerio Pires</div><div class="ds">Painel de apuração da Revista Timeline</div></div>
+  <div class="so">
+    <a href="https://www.instagram.com/rogerrio/" target="_blank" rel="noopener" aria-label="Instagram de Rogerio Pires: @rogerrio"><svg viewBox="0 0 32 32" aria-hidden="true"><defs><radialGradient id="igg" cx="30%" cy="107%" r="150%"><stop offset="0" stop-color="#fdf497"/><stop offset=".05" stop-color="#fdf497"/><stop offset=".45" stop-color="#fd5949"/><stop offset=".6" stop-color="#d6249f"/><stop offset=".9" stop-color="#285AEB"/></radialGradient></defs><rect width="32" height="32" rx="9" fill="url(#igg)"/><rect x="7.5" y="7.5" width="17" height="17" rx="5" fill="none" stroke="#fff" stroke-width="2.2"/><circle cx="16" cy="16" r="4.1" fill="none" stroke="#fff" stroke-width="2.2"/><circle cx="21.3" cy="10.7" r="1.35" fill="#fff"/></svg>@rogerrio</a>
+    <a href="https://x.com/rogerrioX" target="_blank" rel="noopener" aria-label="X de Rogerio Pires: @rogerrioX"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#000"/><rect x=".5" y=".5" width="31" height="31" rx="8.5" fill="none" stroke="#3a3a3a"/><path transform="translate(7 7) scale(.75)" fill="#fff" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>@rogerrioX</a>
+  </div>
+</div></section>
 <footer>Fonte: Tribunal Superior Eleitoral (resultados.tse.jus.br) · <a href="https://rogeriotpires-spec.github.io/apuracao-timeline/">Timeline</a></footer>
 <script>
 const ALVO = Date.parse('2026-10-25T20:00:00Z'); // 17h de Brasília

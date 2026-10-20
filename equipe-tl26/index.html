@@ -271,6 +271,11 @@ a.home{display:flex;align-items:center;gap:14px;color:inherit;text-decoration:no
 .cred .so a:hover{border-color:var(--gold);background:rgba(224,122,44,.08);transform:translateY(-1px)}
 .cred .so svg{width:32px;height:32px;flex:none;border-radius:9px}
 @media(max-width:700px){.cred{padding:0 16px 20px}.cred .in{padding:18px}.cred .nm{font-size:25px}.cred .so{width:100%}.cred .so a{flex:1;justify-content:center}}
+.hcred{display:flex;align-items:center;gap:8px;padding-left:16px;border-left:1px solid rgba(224,122,44,.28);font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mut);white-space:nowrap}
+.hcred b{color:var(--tx);font-weight:600;letter-spacing:1px}
+.hcred a{display:flex;opacity:.82;transition:opacity .15s,transform .15s}.hcred a:hover{opacity:1;transform:translateY(-1px)}
+.hcred svg{width:18px;height:18px;border-radius:5px}
+@media(max-width:700px){.hcred{padding-left:0;border-left:0;font-size:10px}}
 </style>
 </head>
 <body>
@@ -282,6 +287,7 @@ a.home{display:flex;align-items:center;gap:14px;color:inherit;text-decoration:no
       <div class="sub">1º turno · dados oficiais do TSE</div>
     </div>
   </a>
+  <div class="hcred"><span>por <b>Rogerio Pires</b></span><a href="https://www.instagram.com/rogerrio/" target="_blank" rel="noopener" title="@rogerrio no Instagram" aria-label="Instagram @rogerrio"><svg viewBox="0 0 32 32" aria-hidden="true"><defs><radialGradient id="igh" cx="30%" cy="107%" r="150%"><stop offset="0" stop-color="#fdf497"/><stop offset=".05" stop-color="#fdf497"/><stop offset=".45" stop-color="#fd5949"/><stop offset=".6" stop-color="#d6249f"/><stop offset=".9" stop-color="#285AEB"/></radialGradient></defs><rect width="32" height="32" rx="9" fill="url(#igh)"/><rect x="7.5" y="7.5" width="17" height="17" rx="5" fill="none" stroke="#fff" stroke-width="2.4"/><circle cx="16" cy="16" r="4.1" fill="none" stroke="#fff" stroke-width="2.4"/><circle cx="21.3" cy="10.7" r="1.5" fill="#fff"/></svg></a><a href="https://x.com/rogerrioX" target="_blank" rel="noopener" title="@rogerrioX no X" aria-label="X @rogerrioX"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#000"/><rect x=".5" y=".5" width="31" height="31" rx="8.5" fill="none" stroke="#444"/><path transform="translate(7 7) scale(.75)" fill="#fff" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div>
   <span class="simflag">SIMULAÇÃO</span>
   <div class="spacer"></div>
   <div class="stat">Presidente: urnas apuradas<br><span class="big" id="gpst">--</span></div>

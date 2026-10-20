@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Quociente Eleitoral 2026 | Timeline</title>
+<title>Quociente Eleitoral 2026 · 1º turno | Timeline</title>
 <meta name="description" content="Quantos votos cada partido precisa por vaga de deputado em cada estado, calculado ao vivo com os dados oficiais do TSE.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Quociente Eleitoral 2026 · Votos por vaga de deputado">
@@ -54,6 +54,17 @@ footer{color:var(--mut);font-size:12px;text-align:center;padding:20px;border-top
 footer a{color:var(--gold2)}
 @media(max-width:700px){header{padding:12px 16px}main{padding:14px}.wm{font-size:22px}}
 a.home{display:flex;align-items:center;gap:14px;color:inherit;text-decoration:none;cursor:pointer;border-radius:12px;transition:opacity .15s}a.home:hover{opacity:.85}a.home:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
+.turnos{display:flex;gap:0;background:#080605;border-bottom:1px solid var(--line);position:relative;z-index:4}
+.turnos a{flex:1;display:flex;align-items:center;gap:12px;padding:10px 26px;color:var(--mut);text-decoration:none;border-bottom:2px solid transparent;transition:background .15s,color .15s}
+.turnos a:hover{background:rgba(224,122,44,.06);color:var(--tx)}
+.turnos a.on{color:var(--tx);border-bottom-color:var(--gold);background:linear-gradient(180deg,rgba(224,122,44,.10),rgba(224,122,44,0))}
+.turnos .tn{font:800 15px "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:2.5px;text-transform:uppercase;white-space:nowrap}
+.turnos a.on .tn{color:var(--gold2)}
+.turnos .td{font-size:12px;line-height:1.3}
+.turnos .dot{width:8px;height:8px;border-radius:50%;background:var(--line);flex:none}
+.turnos a.on .dot{background:var(--gold);box-shadow:0 0 10px rgba(224,122,44,.9)}
+.turnos .ar{margin-left:auto;font-size:16px;opacity:.6}
+@media(max-width:700px){.turnos a{padding:9px 14px;gap:8px;flex-wrap:wrap;align-items:flex-start;align-content:flex-start}.turnos .dot{margin-top:6px}.turnos .td{font-size:11px;width:100%;padding-left:16px}.turnos .ar{display:none}}
 </style>
 </head>
 <body>
@@ -64,6 +75,7 @@ a.home{display:flex;align-items:center;gap:14px;color:inherit;text-decoration:no
   <div class="st">Atualizado às <b id="hora">--</b><br>Próxima em <b id="prox">--</b></div>
   <button id="btn">Atualizar agora</button>
 </header>
+<div class="turnos" role="navigation" aria-label="Escolha o turno"><a class="on" href="https://rogeriotpires-spec.github.io/apuracao-timeline/" aria-current="page"><span class="dot"></span><span class="tn">1º turno</span><span class="td">4 de outubro · resultado final</span><span class="ar"></span></a><a class="" href="https://rogeriotpires-spec.github.io/apuracao-timeline/2turno/"><span class="dot"></span><span class="tn">2º turno</span><span class="td">25 de outubro · apuração ao vivo a partir das 17h</span><span class="ar">→</span></a></div>
 <main>
   <p class="intro">O <b>quociente eleitoral</b> é o total de votos válidos do estado dividido pelo número de vagas: é quanto um <b>partido ou federação</b> precisa somar para garantir cada cadeira. A coluna <b>Projeção</b> estima o valor final a partir do que já foi apurado. Para ficar com a vaga do partido, o candidato precisa ter ao menos <b>10% do quociente</b> (piso individual), e 20% para disputar as sobras.</p>
   <div class="tabs"><button data-c="6" class="on">Deputado federal</button><button data-c="7">Deputado estadual</button></div>

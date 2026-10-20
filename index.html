@@ -248,6 +248,17 @@ body.publico #btnCfg{display:none}
 @media (max-width:700px){.ev{grid-template-columns:50px 1fr}.ev>:nth-child(n+3){grid-column:2}#alerta .who{font-size:30px}#alerta .k{font-size:18px}}
 @media (max-width:700px){.prow{grid-template-columns:44px 1fr auto;gap:2px 10px;padding:10px}.prow .photo{width:44px;height:44px;grid-row:1/3}.prow>div:nth-child(2){grid-row:1/3}.prow .nm{font-size:19px}.prow>div:last-child{grid-column:3;grid-row:1}.prow .v{grid-column:3;grid-row:2;font-size:16px;color:var(--mut)}.prow .p{font-size:24px}}
 a.home{display:flex;align-items:center;gap:14px;color:inherit;text-decoration:none;cursor:pointer;border-radius:12px;transition:opacity .15s}a.home:hover{opacity:.85}a.home:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
+.turnos{display:flex;gap:0;background:#080605;border-bottom:1px solid var(--line);position:relative;z-index:4}
+.turnos a{flex:1;display:flex;align-items:center;gap:12px;padding:10px 26px;color:var(--mut);text-decoration:none;border-bottom:2px solid transparent;transition:background .15s,color .15s}
+.turnos a:hover{background:rgba(224,122,44,.06);color:var(--tx)}
+.turnos a.on{color:var(--tx);border-bottom-color:var(--gold);background:linear-gradient(180deg,rgba(224,122,44,.10),rgba(224,122,44,0))}
+.turnos .tn{font:800 15px "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:2.5px;text-transform:uppercase;white-space:nowrap}
+.turnos a.on .tn{color:var(--gold2)}
+.turnos .td{font-size:12px;line-height:1.3}
+.turnos .dot{width:8px;height:8px;border-radius:50%;background:var(--line);flex:none}
+.turnos a.on .dot{background:var(--gold);box-shadow:0 0 10px rgba(224,122,44,.9)}
+.turnos .ar{margin-left:auto;font-size:16px;opacity:.6}
+@media(max-width:700px){.turnos a{padding:9px 14px;gap:8px;flex-wrap:wrap;align-items:flex-start;align-content:flex-start}.turnos .dot{margin-top:6px}.turnos .td{font-size:11px;width:100%;padding-left:16px}.turnos .ar{display:none}}
 </style>
 </head>
 <body>
@@ -267,6 +278,7 @@ a.home{display:flex;align-items:center;gap:14px;color:inherit;text-decoration:no
   <button class="pri" id="btnNow">Atualizar agora</button>
   <button id="btnCfg">Configurar</button>
 </header>
+<div class="turnos" role="navigation" aria-label="Escolha o turno"><a class="on" href="https://rogeriotpires-spec.github.io/apuracao-timeline/" aria-current="page"><span class="dot"></span><span class="tn">1º turno</span><span class="td">4 de outubro · resultado final</span><span class="ar"></span></a><a class="" href="https://rogeriotpires-spec.github.io/apuracao-timeline/2turno/"><span class="dot"></span><span class="tn">2º turno</span><span class="td">25 de outubro · apuração ao vivo a partir das 17h</span><span class="ar">→</span></a></div>
 <nav id="tabs">
   <button data-t="live" class="on">Nossa live</button>
   <button data-t="pres">Presidente</button>

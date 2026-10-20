@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apuração do Segundo Turno · 25 de outubro | Timeline</title>
+<meta name="description" content="Apuração ao vivo do segundo turno das eleições de 2026, com dados oficiais do TSE.">
+<meta property="og:type" content="website"><meta property="og:title" content="Apuração das Eleições Brasileiras · Segundo Turno">
+<meta property="og:description" content="Domingo, 25 de outubro. Apuração ao vivo a partir das 17h, com dados oficiais do TSE.">
+<meta property="og:url" content="https://rogeriotpires-spec.github.io/apuracao-timeline/2turno/"><meta property="og:image" content="https://rogeriotpires-spec.github.io/apuracao-timeline/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image"><meta name="theme-color" content="#060504"><link rel="icon" type="image/png" href="https://rogeriotpires-spec.github.io/apuracao-timeline/icone.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060504;--card:#100d0b;--card2:#171210;--line:#2c221c;--deep:#0a0807;--tx:#f6f2ee;--mut:#a89c92;--gold:#e07a2c;--gold2:#f4a65a;--brand:#c53b26;--glow:linear-gradient(90deg,#b5361f,#e07a2c 55%,#f4a65a)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(900px 520px at 12% -12%,rgba(197,59,38,.2),transparent 62%),radial-gradient(900px 520px at 92% -8%,rgba(224,122,44,.12),transparent 60%),var(--bg);background-attachment:fixed;color:var(--tx);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh}
+header{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:14px 26px;background:#050403;position:relative;overflow:hidden;box-shadow:0 1px 0 rgba(224,122,44,.35)}
+header::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0 46px,rgba(224,122,44,.09) 46px 48px,transparent 48px 94px),radial-gradient(55% 170% at 22% 130%,rgba(214,96,30,.38),transparent 70%)}
+header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--glow)}
+header>*{position:relative}
+.logo{width:50px;height:50px;border-radius:12px}
+.wm{font-family:"Playfair Display",Georgia,serif;font-weight:700;font-size:28px}
+.ap{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:700;font-size:15px;letter-spacing:3px;text-transform:uppercase;background:var(--glow);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{font-size:11px;color:var(--mut);letter-spacing:1.6px;text-transform:uppercase;margin-top:4px}
+a.home{display:flex;align-items:center;gap:14px;color:inherit;text-decoration:none;border-radius:12px;transition:opacity .15s}a.home:hover{opacity:.85}a.home:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
+.turnos{display:flex;gap:0;background:#080605;border-bottom:1px solid var(--line);position:relative;z-index:4}
+.turnos a{flex:1;display:flex;align-items:center;gap:12px;padding:10px 26px;color:var(--mut);text-decoration:none;border-bottom:2px solid transparent;transition:background .15s,color .15s}
+.turnos a:hover{background:rgba(224,122,44,.06);color:var(--tx)}
+.turnos a.on{color:var(--tx);border-bottom-color:var(--gold);background:linear-gradient(180deg,rgba(224,122,44,.10),rgba(224,122,44,0))}
+.turnos .tn{font:800 15px "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:2.5px;text-transform:uppercase;white-space:nowrap}
+.turnos a.on .tn{color:var(--gold2)}
+.turnos .td{font-size:12px;line-height:1.3}
+.turnos .dot{width:8px;height:8px;border-radius:50%;background:var(--line);flex:none}
+.turnos a.on .dot{background:var(--gold);box-shadow:0 0 10px rgba(224,122,44,.9)}
+.turnos .ar{margin-left:auto;font-size:16px;opacity:.6}
+@media(max-width:700px){.turnos a{padding:9px 14px;gap:8px;flex-wrap:wrap;align-items:flex-start;align-content:flex-start}.turnos .dot{margin-top:6px}.turnos .td{font-size:11px;width:100%;padding-left:16px}.turnos .ar{display:none}}
+main{max-width:1100px;margin:0 auto;padding:56px 26px 60px}
+.kick{font:800 14px "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:4px;text-transform:uppercase;color:var(--gold2)}
+h1{font-family:"Playfair Display",Georgia,serif;font-size:clamp(38px,6vw,68px);line-height:1.05;margin:12px 0 14px}
+.lead{color:var(--mut);font-size:17px;line-height:1.6;max-width:720px}
+.cd{display:flex;gap:14px;margin:34px 0 10px;flex-wrap:wrap}
+.cd div{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 20px;min-width:118px;text-align:center}
+.cd b{display:block;font:800 54px/1 "Barlow Condensed","Arial Narrow",sans-serif;font-variant-numeric:tabular-nums;background:var(--glow);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cd span{display:block;margin-top:6px;font:700 11px Inter;letter-spacing:2px;text-transform:uppercase;color:var(--mut)}
+.cdl{color:var(--mut);font-size:13px}
+.aviso{margin-top:38px;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:14px;padding:18px 20px;line-height:1.6;color:var(--mut);font-size:14px}
+.aviso b{color:var(--tx)}
+h2{font-family:"Playfair Display",Georgia,serif;font-size:24px;margin:44px 0 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.grid a{display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;color:var(--tx);text-decoration:none;transition:border-color .15s,transform .15s}
+.grid a:hover{border-color:var(--gold);transform:translateY(-2px)}
+.grid b{display:block;font:800 18px "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:1px;text-transform:uppercase;color:var(--gold2)}
+.grid span{display:block;margin-top:4px;font-size:13px;color:var(--mut);line-height:1.45}
+footer{color:var(--mut);font-size:12px;text-align:center;padding:20px;border-top:1px solid var(--line)}footer a{color:var(--gold2)}
+@media(max-width:700px){header{padding:12px 16px}.wm{font-size:22px}main{padding:36px 16px 44px}.cd div{min-width:0;flex:1;padding:12px 8px}.cd b{font-size:38px}}
+</style>
+</head>
+<body>
+<header>
+  <a class="home" href="https://rogeriotpires-spec.github.io/apuracao-timeline/" title="Página inicial" aria-label="Timeline: voltar à página inicial"><img class="logo" alt="Timeline" src="data:image/jpeg;base64,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">
+  <div><div><span class="wm">Timeline</span> <span class="ap">Apuração 2026</span></div><div class="sub">2º turno · dados oficiais do TSE</div></div></a>
+</header>
+<div class="turnos" role="navigation" aria-label="Escolha o turno"><a class="" href="https://rogeriotpires-spec.github.io/apuracao-timeline/"><span class="dot"></span><span class="tn">1º turno</span><span class="td">4 de outubro · resultado final</span><span class="ar">←</span></a><a class="on" href="https://rogeriotpires-spec.github.io/apuracao-timeline/2turno/" aria-current="page"><span class="dot"></span><span class="tn">2º turno</span><span class="td">25 de outubro · apuração ao vivo a partir das 17h</span><span class="ar"></span></a></div>
+<main>
+  <div class="kick">Segundo turno · domingo, 25 de outubro</div>
+  <h1>A apuração do 2º turno começa aqui.</h1>
+  <p class="lead">Nesta página vamos acompanhar ao vivo a disputa para Presidente e os estados com segundo turno para governador, com dados oficiais do TSE atualizados a cada poucos minutos.</p>
+  <div class="cd" id="cd" aria-live="polite">
+    <div><b id="dd">--</b><span>dias</span></div><div><b id="hh">--</b><span>horas</span></div><div><b id="mm">--</b><span>minutos</span></div><div><b id="ss">--</b><span>segundos</span></div>
+  </div>
+  <div class="cdl" id="cdl">para o início da apuração, às 17h de Brasília</div>
+  <div class="aviso"><b>Painel em preparação.</b> Os resultados do 1º turno continuam disponíveis, separados, na aba <b>1º turno</b> acima. Nada do que estiver nesta página se refere ao 1º turno.</div>
+  <h2>Resultados do 1º turno</h2>
+  <div class="grid">
+    <a href="https://rogeriotpires-spec.github.io/apuracao-timeline/painel/?tab=pres"><b>Presidente</b><span>Resultado final do 1º turno, por estado</span></a>
+    <a href="https://rogeriotpires-spec.github.io/apuracao-timeline/painel/?tab=gov"><b>Governadores</b><span>Eleitos no 1º turno e estados que vão ao 2º</span></a>
+    <a href="https://rogeriotpires-spec.github.io/apuracao-timeline/painel/?tab=sen"><b>Senado</b><span>Os 54 senadores eleitos</span></a>
+    <a href="https://rogeriotpires-spec.github.io/apuracao-timeline/painel/?tab=par"><b>Eleitos por partido</b><span>Câmara, Senado e Assembleias</span></a>
+    <a href="https://rogeriotpires-spec.github.io/apuracao-timeline/comparacao/"><b>Hoje × 2027</b><span>Como muda a composição política</span></a>
+    <a href="https://rogeriotpires-spec.github.io/apuracao-timeline/presidios/"><b>Presídios</b><span>Votos nas 243 seções especiais</span></a>
+  </div>
+</main>
+<footer>Fonte: Tribunal Superior Eleitoral (resultados.tse.jus.br) · <a href="https://rogeriotpires-spec.github.io/apuracao-timeline/">Timeline</a></footer>
+<script>
+const ALVO = Date.parse('2026-10-25T20:00:00Z'); // 17h de Brasília
+const z = n => String(n).padStart(2, '0');
+function tick() {
+  let s = Math.floor((ALVO - Date.now()) / 1000);
+  if (s <= 0) { document.getElementById('cd').style.display = 'none'; document.getElementById('cdl').textContent = 'A apuração do 2º turno começou.'; return; }
+  document.getElementById('dd').textContent = Math.floor(s / 86400); s %= 86400;
+  document.getElementById('hh').textContent = z(Math.floor(s / 3600)); s %= 3600;
+  document.getElementById('mm').textContent = z(Math.floor(s / 60));
+  document.getElementById('ss').textContent = z(s % 60);
+  setTimeout(tick, 1000);
+}
+tick();
+</script>
+</body>
+</html>

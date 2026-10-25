@@ -313,6 +313,7 @@ body.faixa #faixa{display:flex;position:fixed;left:2vw;right:2vw;bottom:3vh;alig
   <div class="barra-status">
     <div class="st" id="status">Carregando dados do TSE...</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" id="btnImg" type="button">Imagem do placar</button>
       <a class="btn" href="../presidios/?turno=2">Presídios ↗</a>
       <a class="btn" id="lkTV" href="?tv=1" target="_blank" rel="noopener">Modo TV ↗</a>
       <a class="btn" id="lkFaixa" href="?faixa=1" target="_blank" rel="noopener">Faixa de rodapé ↗</a>
@@ -423,6 +424,13 @@ body.faixa #faixa{display:flex;position:fixed;left:2vw;right:2vw;bottom:3vh;alig
   <div id="ufCorpo"></div>
 </dialog>
 <div id="toast" role="alert" aria-live="assertive"></div>
+<dialog class="dlg" id="dlgImg" style="width:min(760px,calc(100vw - 24px))">
+  <button class="dlg-x" id="dlgImgX" type="button" aria-label="Fechar">×</button>
+  <div class="k">Imagem do placar</div>
+  <div class="fil" style="margin:10px 0"><button id="imgQ" class="on">Quadrada (feed)</button><button id="imgV">Vertical (stories)</button></div>
+  <canvas id="cvImg" style="width:100%;border-radius:12px;border:1px solid var(--line);background:#000"></canvas>
+  <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap"><a class="btn pri" id="imgBaixar" download="placar-timeline.png">Baixar PNG</a><span class="nota" style="margin:0;align-self:center">Gerada agora com os números do painel. No celular, toque e segure na imagem para salvar.</span></div>
+</dialog>
 <!-- Modo TV -->
 <div id="tv">
   <div class="tv-top"><img src="data:image/jpeg;base64,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" alt=""><div><span class="wm">Timeline</span> <span class="ap">2º turno · Presidente</span></div><div class="sp"></div><div class="ap2">urnas apuradas<b id="tvPst">--</b></div><div class="hr" id="tvHora">--:--</div></div>
@@ -1028,6 +1036,48 @@ function renderCap() {
     (tv ? `<tr class="tot"><td>${n} capitais com votos</td><td></td><td class="f">${fN(TF)}</td><td class="l">${fN(TL)}</td><td class="f">${fP(TF / tv * 100, 1)}</td><td class="l">${fP(TL / tv * 100, 1)}</td><td class="m">${fP(T22F / t22 * 100, 1)}</td><td class="${TF / tv - T22F / t22 > 0 ? 'up' : 'dn'}">${fPP((TF / tv - T22F / t22) * 100)}</td><td></td></tr>` : '') + '</tbody>';
   $('capAviso').innerHTML = !Object.keys(CD.dados).length ? `<div class="aviso">${CD.carregando ? 'Lendo as capitais no TSE...' : 'Os arquivos das capitais aparecem quando o TSE começar a divulgar os resultados por município.'}</div>` : '';
 }
+
+
+/* ===== Imagem do placar ===== */
+let imgFmt = 'q';
+const LOGO_IMG = new Image(); LOGO_IMG.src = document.querySelector('header .logo').src;
+function rr(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+function desenharImagem() {
+  const cv = $('cvImg'); const W = 1080, H = imgFmt === 'q' ? 1080 : 1920; cv.width = W; cv.height = H; const c = cv.getContext('2d');
+  const b = D.br, F = vf(b), L = vl(b), vv = F + L, pF = vv ? F / vv * 100 : 0, pL = vv ? L / vv * 100 : 0;
+  const g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#120c09'); g.addColorStop(1, '#050403'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+  c.fillStyle = 'rgba(224,122,44,.10)'; for (let x = 0; x < W; x += 94) c.fillRect(x, 0, 2, H);
+  const y0 = imgFmt === 'q' ? 70 : 300;
+  if (LOGO_IMG.complete && LOGO_IMG.naturalWidth) { c.save(); rr(c, 70, y0, 110, 110, 24); c.clip(); c.drawImage(LOGO_IMG, 70, y0, 110, 110); c.restore(); }
+  c.fillStyle = '#f6f2ee'; c.font = '700 64px "Playfair Display", Georgia, serif'; c.fillText('Timeline', 205, y0 + 62);
+  c.fillStyle = '#f4a65a'; c.font = '700 26px "Barlow Condensed", sans-serif'; c.fillText('APURAÇÃO 2026  ·  2º TURNO  ·  PRESIDENTE', 207, y0 + 100);
+  const y1 = y0 + 190;
+  c.fillStyle = '#a89c92'; c.font = '600 28px Inter, sans-serif'; c.fillText(`Urnas apuradas: ${b ? fP(b.pst) : '--'}`, 70, y1);
+  c.textAlign = 'right'; c.fillText(hora() + ' · dados oficiais do TSE', W - 70, y1); c.textAlign = 'left';
+  const y2 = y1 + 70, colW = (W - 140 - 40) / 2;
+  const cand = (x, nome, part, pct, votos, cor, dir) => { c.textAlign = dir; const ax = dir === 'left' ? x : x + colW;
+    c.fillStyle = '#f6f2ee'; c.font = '700 44px "Playfair Display", Georgia, serif'; c.fillText(nome, ax, y2 + 44);
+    c.fillStyle = '#a89c92'; c.font = '700 24px Inter, sans-serif'; c.fillText(part, ax, y2 + 80);
+    c.fillStyle = cor; let fs = 150; const txt = vv ? fP(pct) : '--'; do { c.font = `800 ${fs}px "Barlow Condensed", sans-serif`; fs -= 6; } while (c.measureText(txt).width > colW - 10 && fs > 60); c.fillText(txt, ax, y2 + 220);
+    c.fillStyle = '#f6f2ee'; c.font = '700 36px "Barlow Condensed", sans-serif'; c.fillText(fN(votos) + ' votos', ax, y2 + 268); c.textAlign = 'left'; };
+  cand(70, tit(FL.nome), FL.partido + ' · ' + NUM_F, pF, F, '#7fb2f0', 'left'); cand(70 + colW + 40, tit(LU.nome), LU.partido + ' · ' + NUM_L, pL, L, '#f2796d', 'right');
+  const yb = y2 + 320; rr(c, 70, yb, W - 140, 34, 17); c.fillStyle = '#1a1411'; c.fill();
+  if (vv) { c.save(); rr(c, 70, yb, W - 140, 34, 17); c.clip(); c.fillStyle = '#3987e5'; c.fillRect(70, yb, (W - 140) * pF / 100, 34); c.fillStyle = '#d8342a'; c.fillRect(70 + (W - 140) * pF / 100, yb, (W - 140) * pL / 100, 34); c.restore(); }
+  c.fillStyle = '#f6f2ee'; c.fillRect(W / 2 - 2, yb - 6, 4, 46);
+  const d = F - L; c.textAlign = 'center'; c.fillStyle = '#a89c92'; c.font = '700 26px Inter, sans-serif'; c.fillText('DIFERENÇA', W / 2, yb + 100);
+  c.fillStyle = d >= 0 ? '#7fb2f0' : '#f2796d'; c.font = '800 110px "Barlow Condensed", sans-serif'; c.fillText(vv ? (d >= 0 ? '+' : '−') + fN(Math.abs(d)) : '--', W / 2, yb + 205);
+  c.fillStyle = '#a89c92'; c.font = '600 30px Inter, sans-serif'; c.fillText(vv ? (d >= 0 ? tit(FL.nome) : tit(LU.nome)) + ' à frente' : '', W / 2, yb + 250);
+  if (imgFmt === 'v') { const P = projetar(), tp = P.PF + P.PL; if (vv && tp) { const yp = yb + 360; rr(c, 70, yp, W - 140, 230, 28); c.fillStyle = 'rgba(255,255,255,.05)'; c.fill(); c.strokeStyle = '#2c221c'; c.lineWidth = 2; c.stroke();
+      c.fillStyle = '#f4a65a'; c.font = '800 28px "Barlow Condensed", sans-serif'; c.fillText('PROJEÇÃO DO RESULTADO FINAL · ESTIMATIVA TIMELINE', W / 2, yp + 56);
+      c.font = '800 110px "Barlow Condensed", sans-serif'; c.fillStyle = '#7fb2f0'; c.textAlign = 'right'; c.fillText(fP(P.PF / tp * 100, 1), W / 2 - 40, yp + 170); c.fillStyle = '#a89c92'; c.textAlign = 'center'; c.font = '700 60px Inter'; c.fillText('×', W / 2, yp + 160); c.fillStyle = '#f2796d'; c.textAlign = 'left'; c.font = '800 110px "Barlow Condensed", sans-serif'; c.fillText(fP(P.PL / tp * 100, 1), W / 2 + 40, yp + 170); c.textAlign = 'center'; } }
+  c.textAlign = 'center'; c.fillStyle = '#6f655d'; c.font = '600 24px Inter, sans-serif'; c.fillText('Painel de apuração da Revista Timeline  ·  @rogerrio  ·  @rogerrioX', W / 2, H - 50);
+  c.textAlign = 'left';
+  try { $('imgBaixar').href = cv.toDataURL('image/png'); } catch (e) {}
+}
+$('btnImg').addEventListener('click', async () => { try { await document.fonts.load('800 100px "Barlow Condensed"'); await document.fonts.load('700 60px "Playfair Display"'); } catch (e) {} desenharImagem(); $('dlgImg').showModal(); });
+$('dlgImgX').addEventListener('click', () => $('dlgImg').close()); $('dlgImg').addEventListener('click', e => { if (e.target === $('dlgImg')) $('dlgImg').close(); });
+$('imgQ').addEventListener('click', () => { imgFmt = 'q'; $('imgQ').classList.add('on'); $('imgV').classList.remove('on'); desenharImagem(); });
+$('imgV').addEventListener('click', () => { imgFmt = 'v'; $('imgV').classList.add('on'); $('imgQ').classList.remove('on'); desenharImagem(); });
 
 /* ===== Saúde da conexão (?equipe=1) ===== */
 let hgAnt = '', hgDesde = Date.now();

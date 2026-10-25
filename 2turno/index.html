@@ -586,7 +586,7 @@ const ELE1 = { fed: '6257', est: '6259' };                       // 1º turno 20
 const ELE2 = { fed: qs.get('fed') || '', est: qs.get('est') || '', fonte: '' }; // 2º turno: detectado no TSE
 const NUM_F = '22', NUM_L = '13';
 const INICIO = Date.parse('2026-10-25T20:00:00Z');               // 17h de Brasília
-const intervalo = () => (Date.now() >= INICIO ? 15 : 120);       // segundos entre atualizações: 15 s depois das 17h
+const intervalo = () => Number(qs.get('seg')) || (Date.now() >= INICIO ? 3 : 120);       // segundos entre atualizações: 3 s na apuração (ou ?seg=N)
 const EQUIPE = qs.get('equipe') === '1';
 const UFS = ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'];
 const REGIAO = {AC:'Norte',AM:'Norte',AP:'Norte',PA:'Norte',RO:'Norte',RR:'Norte',TO:'Norte',AL:'Nordeste',BA:'Nordeste',CE:'Nordeste',MA:'Nordeste',PB:'Nordeste',PE:'Nordeste',PI:'Nordeste',RN:'Nordeste',SE:'Nordeste',DF:'Centro-Oeste',GO:'Centro-Oeste',MS:'Centro-Oeste',MT:'Centro-Oeste',ES:'Sudeste',MG:'Sudeste',RJ:'Sudeste',SP:'Sudeste',PR:'Sul',RS:'Sul',SC:'Sul',ZZ:'Exterior'};

@@ -145,10 +145,19 @@ main{max-width:1320px;margin:0 auto;padding:22px 26px 10px}
 .mun-hist .y{font:800 22px "Barlow Condensed",sans-serif;color:var(--gold2)}.mun-hist .q{font-size:11px;color:var(--mut)}.mun-hist .p{font:800 26px "Barlow Condensed",sans-serif;font-variant-numeric:tabular-nums;margin-top:4px}
 @media(max-width:700px){.mun-hist{grid-template-columns:1fr}}
 /* abas */
-.abas{display:flex;gap:4px;flex-wrap:wrap;margin:26px 0 14px;border-bottom:1px solid var(--line)}
-.abas button{font:800 15px "Barlow Condensed",sans-serif;letter-spacing:2px;text-transform:uppercase;background:none;border:0;border-bottom:2px solid transparent;color:var(--mut);padding:10px 14px;cursor:pointer}
+.abas{position:sticky;top:0;z-index:40;display:flex;gap:2px;flex-wrap:nowrap;align-items:stretch;margin:22px -26px 14px;padding:0 20px;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;background:rgba(6,5,4,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);box-shadow:0 8px 18px -12px rgba(0,0,0,.9)}
+.abas::-webkit-scrollbar{display:none}
+.abas button{flex:0 0 auto;font:800 15px "Barlow Condensed",sans-serif;letter-spacing:2px;text-transform:uppercase;background:none;border:0;border-bottom:3px solid transparent;color:var(--mut);padding:13px 13px 10px;cursor:pointer;white-space:nowrap;min-height:46px}
 .abas button.on{color:var(--tx);border-bottom-color:var(--gold)}
 .abas button:hover{color:var(--tx)}
+.abas button[data-go]{color:var(--gold2)}.abas button[data-go].pulso{color:var(--tx);border-bottom-color:var(--gold2)}
+.abas .sep{flex:0 0 1px;background:var(--line);margin:12px 6px}
+.abas .curto{display:none}
+@media(max-width:720px){.abas{margin-left:-14px;margin-right:-14px;padding:0 8px}.abas button{letter-spacing:1.4px;font-size:14px;padding:12px 10px 9px}.abas .full{display:none}.abas .curto{display:inline}}
+#regioes,#linha,#paineis{scroll-margin-top:62px}
+#topo{position:fixed;right:14px;bottom:18px;z-index:45;border:1px solid rgba(224,122,44,.6);background:rgba(16,13,11,.92);color:var(--tx);font:800 13px "Barlow Condensed",sans-serif;letter-spacing:2px;text-transform:uppercase;padding:11px 14px;border-radius:999px;box-shadow:0 10px 24px rgba(0,0,0,.6);cursor:pointer;backdrop-filter:blur(8px)}
+#topo[hidden]{display:none}#topo:hover{background:var(--card2)}
+body.tv #topo,body.faixa #topo{display:none}
 .painel{display:none}.painel.on{display:block;animation:entra .35s ease}
 h2{font-family:"Playfair Display",Georgia,serif;font-size:24px;margin:6px 0 4px;display:flex;align-items:center;gap:10px}
 h2::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--brand);box-shadow:0 0 12px rgba(197,59,38,.8)}
@@ -386,6 +395,19 @@ body.faixa #faixa{display:flex;position:fixed;left:2vw;right:2vw;bottom:3vh;alig
   </div>
   <div class="nota">A projeção e a calculadora são <b>estimativas</b> da Timeline: aplicam o desempenho de cada candidato em cada estado aos votos que ainda faltam ali. "Matematicamente decidido" só aparece quando nem todos os eleitores que ainda faltam, votando em quem está atrás, bastariam para virar. Resultado oficial é o do TSE.</div>
 
+  <nav class="abas" id="abas" aria-label="Seções do painel">
+    <button data-go="regioes"><span class="full">Regiões</span><span class="curto">Regiões</span></button>
+    <button data-go="linha"><span class="full">Evolução</span><span class="curto">Evolução</span></button>
+    <i class="sep"></i>
+    <button data-p="estados" class="on"><span class="full">Estados</span><span class="curto">Estados</span></button>
+    <button data-p="comp"><span class="full">2018 · 2022 · 2026</span><span class="curto">Histórico</span></button>
+    <button data-p="turnos"><span class="full">1º × 2º turno</span><span class="curto">1º × 2º</span></button>
+    <button data-p="gov"><span class="full">Governadores</span><span class="curto">Governadores</span></button>
+    <button data-p="compar"><span class="full">Comparecimento</span><span class="curto">Comparecimento</span></button>
+    <button data-p="ext"><span class="full">Exterior</span><span class="curto">Exterior</span></button>
+    <button data-p="cap"><span class="full">Capitais</span><span class="curto">Capitais</span></button>
+    <button data-p="mun"><span class="full">Buscar cidade</span><span class="curto">Cidade</span></button>
+  </nav>
   <section class="bloco" id="regioes">
     <h2 style="margin-top:22px">Placar por região</h2><div class="h2s">Diferença em votos e quanto já foi apurado em cada região. Toque numa região para abrir os estados dela.</div>
     <div class="regs" id="regs"></div>
@@ -398,17 +420,7 @@ body.faixa #faixa{display:flex;position:fixed;left:2vw;right:2vw;bottom:3vh;alig
     <div class="gcard"><svg id="lhSvg" class="ltsvg" viewBox="0 0 1000 300" width="100%" role="img" aria-label="Evolução por horário"></svg><svg id="ltSvg" class="ltsvg" viewBox="0 0 1000 300" width="100%" role="img" aria-label="Linha do tempo" style="display:none"></svg></div>
   </section>
 
-  <nav class="abas" id="abas">
-    <button data-p="estados" class="on">Estados</button>
-    <button data-p="comp">2018 · 2022 · 2026</button>
-    <button data-p="turnos">1º × 2º turno</button>
-    <button data-p="gov">Governadores</button>
-    <button data-p="compar">Comparecimento</button>
-    <button data-p="ext">Exterior</button>
-    <button data-p="cap">Capitais</button>
-    <button data-p="mun">Buscar cidade</button>
-  </nav>
-
+  <div id="paineis"></div>
   <section class="painel on" id="p-estados">
     <h2>Estado por estado</h2><div class="h2s">Azul quando Flávio lidera no estado, vermelho quando Lula lidera. A cor começa bem clara e escurece conforme os votos vão sendo apurados. <b>Toque em um estado</b> para abrir a tabela com o resultado do momento e o 1º turno para presidente e governador.</div>
     <div class="fil" id="filReg"></div>
@@ -551,6 +563,7 @@ body.faixa #faixa{display:flex;position:fixed;left:2vw;right:2vw;bottom:3vh;alig
   <div class="fx-st"><b id="fxPst">--</b><span>apuradas</span></div>
 </div>
 
+<button id="topo" type="button" aria-label="Voltar ao placar" hidden>↑ Placar</button>
 <section class="cred" aria-label="Créditos"><div class="in">
   <div><div class="k">Idealização e desenvolvimento</div><div class="nm">Rogerio Pires</div><div class="ds">Painel de apuração da Revista Timeline</div></div>
   <div class="so">
@@ -1424,7 +1437,11 @@ function contagem() { const el = $('cdBox'); if (!el) return; let s = Math.max(0
 setInterval(() => { const el = $('prox'); if (el) { const s = Math.max(0, Math.round((proxima - Date.now()) / 1000)); el.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); } if (proxima && Date.now() >= proxima) { proxima = 0; ciclo(); } contagem(); if (TV) $('tvHora').textContent = hora(); }, 1000);
 
 /* interações */
-$('abas').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; aba = b.dataset.p; document.querySelectorAll('#abas button').forEach(x => x.classList.toggle('on', x === b)); document.querySelectorAll('.painel').forEach(p => p.classList.toggle('on', p.id === 'p-' + aba)); if (aba === 'ext') { EXT.ativo = true; renderExt(); carregarExt(); } if (aba === 'cap') { CD.ativo = true; renderCap(); carregarCap(); } if (aba === 'mun') { carregarMun().then(() => { $('munQ').focus(); }); } });
+$('abas').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+  b.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+  if (b.dataset.go) { $(b.dataset.go).scrollIntoView({ behavior: 'smooth', block: 'start' }); b.classList.add('pulso'); setTimeout(() => b.classList.remove('pulso'), 1200); return; }
+  if ($('abas').getBoundingClientRect().top <= 1) $('paineis').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  aba = b.dataset.p; document.querySelectorAll('#abas button').forEach(x => x.classList.toggle('on', x === b)); document.querySelectorAll('.painel').forEach(p => p.classList.toggle('on', p.id === 'p-' + aba)); if (aba === 'ext') { EXT.ativo = true; renderExt(); carregarExt(); } if (aba === 'cap') { CD.ativo = true; renderCap(); carregarCap(); } if (aba === 'mun') { carregarMun().then(() => { $('munQ').focus(); }); } });
 document.getElementById('mPres').addEventListener('click', () => { mapaModo = 'pres'; atualizaModo(); });
 document.getElementById('mGov').addEventListener('click', () => { mapaModo = 'gov'; atualizaModo(); });
 function atualizaModo() { $('mPres').classList.toggle('on', mapaModo === 'pres'); $('mGov').classList.toggle('on', mapaModo === 'gov'); $('legPres').style.display = mapaModo === 'pres' ? '' : 'none'; $('legGov').style.display = mapaModo === 'gov' ? '' : 'none'; $('notaMapa').textContent = mapaModo === 'gov' ? 'Azul quando o candidato do PL lidera; dourado quando outro candidato lidera. A cor escurece com a apuração. Toque no estado para ver os nomes.' : 'O estado começa bem claro e escurece à medida que a apuração avança.'; renderEstados(projetar()); }
@@ -1432,6 +1449,10 @@ $('filReg').addEventListener('click', e => { const b = e.target.closest('button'
 $('btnAt').addEventListener('click', () => ciclo());
 $('btnCalc').addEventListener('click', () => $('dlgCalc').showModal());
 $('dlgX').addEventListener('click', () => $('dlgCalc').close());
+{ const t = $('topo'), pl = document.querySelector('.placar'); let vis = false;
+  const chk = () => { const v = pl && pl.getBoundingClientRect().bottom < 0; if (v !== vis) { vis = v; t.hidden = !v; } };
+  window.addEventListener('scroll', chk, { passive: true }); chk();
+  t.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' })); }
 $('dlgUFX').addEventListener('click', () => $('dlgUF').close());
 $('dlgUF').addEventListener('click', e => { if (e.target === $('dlgUF')) $('dlgUF').close(); });
 $('dlgUF').addEventListener('close', () => { ufAberto = null; });

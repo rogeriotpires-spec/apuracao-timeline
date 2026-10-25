@@ -70,6 +70,10 @@ main{max-width:1320px;margin:0 auto;padding:22px 26px 10px}
 .alerta{display:flex;gap:10px;align-items:center;padding:10px 14px;border-radius:12px;background:rgba(224,122,44,.1);border:1px solid rgba(224,122,44,.4);font-size:14px;animation:entra .5s ease}
 .alerta.ok{background:rgba(63,207,134,.1);border-color:rgba(63,207,134,.45)}
 .alerta time{color:var(--mut);font-size:12px;font-variant-numeric:tabular-nums}
+.alerta span{flex:1;min-width:0}
+.alerta-x{flex:0 0 auto;margin-left:auto;width:30px;height:30px;border-radius:50%;border:1px solid rgba(246,242,238,.2);background:transparent;color:var(--mut);font:600 18px/1 Inter,sans-serif;cursor:pointer}
+.alerta-x:hover{color:var(--tx);border-color:var(--gold);background:rgba(224,122,44,.15)}
+.alerta-limpar{text-align:right}.alerta-limpar button{background:none;border:0;color:var(--mut);font:600 12px Inter;text-decoration:underline;cursor:pointer;padding:2px 4px}.alerta-limpar button:hover{color:var(--tx)}
 @keyframes entra{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 /* placar */
 .placar{background:linear-gradient(180deg,rgba(23,18,16,.95),rgba(12,10,9,.95));border:1px solid var(--line);border-radius:22px;padding:22px 24px 20px;position:relative;overflow:hidden}
@@ -1359,7 +1363,8 @@ function avisoEquipe(txt, ok) {
 document.addEventListener('click', e => { if (e.target && e.target.id === 'btnSom') { somOn = !somOn; if (somOn && !actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (er) {} } if (somOn) bip(true); renderSaude(); } });
 
 /* alertas: mudança de liderança no Brasil e nos estados, e decisão matemática */
-function alertar(txt, ok) { D.alertas.unshift({ txt, ok, h: hora() }); D.alertas = D.alertas.slice(0, 12); avisoEquipe(txt, ok); }
+let alertaId = 0;
+function alertar(txt, ok) { D.alertas.unshift({ txt, ok, h: hora(), id: ++alertaId }); D.alertas = D.alertas.slice(0, 12); avisoEquipe(txt, ok); }
 function checarAlertas() {
   const F = vf(D.br), L = vl(D.br); if (F + L < 1000) return;
   const lid = F >= L ? 'F' : 'L';
@@ -1373,7 +1378,7 @@ function checarAlertas() {
     const el = g.cands.find(c => c.e); if (el && !D.elGov[uf]) { D.elGov[uf] = 1; alertar(`<b>${esc(NOME[uf])}:</b> TSE declara ${esc(tit(el.nome))} (${esc(el.partido)}) eleito governador.`, 1); } });
   { const el = D.br && D.br.cands.find(c => c.e); if (el && !D._avisouEl) { D._avisouEl = 1; alertar(`<b>TSE declara eleito:</b> ${esc(tit(el.nome))}.`, 1); } }
   if (D.decidido && !D._avisouDec) { D._avisouDec = 1; alertar(`<b>Matematicamente decidido:</b> ${esc(tit(lid === 'F' ? FL.nome : LU.nome))} não pode mais ser alcançado.`, 1); }
-  $('alertas').innerHTML = D.alertas.slice(0, 6).map(a => `<div class="alerta ${a.ok ? 'ok' : ''}"><time>${a.h}</time><span>${a.txt}</span></div>`).join('');
+  $('alertas').innerHTML = D.alertas.slice(0, 6).map(a => `<div class="alerta ${a.ok ? 'ok' : ''}" data-id="${a.id}"><time>${a.h}</time><span>${a.txt}</span>${TV ? '' : `<button class="alerta-x" type="button" aria-label="Fechar alerta" title="Fechar">×</button>`}</div>`).join('') + (D.alertas.length > 1 && !TV ? `<div class="alerta-limpar"><button type="button" id="alertasLimpar">Limpar todos</button></div>` : '');
 }
 
 function renderTV(P) {
@@ -1453,6 +1458,11 @@ $('dlgX').addEventListener('click', () => $('dlgCalc').close());
   const chk = () => { const v = pl && pl.getBoundingClientRect().bottom < 0; if (v !== vis) { vis = v; t.hidden = !v; } };
   window.addEventListener('scroll', chk, { passive: true }); chk();
   t.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' })); }
+$('alertas').addEventListener('click', e => {
+  if (e.target.id === 'alertasLimpar') { D.alertas = []; $('alertas').innerHTML = ''; return; }
+  const x = e.target.closest('.alerta-x'); if (!x) return; const id = Number(x.closest('.alerta').dataset.id);
+  D.alertas = D.alertas.filter(a => a.id !== id); x.closest('.alerta').remove(); if (D.alertas.length < 2) { const l = $('alertasLimpar'); if (l) l.parentNode.remove(); }
+});
 $('dlgUFX').addEventListener('click', () => $('dlgUF').close());
 $('dlgUF').addEventListener('click', e => { if (e.target === $('dlgUF')) $('dlgUF').close(); });
 $('dlgUF').addEventListener('close', () => { ufAberto = null; });

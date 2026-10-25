@@ -124,6 +124,14 @@ h2::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--br
 .fil{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
 .fil button{font:600 12px Inter;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--tx);padding:6px 12px;border-radius:999px;cursor:pointer}
 .fil button.on{border-color:var(--gold);color:var(--gold2);background:rgba(224,122,44,.1)}
+#saude{display:none;background:#0b0908;border:1px dashed #3a2e27;border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--mut)}
+body.equipe #saude{display:block}
+#saude .sh{font:800 12px "Barlow Condensed",sans-serif;letter-spacing:2px;text-transform:uppercase;color:var(--gold2);margin-right:8px}
+#saude .ck{display:inline-flex;align-items:center;gap:6px;margin:3px 10px 3px 0;padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--tx)}
+#saude .ck i{width:8px;height:8px;border-radius:50%;background:var(--up)}#saude .ck.er i{background:var(--down)}#saude .ck.av i{background:var(--gold)}
+#toast{position:fixed;left:50%;top:18px;transform:translateX(-50%) translateY(-140%);z-index:80;min-width:min(620px,92vw);background:#120d0a;border:2px solid var(--gold);border-radius:16px;padding:16px 22px;box-shadow:0 20px 60px rgba(0,0,0,.7);font-size:20px;transition:transform .35s ease;text-align:center}
+#toast.on{transform:translateX(-50%) translateY(0)}#toast.ok{border-color:var(--up)}
+#toast time{display:block;font-size:12px;color:var(--mut);margin-bottom:4px;letter-spacing:1px}
 .calc-btn{display:inline-flex;align-items:center;gap:6px;background:none;border:1px solid rgba(255,255,255,.1);color:var(--mut);font:600 11px Inter;letter-spacing:.5px;padding:5px 10px 5px 8px;border-radius:999px;cursor:pointer;transition:color .15s,border-color .15s}
 .calc-btn:hover{color:var(--tx);border-color:var(--gold)}.calc-btn svg{width:15px;height:15px}
 dialog.dlg{margin:auto;width:min(460px,calc(100vw - 32px));background:var(--card);color:var(--tx);border:1px solid var(--line);border-radius:20px;padding:24px 24px 20px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
@@ -294,6 +302,7 @@ body.faixa #faixa{display:flex;position:fixed;left:2vw;right:2vw;bottom:3vh;alig
       <button class="btn pri" id="btnAt">Atualizar agora</button>
     </div>
   </div>
+  <div id="saude"></div>
   <div id="avisos"></div>
   <div class="alertas" id="alertas"></div>
 
@@ -378,6 +387,7 @@ body.faixa #faixa{display:flex;position:fixed;left:2vw;right:2vw;bottom:3vh;alig
   <div class="uf-tit" id="ufTit">Estado</div>
   <div id="ufCorpo"></div>
 </dialog>
+<div id="toast" role="alert" aria-live="assertive"></div>
 <!-- Modo TV -->
 <div id="tv">
   <div class="tv-top"><img src="data:image/jpeg;base64,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" alt=""><div><span class="wm">Timeline</span> <span class="ap">2º turno · Presidente</span></div><div class="sp"></div><div class="ap2">urnas apuradas<b id="tvPst">--</b></div><div class="hr" id="tvHora">--:--</div></div>
@@ -438,7 +448,8 @@ const ELE1 = { fed: '6257', est: '6259' };                       // 1º turno 20
 const ELE2 = { fed: qs.get('fed') || '', est: qs.get('est') || '', fonte: '' }; // 2º turno: detectado no TSE
 const NUM_F = '22', NUM_L = '13';
 const INICIO = Date.parse('2026-10-25T20:00:00Z');               // 17h de Brasília
-const INTERVALO = 120;                                           // segundos entre atualizações
+const intervalo = () => (Date.now() >= INICIO ? 30 : 120);       // segundos entre atualizações: 30 s depois das 17h
+const EQUIPE = qs.get('equipe') === '1';
 const UFS = ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'];
 const REGIAO = {AC:'Norte',AM:'Norte',AP:'Norte',PA:'Norte',RO:'Norte',RR:'Norte',TO:'Norte',AL:'Nordeste',BA:'Nordeste',CE:'Nordeste',MA:'Nordeste',PB:'Nordeste',PE:'Nordeste',PI:'Nordeste',RN:'Nordeste',SE:'Nordeste',DF:'Centro-Oeste',GO:'Centro-Oeste',MS:'Centro-Oeste',MT:'Centro-Oeste',ES:'Sudeste',MG:'Sudeste',RJ:'Sudeste',SP:'Sudeste',PR:'Sul',RS:'Sul',SC:'Sul',ZZ:'Exterior'};
 const NOME = {AC:'Acre',AL:'Alagoas',AM:'Amazonas',AP:'Amapá',BA:'Bahia',CE:'Ceará',DF:'Distrito Federal',ES:'Espírito Santo',GO:'Goiás',MA:'Maranhão',MG:'Minas Gerais',MS:'Mato Grosso do Sul',MT:'Mato Grosso',PA:'Pará',PB:'Paraíba',PE:'Pernambuco',PI:'Piauí',PR:'Paraná',RJ:'Rio de Janeiro',RN:'Rio Grande do Norte',RO:'Rondônia',RR:'Roraima',RS:'Rio Grande do Sul',SC:'Santa Catarina',SE:'Sergipe',SP:'São Paulo',TO:'Tocantins',ZZ:'Exterior'};
@@ -547,12 +558,15 @@ async function coletar() {
     let F = 0, L = 0, te = 0, c = 0, a = 0, vb = 0, vn = 0; all.forEach(uf => { const x = D.uf[uf]; F += vf(x); L += vl(x); te += x.te; c += x.c; a += x.a; vb += x.vb; vn += x.vn; });
     const pst = all.reduce((s, uf) => s + D.uf[uf].pst * D.uf[uf].te, 0) / te;
     D.br = { cands: [{ num: NUM_F, nome: FL.nome, partido: FL.partido, votos: F, sq: FL.sq }, { num: NUM_L, nome: LU.nome, partido: LU.partido, votos: L, sq: LU.sq }], pst: Math.round(pst * 100) / 100, te, c, a, vv: F + L, vb, vn, hg: hora() + ':00', dg: '25/10/2026', final: pst >= 99.99 };
-    D.gov = simGov(); D.govUFs = Object.keys(D.gov); return true;
+    D.gov = simGov(); D.govUFs = Object.keys(D.gov); D.saude = { quando: new Date(), ok: 29, falhas: [] }; return true;
   }
-  let ok = 0;
+  let ok = 0; const falhas = [];
   await Promise.all(['BR', 'ZZ', ...UFS].map(async uf => {
-    try { const r = await baixar(urlPres(ELE2.fed, uf)); if (r && r.ok) { const x = ler(await r.json()); if (uf === 'BR') D.br = x; else D.uf[uf] = x; ok++; } } catch (e) {}
+    let lido = false;
+    try { const r = await baixar(urlPres(ELE2.fed, uf)); if (r && r.ok) { const x = ler(await r.json()); if (uf === 'BR') D.br = x; else D.uf[uf] = x; ok++; lido = true; } } catch (e) {}
+    if (!lido) falhas.push(uf);
   }));
+  D.saude = { quando: new Date(), ok, falhas };
   // governadores: descobre uma vez quais estados têm 2º turno; depois atualiza só esses
   if (ELE2.est) {
     const lista = D.govUFs || UFS; const achou = [];
@@ -827,7 +841,7 @@ async function carregarExt() {
     }
   } catch (e) {}
   try { const r = await fetch('../parcial-exterior-2t.json?t=' + Date.now(), { cache: 'no-store' }); if (r.ok) EXT.parcial = await r.json(); } catch (e) {}
-  EXT.carregando = false; renderExt();
+  EXT.carregando = false; EXT.ult = Date.now(); renderExt();
 }
 function renderExt() {
   const flag = iso => iso ? `<img class="flag" src="https://flagcdn.com/w40/${iso}.png" alt="" onerror="this.style.visibility='hidden'">` : '';
@@ -857,8 +871,44 @@ function renderExt() {
   $('extNota').innerHTML = `As colunas do 1º turno mostram o resultado oficial do TSE em cada país, em % dos votos válidos daquele turno (com todos os candidatos).${!oficial && EXT.parcial && EXT.parcial.links ? ' Fontes da parcial: ' + EXT.parcial.links.map(([n, u]) => `<a href="${u}" target="_blank" rel="noopener" style="color:var(--gold2)">${esc(n)}</a>`).join(', ') + '.' : ''}`;
 }
 
+
+/* ===== Saúde da conexão (?equipe=1) ===== */
+let hgAnt = '', hgDesde = Date.now();
+function renderSaude() {
+  if (!EQUIPE) return;
+  const b = D.br, S = D.saude || { ok: 0, falhas: [] };
+  const chave = b ? b.dg + ' ' + b.hg : ''; if (chave !== hgAnt) { hgAnt = chave; hgDesde = Date.now(); }
+  const parado = b && Date.now() >= INICIO && (Date.now() - hgDesde) > 10 * 60000 && !b.final;
+  const ufsOk = UFS.filter(u => D.uf[u] && !S.falhas.includes(u)).length;
+  const ck = (cls, t) => `<span class="ck ${cls}"><i></i>${t}</span>`;
+  $('saude').innerHTML = `<span class="sh">Conexão com o TSE</span>` +
+    ck(b && !S.falhas.includes('BR') ? '' : 'er', 'Brasil ' + (b ? '✓' : '✗')) +
+    ck(ufsOk === 27 ? '' : ufsOk ? 'av' : 'er', `Estados ${ufsOk}/27` + (S.falhas.filter(u => u !== 'BR' && u !== 'ZZ').length ? ' · faltam ' + S.falhas.filter(u => u !== 'BR' && u !== 'ZZ').join(', ') : '')) +
+    ck(D.uf.ZZ && !S.falhas.includes('ZZ') ? '' : 'er', 'Exterior ' + (D.uf.ZZ ? '✓' : '✗')) +
+    ck(D.govUFs && D.govUFs.length ? '' : 'av', 'Governadores: ' + (D.govUFs && D.govUFs.length ? D.govUFs.length + ' estados (' + D.govUFs.join(', ') + ')' : 'nenhum encontrado')) +
+    (EXT.cidades ? ck(Object.keys(EXT.t2).length ? '' : 'av', `Exterior por cidade: ${Object.keys(EXT.t2).length}/${EXT.cidades.length}`) : '') +
+    ck(b ? (parado ? 'av' : '') : 'er', b ? `Arquivo do TSE: ${b.dg} ${b.hg}` + (parado ? ` · parado há ${Math.round((Date.now() - hgDesde) / 60000)} min` : '') : 'sem arquivo do TSE') +
+    ck(ELE2.fonte.startsWith('detectados') || ELE2.fonte.startsWith('informados') ? '' : 'av', `Códigos ${ELE2.fed} / ${ELE2.est} · ${ELE2.fonte.split(' (')[0]}`) +
+    ck('', `Leitura: ${S.quando ? hora(S.quando) : '--'} · a cada ${intervalo()} s`) +
+    `<button class="btn" id="btnSom" style="padding:4px 12px;margin-left:4px">${somOn ? '🔔 Som ligado' : '🔕 Ativar som dos alertas'}</button>`;
+}
+/* ===== Alertas da equipe: aviso na tela + toque ===== */
+let somOn = false, actx = null, toastT = 0;
+function bip(ok) {
+  if (!somOn || !actx) return;
+  const t0 = actx.currentTime; [0, 0.18].forEach((d, i) => { const o = actx.createOscillator(), g = actx.createGain();
+    o.frequency.value = ok ? [660, 990][i] : [880, 660][i]; o.type = 'sine'; g.gain.setValueAtTime(0.0001, t0 + d); g.gain.exponentialRampToValueAtTime(0.25, t0 + d + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d + 0.16);
+    o.connect(g).connect(actx.destination); o.start(t0 + d); o.stop(t0 + d + 0.18); });
+}
+function avisoEquipe(txt, ok) {
+  if (!EQUIPE) return;
+  const t = $('toast'); t.className = ok ? 'ok' : ''; t.innerHTML = `<time>${hora()}</time>${txt}`; void t.offsetWidth; t.classList.add('on');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 10000); bip(ok);
+}
+document.addEventListener('click', e => { if (e.target && e.target.id === 'btnSom') { somOn = !somOn; if (somOn && !actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (er) {} } if (somOn) bip(true); renderSaude(); } });
+
 /* alertas: mudança de liderança no Brasil e nos estados, e decisão matemática */
-function alertar(txt, ok) { D.alertas.unshift({ txt, ok, h: hora() }); D.alertas = D.alertas.slice(0, 6); }
+function alertar(txt, ok) { D.alertas.unshift({ txt, ok, h: hora() }); D.alertas = D.alertas.slice(0, 12); avisoEquipe(txt, ok); }
 function checarAlertas() {
   const F = vf(D.br), L = vl(D.br); if (F + L < 1000) return;
   const lid = F >= L ? 'F' : 'L';
@@ -866,8 +916,9 @@ function checarAlertas() {
   D.lider = lid;
   ['ZZ', ...UFS].forEach(uf => { const x = D.uf[uf], a = vf(x), b = vl(x); if (a + b < 3000) return; const l = a >= b ? 'F' : 'L';
     if (D.liderUF[uf] && D.liderUF[uf] !== l) alertar(`<b>${esc(NOME[uf])} virou:</b> ${esc(tit(l === 'F' ? FL.nome : LU.nome))} passa à frente.`); D.liderUF[uf] = l; });
+  { const el = D.br && D.br.cands.find(c => c.e); if (el && !D._avisouEl) { D._avisouEl = 1; alertar(`<b>TSE declara eleito:</b> ${esc(tit(el.nome))}.`, 1); } }
   if (D.decidido && !D._avisouDec) { D._avisouDec = 1; alertar(`<b>Matematicamente decidido:</b> ${esc(tit(lid === 'F' ? FL.nome : LU.nome))} não pode mais ser alcançado.`, 1); }
-  $('alertas').innerHTML = D.alertas.map(a => `<div class="alerta ${a.ok ? 'ok' : ''}"><time>${a.h}</time><span>${a.txt}</span></div>`).join('');
+  $('alertas').innerHTML = D.alertas.slice(0, 6).map(a => `<div class="alerta ${a.ok ? 'ok' : ''}"><time>${a.h}</time><span>${a.txt}</span></div>`).join('');
 }
 
 function renderTV(P) {
@@ -898,7 +949,8 @@ function render() {
   renderPlacar(P); renderEstados(P); renderComp(); renderTurnos(); renderGov(); renderCompar(); checarAlertas();
   if (TV || FAIXA) renderTV(P);
   if (ufAberto && $('dlgUF').open) renderUF(ufAberto);
-  if (EXT.ativo) { renderExt(); if (!EXT.carregando && !SIM) carregarExt(); }
+  if (EXT.ativo) { renderExt(); if (!EXT.carregando && !SIM && Date.now() - (EXT.ult || 0) > 5 * 60000) carregarExt(); }
+  renderSaude();
   const fotoF = FL.sq ? urlFoto(ELE1.fed, FL.sq) : '', fotoL = LU.sq ? urlFoto(ELE1.fed, LU.sq) : '';
   [['ftF', fotoF], ['ftL', fotoL], ['tvFtF', fotoF], ['tvFtL', fotoL]].forEach(([id, u]) => { const im = $(id); if (u && im.dataset.u !== u) { im.dataset.u = u; im.src = u; im.onerror = () => { im.style.visibility = 'hidden'; }; } });
   const b = D.br;
@@ -914,10 +966,10 @@ async function ciclo() {
   render();
   const antes = Date.now() < INICIO && !SIM;
   $('avisos').innerHTML = SIM ? `<div class="aviso"><b>Modo ensaio (simulação).</b> Os números são fictícios, gerados para testar o painel. Nada aqui é resultado real.</div>`
-    : !b ? `<div class="aviso">${antes ? `<b>A apuração começa às 17h de Brasília do dia 25.</b> O painel passa a mostrar os números assim que o TSE publicar o primeiro boletim.<div class="cd" id="cdBox"></div>` : `<b>O TSE ainda não publicou os resultados do 2º turno</b> nos endereços esperados. O painel tenta de novo a cada ${INTERVALO / 60} minutos.`}</div>` : '';
+    : !b ? `<div class="aviso">${antes ? `<b>A apuração começa às 17h de Brasília do dia 25.</b> O painel passa a mostrar os números assim que o TSE publicar o primeiro boletim.<div class="cd" id="cdBox"></div>` : `<b>O TSE ainda não publicou os resultados do 2º turno</b> nos endereços esperados. O painel tenta de novo a cada ${intervalo() >= 60 ? intervalo() / 60 + ' minutos' : intervalo() + ' segundos'}.`}</div>` : '';
   if (antes && !b) contagem();
   $('status').innerHTML = (b ? `Arquivo do TSE de <b>${b.dg} ${b.hg}</b>${b.final ? ' · <b>totalização final</b>' : ''} · ` : '') + (D.ultima ? `atualizado às <b>${hora(D.ultima)}</b> · ` : '') + `próxima em <b id="prox">--</b>`;
-  proxima = Date.now() + INTERVALO * 1000;
+  proxima = Date.now() + intervalo() * 1000;
 }
 let proxima = 0;
 function contagem() { const el = $('cdBox'); if (!el) return; let s = Math.max(0, Math.floor((INICIO - Date.now()) / 1000)); const d = Math.floor(s / 86400); s %= 86400; const h = Math.floor(s / 3600); s %= 3600; const m = Math.floor(s / 60);
@@ -937,6 +989,7 @@ $('extChip').addEventListener('click', () => abrirUF('ZZ')); $('extChip').style.
 $('dlgCalc').addEventListener('click', e => { if (e.target === $('dlgCalc')) $('dlgCalc').close(); });
 const extra = (SIM ? '&sim=1' : '') + (qs.get('fed') ? '&fed=' + qs.get('fed') : '') + (qs.get('est') ? '&est=' + qs.get('est') : '');
 $('lkTV').href = '?tv=1' + extra; $('lkFaixa').href = '?faixa=1' + extra;
+if (EQUIPE) document.body.classList.add('equipe');
 if (TV) { document.body.classList.add('tv'); setInterval(girarCenas, 20000); }
 if (FAIXA) { document.body.classList.add('faixa'); if (qs.get('chroma') === '1') document.body.classList.add('chroma'); }
 

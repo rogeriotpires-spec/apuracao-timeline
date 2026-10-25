@@ -112,6 +112,20 @@ main{max-width:1320px;margin:0 auto;padding:22px 26px 10px}
 .selo.solid{background:rgba(63,207,134,.14);color:var(--up);border:1px solid rgba(63,207,134,.4)}
 .selo.aberto{background:rgba(224,122,44,.12);color:var(--gold2);border:1px solid rgba(224,122,44,.4)}
 .nota{font-size:11px;color:var(--mut);margin-top:10px;line-height:1.5}
+.regs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.reg{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;cursor:pointer;transition:border-color .15s}
+.reg:hover{border-color:var(--gold)}.reg.on{border-color:var(--gold);grid-column:1/-1}
+.reg .rh{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.reg .rh b{font-family:"Playfair Display",Georgia,serif;font-size:20px}.reg .rh span{font-size:12px;color:var(--mut)}
+.reg .rd{font:800 30px/1.1 "Barlow Condensed",sans-serif;font-variant-numeric:tabular-nums;margin:6px 0 8px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.reg .bar2{height:12px}
+.reg .pp{display:flex;justify-content:space-between;font-size:12px;margin-top:6px}.reg .pp .f{color:var(--fl2)}.reg .pp .l{color:var(--lu2)}
+.reg .ufs{display:none;margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.reg.on .ufs{display:flex;flex-direction:column;gap:6px}
+.gcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+.ltsvg text{font:600 12px Inter;fill:var(--mut)}.ltsvg .lf{stroke:var(--fl);stroke-width:3;fill:none}.ltsvg .ll{stroke:var(--lu);stroke-width:3;fill:none}
+.ltsvg .grid{stroke:#2c221c;stroke-width:1}.ltsvg .meio{stroke:#8a7f76;stroke-dasharray:4 4}.ltsvg .vir{stroke:var(--gold);stroke-width:2;stroke-dasharray:3 3}
+.ltsvg .fim{font:800 15px "Barlow Condensed",sans-serif}#tvLt text{font-size:18px}#tvLt .fim{font-size:24px}#tvLt .lf,#tvLt .ll{stroke-width:5}
 /* abas */
 .abas{display:flex;gap:4px;flex-wrap:wrap;margin:26px 0 14px;border-bottom:1px solid var(--line)}
 .abas button{font:800 15px "Barlow Condensed",sans-serif;letter-spacing:2px;text-transform:uppercase;background:none;border:0;border-bottom:2px solid transparent;color:var(--mut);padding:10px 14px;cursor:pointer}
@@ -264,6 +278,9 @@ body.tv #tv{display:flex;flex-direction:column;height:100vh;overflow:hidden;padd
 .tv-mapa .brmap{width:70vh}.tv-mapa .brmap text{font-size:15px}.tv-mapa .tile b{font-size:2.6vh}.tv-mapa .tile span{font-size:2vh}
 .tv-govs{display:grid;grid-template-columns:repeat(auto-fill,minmax(40vh,1fr));gap:2vh}
 .tv-govs .gov{padding:2vh 1.6vw}.tv-govs .gov .gh b{font-size:3vh}.tv-govs .gc .n{font-size:2.2vh}.tv-govs .gc .p{font-size:3.6vh}.tv-govs .gc .b{height:1.2vh}
+#tvRegs .reg{padding:2vh 1.6vw;cursor:default}#tvRegs .reg .rh b{font-size:3vh}#tvRegs .reg .rd{font-size:5vh}#tvRegs .reg .pp{font-size:2vh}#tvRegs .reg .bar2{height:2vh}#tvRegs .reg .rh span{font-size:1.8vh}
+#tvAlertas .alerta{font-size:2.8vh;padding:2vh 2.4vw}#tvAlertas .alerta time{font-size:2vh}
+#tvExt .ufrow{grid-template-columns:30vh 1fr 14vh;font-size:2.4vh}#tvExt .bar2{height:2.4vh;border-radius:1.2vh}#tvExt .ufrow .d{font-size:2.8vh}
 .tv-pts{display:flex;gap:1vh;justify-content:center;margin-top:2vh}.tv-pts i{width:1vh;height:1vh;border-radius:50%;background:var(--line)}.tv-pts i.on{background:var(--gold)}
 /* ===== Faixa de rodapé (?faixa=1) ===== */
 #faixa{display:none}
@@ -322,6 +339,15 @@ body.faixa #faixa{display:flex;position:fixed;left:2vw;right:2vw;bottom:3vh;alig
     <div class="card"><div class="k">Votos que faltam apurar</div><div class="big" id="rsBig">--</div><div class="tx" id="rsTx">&nbsp;</div></div>
   </div>
   <div class="nota">A projeção e a calculadora são <b>estimativas</b> da Timeline: aplicam o desempenho de cada candidato em cada estado aos votos que ainda faltam ali. "Matematicamente decidido" só aparece quando nem todos os eleitores que ainda faltam, votando em quem está atrás, bastariam para virar. Resultado oficial é o do TSE.</div>
+
+  <section class="bloco" id="regioes">
+    <h2 style="margin-top:22px">Placar por região</h2><div class="h2s">Diferença em votos e quanto já foi apurado em cada região. Toque numa região para abrir os estados dela.</div>
+    <div class="regs" id="regs"></div>
+  </section>
+  <section class="bloco" id="linha">
+    <h2 style="margin-top:22px">Linha do tempo da apuração</h2><div class="h2s" id="ltSub">Percentual dos votos válidos de cada candidato ao longo da noite, conforme as urnas vão sendo apuradas. As marcas verticais indicam viradas.</div>
+    <div class="gcard"><svg id="ltSvg" class="ltsvg" viewBox="0 0 1000 300" width="100%" role="img" aria-label="Linha do tempo"></svg></div>
+  </section>
 
   <nav class="abas" id="abas">
     <button data-p="estados" class="on">Estados</button>
@@ -418,6 +444,22 @@ body.faixa #faixa{display:flex;position:fixed;left:2vw;right:2vw;bottom:3vh;alig
   <div class="cena" data-c="gov">
     <div class="tv-k">Governadores no 2º turno</div>
     <div class="tv-govs" id="tvGovs"></div>
+  </div>
+  <div class="cena" data-c="reg">
+    <div class="tv-k">Placar por região</div>
+    <div class="regs" id="tvRegs" style="grid-template-columns:repeat(3,1fr);gap:2vh"></div>
+  </div>
+  <div class="cena" data-c="linha">
+    <div class="tv-k">A noite até agora</div>
+    <div class="gcard" style="padding:2vh"><svg id="tvLt" class="ltsvg" viewBox="0 0 1000 300" width="100%"></svg></div>
+  </div>
+  <div class="cena" data-c="ext">
+    <div class="tv-k">Brasileiros no exterior</div>
+    <div id="tvExt"></div>
+  </div>
+  <div class="cena" data-c="vir">
+    <div class="tv-k">Últimas viradas e alertas</div>
+    <div class="alertas" id="tvAlertas" style="gap:1.6vh"></div>
   </div>
   <div class="tv-pts" id="tvPts"></div>
 </div>
@@ -872,6 +914,68 @@ function renderExt() {
 }
 
 
+
+/* ===== Placar por região (com estados) ===== */
+let regAberta = null;
+const REGS = ['Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul', 'Exterior'];
+function regStats(nome) {
+  const ufs = ['ZZ', ...UFS].filter(u => REGIAO[u] === nome); let F = 0, L = 0, te = 0, apur = 0;
+  ufs.forEach(u => { const x = D.uf[u]; F += vf(x); L += vl(x); const t = (x && x.te) || HIST[u].a22[0]; te += t; apur += (x ? x.pst : 0) * t; });
+  return { nome, ufs, F, L, pst: te ? apur / te : 0 };
+}
+function regHTML(r, tv) {
+  const v = r.F + r.L, pF = v ? r.F / v * 100 : 50, d = r.F - r.L;
+  const ufs = r.ufs.sort((a, b) => HIST[b].a22[0] - HIST[a].a22[0]).map(u => { const x = D.uf[u], a = vf(x), c = vl(x), vv = a + c, p = vv ? a / vv * 100 : 50;
+    return `<div class="ufrow"><div class="nm"><b>${esc(NOME[u])}</b><small>${x ? fP(x.pst, 1) : '0%'} apurado</small></div><div class="bar2"><i class="f" style="width:${vv ? p : 0}%"></i><i class="l" style="width:${vv ? 100 - p : 0}%"></i></div><div class="d" style="color:${a >= c ? 'var(--fl2)' : 'var(--lu2)'}">${vv ? (a >= c ? '+' : '−') + fMi(Math.abs(a - c)) : '–'}</div></div>`; }).join('');
+  return `<div class="reg ${!tv && regAberta === r.nome ? 'on' : ''}" data-reg="${r.nome}"><div class="rh"><b>${r.nome}</b><span>${fP(r.pst, 1)} apurado</span></div>
+    <div class="rd" style="color:${d >= 0 ? 'var(--fl2)' : 'var(--lu2)'}">${v ? (d >= 0 ? '+' : '−') + fN(Math.abs(d)) : '–'} <span style="font:600 12px Inter;color:var(--mut)">${v ? (d >= 0 ? tit(FL.nome) : tit(LU.nome)) + ' à frente' : 'sem votos'}</span></div>
+    <div class="bar2"><i class="f" style="width:${v ? pF : 0}%"></i><i class="l" style="width:${v ? 100 - pF : 0}%"></i></div>
+    <div class="pp"><span class="f">${tit(FL.nome)} ${v ? fP(pF) : '–'}</span><span class="l">${v ? fP(100 - pF) : '–'} ${tit(LU.nome)}</span></div>
+    ${tv ? '' : `<div class="ufs">${ufs}</div>`}</div>`;
+}
+function renderRegioes() {
+  const rs = REGS.map(regStats);
+  $('regs').innerHTML = rs.map(r => regHTML(r, false)).join('');
+  if (TV) $('tvRegs').innerHTML = rs.map(r => regHTML(r, true)).join('');
+}
+$('regs').addEventListener('click', e => { const r = e.target.closest('.reg'); if (!r) return; regAberta = regAberta === r.dataset.reg ? null : r.dataset.reg; renderRegioes(); });
+
+/* ===== Linha do tempo ===== */
+const LT = []; // {t, pst, pF, pL, vir}
+let ltUltPst = -1;
+function registrarLT() {
+  const b = D.br; if (!b) return; const F = vf(b), L = vl(b), v = F + L; if (!v) return;
+  if (b.pst === ltUltPst && LT.length) return; ltUltPst = b.pst;
+  const pF = F / v * 100; const ant = LT[LT.length - 1];
+  LT.push({ t: Date.now(), pst: b.pst, pF, pL: 100 - pF, vir: ant ? (ant.pF >= 50) !== (pF >= 50) : false });
+  try { localStorage.setItem('lt2t', JSON.stringify(LT.slice(-600))); } catch (e) {}
+}
+try { const g = JSON.parse(localStorage.getItem('lt2t') || '[]'); if (Array.isArray(g) && g.length && !SIM) LT.push(...g); } catch (e) {}
+function desenharLT(svg, tv) {
+  const W = 1000, H = 300, ml = 46, mr = 70, mt = 18, mb = 34; const w = W - ml - mr, h = H - mt - mb;
+  const pts = LT.filter(p => p.pst > 0); if (pts.length < 2) { svg.innerHTML = `<text x="${W / 2}" y="${H / 2}" text-anchor="middle" style="font-size:16px">A linha aparece quando a apuração começar.</text>`; return; }
+  const x = p => ml + p.pst / 100 * w; const y = v => mt + (1 - (v - 20) / 60) * h; // eixo 20%–80%
+  const path = k => pts.map((p, i) => (i ? 'L' : 'M') + x(p).toFixed(1) + ' ' + y(p[k]).toFixed(1)).join(' ');
+  const grid = [20, 35, 50, 65, 80].map(v => `<line class="grid ${v === 50 ? 'meio' : ''}" x1="${ml}" x2="${W - mr}" y1="${y(v)}" y2="${y(v)}"/><text x="${ml - 8}" y="${y(v) + 4}" text-anchor="end">${v}%</text>`).join('');
+  const xs = [0, 25, 50, 75, 100].map(v => `<text x="${ml + v / 100 * w}" y="${H - 10}" text-anchor="middle">${v}% apurado</text>`).join('');
+  const vir = pts.filter(p => p.vir).map(p => `<line class="vir" x1="${x(p)}" x2="${x(p)}" y1="${mt}" y2="${mt + h}"/><text x="${x(p)}" y="${mt - 4}" text-anchor="middle" style="fill:var(--gold2)">virada</text>`).join('');
+  const u = pts[pts.length - 1];
+  const fim = `<circle cx="${x(u)}" cy="${y(u.pF)}" r="5" fill="var(--fl)"/><circle cx="${x(u)}" cy="${y(u.pL)}" r="5" fill="var(--lu)"/>
+    <text class="fim" x="${x(u) + 10}" y="${y(u.pF) + 5}" style="fill:var(--fl2)">${fP(u.pF, 1)}</text><text class="fim" x="${x(u) + 10}" y="${y(u.pL) + 5}" style="fill:var(--lu2)">${fP(u.pL, 1)}</text>`;
+  svg.innerHTML = grid + xs + vir + `<path class="lf" d="${path('pF')}"/><path class="ll" d="${path('pL')}"/>` + fim;
+}
+function renderLT() { registrarLT(); desenharLT($('ltSvg')); if (TV) desenharLT($('tvLt'), true);
+  const u = LT[LT.length - 1]; if (u) $('ltSub').innerHTML = `Percentual dos votos válidos ao longo da noite. Registro desde <b>${hora(new Date(LT[0].t))}</b> · ${LT.length} leituras · ${LT.filter(p => p.vir).length} virada(s). As marcas verticais indicam viradas.`; }
+function renderTVExtras() {
+  $('tvAlertas').innerHTML = D.alertas.length ? D.alertas.slice(0, 7).map(a => `<div class="alerta ${a.ok ? 'ok' : ''}"><time>${a.h}</time><span>${a.txt}</span></div>`).join('') : '<div class="vazio" style="font-size:2.6vh">Nenhuma virada até agora.</div>';
+  const P = {}; (EXT.cidades || []).forEach(m => { const p = P[m.pais.nome] || (P[m.pais.nome] = { nome: m.pais.nome, F: 0, L: 0 }); const b = EXT.t2[m.cd]; if (b) { p.F += vf(b); p.L += vl(b); } });
+  let lista = Object.values(P).filter(p => p.F + p.L > 0).sort((a, b) => (b.F + b.L) - (a.F + a.L)).slice(0, 8);
+  if (!lista.length && EXT.parcial) lista = (EXT.parcial.paises || []).map(([n, i, v]) => ({ nome: n, F: v.flavio || 0, L: v.lula || 0 })).sort((a, b) => (b.F + b.L) - (a.F + a.L)).slice(0, 8);
+  const zz = D.uf.ZZ, F = vf(zz), L = vl(zz), v = F + L;
+  $('tvExt').innerHTML = (v ? `<div class="tv-card" style="margin-bottom:2vh"><div class="k">Total do exterior · ${fP(zz.pst, 1)} apurado</div><div class="b"><span style="color:var(--fl2)">${fP(F / v * 100, 1)}</span> <span style="color:var(--mut);font-size:.5em">×</span> <span style="color:var(--lu2)">${fP(L / v * 100, 1)}</span></div></div>` : '') +
+    (lista.length ? lista.map(p => { const t = p.F + p.L, q = p.F / t * 100; return `<div class="ufrow"><div class="nm"><b>${esc(p.nome)}</b></div><div class="bar2"><i class="f" style="width:${q}%"></i><i class="l" style="width:${100 - q}%"></i></div><div class="d" style="color:${p.F >= p.L ? 'var(--fl2)' : 'var(--lu2)'}">${fP(p.F >= p.L ? q : 100 - q, 1)}</div></div>`; }).join('') : '<div class="vazio" style="font-size:2.6vh">Sem votos do exterior ainda.</div>');
+}
+
 /* ===== Saúde da conexão (?equipe=1) ===== */
 let hgAnt = '', hgDesde = Date.now();
 function renderSaude() {
@@ -939,14 +1043,16 @@ function renderTV(P) {
 }
 let cenaI = 0;
 function girarCenas() {
-  const cenas = [...document.querySelectorAll('#tv .cena')].filter(c => c.dataset.c !== 'gov' || (D.govUFs && D.govUFs.length));
+  const ordem = ['placar', 'calc', 'mapa', 'reg', 'linha', 'hist', 'gov', 'ext', 'vir'];
+  const cenas = ordem.map(k => document.querySelector(`#tv .cena[data-c="${k}"]`)).filter(c => c && (c.dataset.c !== 'gov' || (D.govUFs && D.govUFs.length)) && (c.dataset.c !== 'vir' || D.alertas.length) && (c.dataset.c !== 'linha' || LT.length > 2));
   cenas.forEach(c => c.classList.remove('on')); cenaI = (cenaI + 1) % cenas.length; cenas[cenaI].classList.add('on'); pintarMapa($('tvMapa'));
   $('tvPts').innerHTML = cenas.map((c, i) => `<i class="${i === cenaI ? 'on' : ''}"></i>`).join('');
 }
 
 function render() {
   const P = projetar();
-  renderPlacar(P); renderEstados(P); renderComp(); renderTurnos(); renderGov(); renderCompar(); checarAlertas();
+  renderPlacar(P); renderEstados(P); renderComp(); renderTurnos(); renderGov(); renderCompar(); checarAlertas(); renderRegioes(); renderLT();
+  if (TV) { renderTVExtras(); if (!EXT.ativo) { EXT.ativo = true; carregarExt(); } }
   if (TV || FAIXA) renderTV(P);
   if (ufAberto && $('dlgUF').open) renderUF(ufAberto);
   if (EXT.ativo) { renderExt(); if (!EXT.carregando && !SIM && Date.now() - (EXT.ult || 0) > 5 * 60000) carregarExt(); }

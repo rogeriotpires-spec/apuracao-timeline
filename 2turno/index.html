@@ -146,6 +146,25 @@ body.equipe #saude{display:block}
 #toast{position:fixed;left:50%;top:18px;transform:translateX(-50%) translateY(-140%);z-index:80;min-width:min(620px,92vw);background:#120d0a;border:2px solid var(--gold);border-radius:16px;padding:16px 22px;box-shadow:0 20px 60px rgba(0,0,0,.7);font-size:20px;transition:transform .35s ease;text-align:center}
 #toast.on{transform:translateX(-50%) translateY(0)}#toast.ok{border-color:var(--up)}
 #toast time{display:block;font-size:12px;color:var(--mut);margin-bottom:4px;letter-spacing:1px}
+.dif-d{font-size:12px;color:var(--mut);margin-top:4px;font-variant-numeric:tabular-nums}.dif-d b{color:var(--tx)}
+.chance{display:grid;grid-template-columns:1fr 280px;gap:18px;align-items:center;margin-top:14px;background:linear-gradient(135deg,rgba(57,135,229,.10),rgba(16,13,11,.9) 60%);border:1px solid rgba(57,135,229,.35);border-radius:18px;padding:18px 22px}
+.chance .k{font:800 12px "Barlow Condensed",sans-serif;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold2)}
+.ch-fr{font-family:"Playfair Display",Georgia,serif;font-size:30px;line-height:1.15;margin-top:8px}.ch-fr b{color:var(--fl2)}
+.ch-tx{font-size:13px;color:var(--mut);margin-top:8px;line-height:1.5}
+.ch-r{text-align:right}.ch-pct{font:800 76px/1 "Barlow Condensed",sans-serif;color:var(--fl2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ch-bar{height:10px;border-radius:5px;background:var(--deep);margin:10px 0 6px;overflow:hidden}.ch-bar i{display:block;height:100%;background:linear-gradient(90deg,#2a6fc4,var(--fl2));transition:width 1s}
+.ch-sub{font-size:12px;color:var(--mut)}.ch-sub b{color:var(--tx)}
+@media(max-width:700px){.chance{grid-template-columns:1fr}.ch-r{text-align:left}.ch-pct{font-size:58px}.ch-fr{font-size:22px}}
+/* cartaz de eleito */
+#cartaz{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;background:rgba(5,4,3,.82);backdrop-filter:blur(4px)}
+#cartaz.on{display:flex;animation:entra .6s ease}
+#cartaz .cx{position:relative;text-align:center;padding:48px 56px;background:linear-gradient(180deg,#141b2a,#0a0e18);border:3px solid var(--fl);border-radius:30px;box-shadow:0 0 0 8px rgba(57,135,229,.18),0 40px 120px rgba(0,0,0,.8);max-width:min(900px,92vw)}
+#cartaz .k{font:800 16px "Barlow Condensed",sans-serif;letter-spacing:5px;text-transform:uppercase;color:var(--gold2)}
+#cartaz img{width:180px;height:180px;border-radius:50%;border:6px solid var(--fl);margin:18px auto;display:block;object-fit:cover;object-position:top}
+#cartaz h1{font-family:"Playfair Display",Georgia,serif;font-size:clamp(34px,5vw,64px);line-height:1.05;color:#fff}
+#cartaz h1 b{color:var(--fl2)}#cartaz .s{font-size:18px;color:var(--mut);margin-top:12px}
+#cartaz .x{position:absolute;right:14px;top:10px;background:none;border:0;color:var(--mut);font-size:30px;cursor:pointer}
+#confete{position:fixed;inset:0;pointer-events:none;z-index:91}
 .calc-btn{display:inline-flex;align-items:center;gap:6px;background:none;border:1px solid rgba(255,255,255,.1);color:var(--mut);font:600 11px Inter;letter-spacing:.5px;padding:5px 10px 5px 8px;border-radius:999px;cursor:pointer;transition:color .15s,border-color .15s}
 .calc-btn:hover{color:var(--tx);border-color:var(--gold)}.calc-btn svg{width:15px;height:15px}
 dialog.dlg{margin:auto;width:min(460px,calc(100vw - 32px));background:var(--card);color:var(--tx);border:1px solid var(--line);border-radius:20px;padding:24px 24px 20px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
@@ -328,13 +347,17 @@ body.faixa #faixa{display:flex;position:fixed;left:2vw;right:2vw;bottom:3vh;alig
     <div class="pl-top"><div class="pl-tit">Presidente · 2º turno</div><div style="display:flex;align-items:center;gap:14px"><button class="calc-btn" id="btnCalc" type="button" aria-haspopup="dialog" title="Abrir a calculadora"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="8" y="6" width="8" height="3.5" rx=".8" fill="currentColor"/><g fill="currentColor"><circle cx="9" cy="13" r="1"/><circle cx="12" cy="13" r="1"/><circle cx="15" cy="13" r="1"/><circle cx="9" cy="17" r="1"/><circle cx="12" cy="17" r="1"/><circle cx="15" cy="17" r="1"/></g></svg>Calculadora</button><div class="pl-apur">Urnas apuradas<b id="pst">--</b></div></div></div>
     <div class="duelo">
       <div class="cand fl"><img class="foto" id="ftF" alt=""><div><div class="cnome" id="nmF">Flávio Bolsonaro</div><div class="cpart" id="ptF">PL · 22</div><div class="cpct" id="pcF">--</div><div class="cvot"><span id="vtF">--</span><small>votos</small></div></div></div>
-      <div class="meio"><div class="dif-k">Diferença</div><div class="dif" id="dif">--</div><div class="dif-q" id="difq">&nbsp;</div><div id="eleitoTag"></div></div>
+      <div class="meio"><div class="dif-k">Diferença</div><div class="dif" id="dif">--</div><div class="dif-q" id="difq">&nbsp;</div><div class="dif-d" id="difd">&nbsp;</div><div id="eleitoTag"></div></div>
       <div class="cand lu dir"><img class="foto" id="ftL" alt=""><div><div class="cnome" id="nmL">Lula</div><div class="cpart" id="ptL">PT · 13</div><div class="cpct" id="pcL">--</div><div class="cvot"><span id="vtL">--</span><small>votos</small></div></div></div>
     </div>
     <div class="trilho"><i class="tf" id="trF" style="width:50%"></i><i class="tl" id="trL" style="width:50%"></i></div>
     <div class="trilho-l"><span>votos válidos</span><span>50%</span><span id="vvTot">&nbsp;</span></div>
   </section>
 
+  <div class="chance" id="chance" style="display:none">
+    <div class="ch-l"><div class="k">Chance de vitória · estimativa Timeline</div><div class="ch-fr" id="chFr">--</div><div class="ch-tx" id="chTx"></div></div>
+    <div class="ch-r"><div class="ch-pct" id="chPct">--</div><div class="ch-bar"><i id="chBar" style="width:0"></i></div><div class="ch-sub">para <b>Flávio Bolsonaro</b></div></div>
+  </div>
   <div class="cards">
     <div class="card"><div class="k">Projeção do resultado final</div><div class="big" id="prBig">--</div><div class="tx" id="prTx">A projeção aparece quando houver votos apurados.</div><div id="prSelo" style="margin-top:10px"></div></div>
     <div class="card"><div class="k">Votos que faltam apurar</div><div class="big" id="rsBig">--</div><div class="tx" id="rsTx">&nbsp;</div></div>
@@ -431,6 +454,7 @@ body.faixa #faixa{display:flex;position:fixed;left:2vw;right:2vw;bottom:3vh;alig
   <canvas id="cvImg" style="width:100%;border-radius:12px;border:1px solid var(--line);background:#000"></canvas>
   <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap"><a class="btn pri" id="imgBaixar" download="placar-timeline.png">Baixar PNG</a><span class="nota" style="margin:0;align-self:center">Gerada agora com os números do painel. No celular, toque e segure na imagem para salvar.</span></div>
 </dialog>
+<div id="cartaz"><canvas id="confete"></canvas><div class="cx"><button class="x" id="cartazX" aria-label="Fechar">×</button><div class="k">Tribunal Superior Eleitoral · resultado oficial</div><img id="cartazFoto" alt=""><h1><b id="cartazNome">Flávio Bolsonaro</b><br>é o novo presidente do Brasil</h1><div class="s" id="cartazSub"></div></div></div>
 <!-- Modo TV -->
 <div id="tv">
   <div class="tv-top"><img src="data:image/jpeg;base64,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" alt=""><div><span class="wm">Timeline</span> <span class="ap">2º turno · Presidente</span></div><div class="sp"></div><div class="ap2">urnas apuradas<b id="tvPst">--</b></div><div class="hr" id="tvHora">--:--</div></div>
@@ -442,6 +466,7 @@ body.faixa #faixa{display:flex;position:fixed;left:2vw;right:2vw;bottom:3vh;alig
       <div class="tv-c lu dir"><img id="tvFtL" alt=""><div><div class="n" id="tvNmL">Lula</div><div class="p" id="tvPcL">--</div><div class="v" id="tvVtL">--</div></div></div>
     </div>
     <div class="tv-trilho"><i class="tf" id="tvTrF" style="width:50%"></i><i class="tl" id="tvTrL" style="width:50%"></i></div>
+    <div id="tvChance" style="margin-top:3vh;text-align:center;font:700 3.2vh 'Playfair Display',Georgia,serif;color:var(--tx)"></div>
   </div>
   <div class="cena" data-c="calc">
     <div class="tv-k">A matemática da noite</div>
@@ -507,7 +532,7 @@ const ELE1 = { fed: '6257', est: '6259' };                       // 1º turno 20
 const ELE2 = { fed: qs.get('fed') || '', est: qs.get('est') || '', fonte: '' }; // 2º turno: detectado no TSE
 const NUM_F = '22', NUM_L = '13';
 const INICIO = Date.parse('2026-10-25T20:00:00Z');               // 17h de Brasília
-const intervalo = () => (Date.now() >= INICIO ? 30 : 120);       // segundos entre atualizações: 30 s depois das 17h
+const intervalo = () => (Date.now() >= INICIO ? 15 : 120);       // segundos entre atualizações: 15 s depois das 17h
 const EQUIPE = qs.get('equipe') === '1';
 const UFS = ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'];
 const REGIAO = {AC:'Norte',AM:'Norte',AP:'Norte',PA:'Norte',RO:'Norte',RR:'Norte',TO:'Norte',AL:'Nordeste',BA:'Nordeste',CE:'Nordeste',MA:'Nordeste',PB:'Nordeste',PE:'Nordeste',PI:'Nordeste',RN:'Nordeste',SE:'Nordeste',DF:'Centro-Oeste',GO:'Centro-Oeste',MS:'Centro-Oeste',MT:'Centro-Oeste',ES:'Sudeste',MG:'Sudeste',RJ:'Sudeste',SP:'Sudeste',PR:'Sul',RS:'Sul',SC:'Sul',ZZ:'Exterior'};
@@ -767,9 +792,24 @@ function renderPlacar(P) {
   const d = F - L; $('dif').textContent = vv ? (d >= 0 ? '+' : '−') + fN(Math.abs(d)) : '--';
   $('dif').style.color = d > 0 ? 'var(--fl2)' : d < 0 ? 'var(--lu2)' : 'var(--tx)';
   $('difq').textContent = vv ? (d >= 0 ? tit(FL.nome) : tit(LU.nome)) + ' à frente' : ' ';
+  if (vv) { const chave = b.dg + ' ' + b.hg + ' ' + b.pst; if (D.hgDelta !== chave) { if (D.difAnt != null && D.difAnt !== d) D.difDelta = d - D.difAnt; D.difAnt = d; D.hgDelta = chave; } }
+  $('difd').innerHTML = vv && D.difDelta ? `${D.difDelta > 0 ? '▲' : '▼'} <b>${D.difDelta > 0 ? '+' : '−'}${fN(Math.abs(D.difDelta))}</b> para ${esc(tit(FL.nome).split(' ')[0])} desde a última atualização` : ' ';
   $('trF').style.width = (vv ? pF : 50) + '%'; $('trL').style.width = (vv ? pL : 50) + '%';
   $('vvTot').textContent = vv ? fN(vv) + ' válidos' : ' ';
   const el = b && b.cands.find(c => c.e); $('eleitoTag').innerHTML = el ? `<span class="eleito">${esc(tit(el.nome))} eleito · TSE</span>` : '';
+  // chance de vitória (sempre expressa para Flávio)
+  if (vv && P.Rest > 0) {
+    const margem = (P.PF - P.PL); const sd = Math.max(1, P.Rest) * (0.030 + 0.045 * Math.max(0, 1 - b.pst / 100)) + 0.004 * vv; // incerteza cai com a apuração
+    const z = margem / sd; const pr = Math.abs(d) > P.Rhard ? (d > 0 ? 1 : 0) : 0.5 * (1 + erf(z / Math.SQRT2));
+    const pct = Math.max(0, Math.min(100, pr * 100));
+    const rot = pct >= 99 ? 'extrema' : pct >= 90 ? 'forte' : pct >= 70 ? 'boa' : pct >= 50 ? 'média' : pct >= 25 ? 'baixa' : 'remota';
+    $('chance').style.display = ''; $('chPct').textContent = pct >= 99.95 ? '> 99,9%' : fP(pct, 1); $('chBar').style.width = pct + '%';
+    $('chFr').innerHTML = `Chance <b>${rot} (${pct >= 99.95 ? '> 99,9%' : fP(pct, 1)})</b> de vitória para <b>${esc(tit(FL.nome))}</b>`;
+    $('chTx').textContent = `Estimativa da Timeline a partir da projeção estado por estado e dos ${fMi(P.Rest)} votos que ainda faltam apurar. Quanto mais urnas apuradas, menor a incerteza. Resultado oficial é o do TSE.`;
+    D.chance = pct;
+  } else if (vv && b && b.final) { $('chance').style.display = ''; $('chPct').textContent = d > 0 ? '100%' : '0%'; $('chBar').style.width = (d > 0 ? 100 : 0) + '%'; $('chFr').innerHTML = `Apuração encerrada · <b>${esc(tit(d > 0 ? FL.nome : LU.nome))}</b> vence`; $('chTx').textContent = 'Totalização final do TSE.'; }
+  // cartaz de eleito (só para Flávio)
+  { const el = b && b.cands.find(c => c.e); if (el && el.num === NUM_F && !D._cartaz) { D._cartaz = 1; mostrarCartaz(el); } }
   // calculadora
   const lider = d >= 0 ? FL : LU, atras = d >= 0 ? LU : FL, M = Math.abs(d);
   if (vv && P.Rest > 0) {
@@ -997,11 +1037,15 @@ function desenharLT(svg, tv) {
   const xs = [0, 25, 50, 75, 100].map(v => `<text x="${ml + v / 100 * w}" y="${H - 10}" text-anchor="middle">${v}% apurado</text>`).join('');
   const vir = pts.filter(p => p.vir).map(p => `<line class="vir" x1="${x(p)}" x2="${x(p)}" y1="${mt}" y2="${mt + h}"/><text x="${x(p)}" y="${mt - 4}" text-anchor="middle" style="fill:var(--gold2)">virada</text>`).join('');
   const u = pts[pts.length - 1];
+  let proj = '';
+  if (u.pst < 99.5 && window._ltProj) { const pf = window._ltProj; const xe = ml + w;
+    proj = `<path class="lf" style="stroke-dasharray:6 7;opacity:.75" d="M${x(u).toFixed(1)} ${y(u.pF).toFixed(1)} Q${((x(u) + xe) / 2).toFixed(1)} ${y(pf).toFixed(1)} ${xe} ${y(pf).toFixed(1)}"/><path class="ll" style="stroke-dasharray:6 7;opacity:.75" d="M${x(u).toFixed(1)} ${y(u.pL).toFixed(1)} Q${((x(u) + xe) / 2).toFixed(1)} ${y(100 - pf).toFixed(1)} ${xe} ${y(100 - pf).toFixed(1)}"/>
+      <text x="${xe + 6}" y="${y(pf) + 5}" style="fill:var(--fl2);font-size:12px">${fP(pf, 1)}</text><text x="${xe + 6}" y="${y(100 - pf) + 5}" style="fill:var(--lu2);font-size:12px">${fP(100 - pf, 1)}</text><text x="${xe}" y="${mt - 4}" text-anchor="end" style="font-size:11px">projeção (tracejado)</text>`; }
   const fim = `<circle cx="${x(u)}" cy="${y(u.pF)}" r="5" fill="var(--fl)"/><circle cx="${x(u)}" cy="${y(u.pL)}" r="5" fill="var(--lu)"/>
     <text class="fim" x="${x(u) + 10}" y="${y(u.pF) + 5}" style="fill:var(--fl2)">${fP(u.pF, 1)}</text><text class="fim" x="${x(u) + 10}" y="${y(u.pL) + 5}" style="fill:var(--lu2)">${fP(u.pL, 1)}</text>`;
-  svg.innerHTML = grid + xs + vir + `<path class="lf" d="${path('pF')}"/><path class="ll" d="${path('pL')}"/>` + fim;
+  svg.innerHTML = grid + xs + vir + proj + `<path class="lf" d="${path('pF')}"/><path class="ll" d="${path('pL')}"/>` + fim;
 }
-function renderLT() { registrarLT(); desenharLT($('ltSvg')); if (TV) desenharLT($('tvLt'), true);
+function renderLT() { const P0 = projetar(); const tp0 = P0.PF + P0.PL; window._ltProj = tp0 ? P0.PF / tp0 * 100 : null; registrarLT(); desenharLT($('ltSvg')); if (TV) desenharLT($('tvLt'), true);
   const u = LT[LT.length - 1]; if (u) $('ltSub').innerHTML = `Percentual dos votos válidos ao longo da noite. Registro desde <b>${hora(new Date(LT[0].t))}</b> · ${LT.length} leituras · ${LT.filter(p => p.vir).length} virada(s). As marcas verticais indicam viradas.`; }
 function renderTVExtras() {
   $('tvAlertas').innerHTML = D.alertas.length ? D.alertas.slice(0, 7).map(a => `<div class="alerta ${a.ok ? 'ok' : ''}"><time>${a.h}</time><span>${a.txt}</span></div>`).join('') : '<div class="vazio" style="font-size:2.6vh">Nenhuma virada até agora.</div>';
@@ -1079,6 +1123,25 @@ $('dlgImgX').addEventListener('click', () => $('dlgImg').close()); $('dlgImg').a
 $('imgQ').addEventListener('click', () => { imgFmt = 'q'; $('imgQ').classList.add('on'); $('imgV').classList.remove('on'); desenharImagem(); });
 $('imgV').addEventListener('click', () => { imgFmt = 'v'; $('imgV').classList.add('on'); $('imgQ').classList.remove('on'); desenharImagem(); });
 
+
+/* ===== Chance / cartaz ===== */
+function erf(x) { const t = 1 / (1 + 0.3275911 * Math.abs(x)); const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x); return x >= 0 ? y : -y; }
+function mostrarCartaz(el) {
+  $('cartazNome').textContent = tit(el.nome); const f = FL.sq ? urlFoto(ELE1.fed, FL.sq) : ''; const im = $('cartazFoto'); if (f) { im.src = f; im.onerror = () => im.style.display = 'none'; } else im.style.display = 'none';
+  const b = D.br, F = vf(b), L = vl(b), vv = F + L; $('cartazSub').textContent = vv ? `${fP(F / vv * 100)} dos votos válidos · ${fN(F)} votos · ${fP(b.pst)} das urnas apuradas` : '';
+  $('cartaz').classList.add('on'); confete();
+}
+function confete() {
+  const cv = $('confete'), c = cv.getContext('2d'); cv.width = innerWidth; cv.height = innerHeight;
+  const cores = ['#3987e5', '#7fb2f0', '#f4a65a', '#1f9d55', '#ffffff', '#e4ff3c'];
+  const ps = Array.from({ length: 220 }, () => ({ x: Math.random() * cv.width, y: -20 - Math.random() * cv.height, w: 6 + Math.random() * 8, h: 10 + Math.random() * 10, vy: 2 + Math.random() * 3, vx: -1 + Math.random() * 2, r: Math.random() * Math.PI, vr: -0.1 + Math.random() * 0.2, cor: cores[Math.floor(Math.random() * cores.length)] }));
+  const t0 = Date.now();
+  (function anim() { c.clearRect(0, 0, cv.width, cv.height); ps.forEach(p => { p.y += p.vy; p.x += p.vx + Math.sin(p.y / 30); p.r += p.vr; if (p.y > cv.height + 20) { p.y = -20; p.x = Math.random() * cv.width; } c.save(); c.translate(p.x, p.y); c.rotate(p.r); c.fillStyle = p.cor; c.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); c.restore(); });
+    if ($('cartaz').classList.contains('on') && Date.now() - t0 < 25000) requestAnimationFrame(anim); else c.clearRect(0, 0, cv.width, cv.height); })();
+}
+document.getElementById('cartazX').addEventListener('click', () => $('cartaz').classList.remove('on'));
+if (qs.get('cartaz') === '1') setTimeout(() => mostrarCartaz({ nome: FL.nome, num: NUM_F }), 1500); // teste visual
+
 /* ===== Saúde da conexão (?equipe=1) ===== */
 let hgAnt = '', hgDesde = Date.now();
 function renderSaude() {
@@ -1140,6 +1203,7 @@ function renderTV(P) {
   $('tvVtF').textContent = fN(F) + ' votos'; $('tvVtL').textContent = fN(L) + ' votos';
   $('tvDif').textContent = vv ? (F >= L ? '+' : '−') + fN(Math.abs(F - L)) : '--'; $('tvDif').style.color = F >= L ? 'var(--fl2)' : 'var(--lu2)';
   $('tvTrF').style.width = (vv ? F / vv * 100 : 50) + '%'; $('tvTrL').style.width = (vv ? L / vv * 100 : 50) + '%';
+  $('tvChance').innerHTML = $('chance').style.display !== 'none' ? $('chFr').innerHTML + ' <span style="font:600 1.8vh Inter;color:var(--mut)">· estimativa Timeline</span>' : '';
     $('tvPr').innerHTML = $('prBig').innerHTML; $('tvPrTx').innerHTML = $('prTx').innerHTML; $('tvRs').textContent = $('rsBig').textContent; $('tvRsTx').innerHTML = $('rsTx').innerHTML;
   tiles($('tvMapa'));
   $('tvLista').innerHTML = ['SP', 'MG', 'RJ', 'BA', 'PR', 'RS', 'PE', 'CE'].map(uf => { const x = D.uf[uf], a = vf(x), c = vl(x), v = a + c, p = v ? a / v * 100 : 50;

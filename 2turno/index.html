@@ -356,6 +356,7 @@ body.faixa #faixa{display:flex;position:fixed;left:2vw;right:2vw;bottom:3vh;alig
     <button data-p="gov">Governadores</button>
     <button data-p="compar">Comparecimento</button>
     <button data-p="ext">Exterior</button>
+    <button data-p="cap">Capitais</button>
   </nav>
 
   <section class="painel on" id="p-estados">
@@ -398,6 +399,13 @@ body.faixa #faixa{display:flex;position:fixed;left:2vw;right:2vw;bottom:3vh;alig
     <div class="uf-kpi" id="extKpi" style="margin-bottom:14px"></div>
     <div class="wrap"><table id="tabExt"></table></div>
     <div class="nota" id="extNota"></div>
+  </section>
+
+  <section class="painel" id="p-cap">
+    <h2>As 27 capitais</h2><div class="h2s">Flávio × Lula em cada capital, comparado com Jair × Lula no 2º turno de 2022 na mesma cidade. Ordenado pelo eleitorado de 2022.</div>
+    <div id="capAviso"></div>
+    <div class="wrap"><table id="tabCap"></table></div>
+    <div class="nota">Fonte: arquivo de cada município na divulgação do TSE. "vs. 2022" compara o % de Flávio hoje com o de Jair em 2022 na mesma capital.</div>
   </section>
 
   <div class="diag" id="diag"></div>
@@ -997,6 +1005,30 @@ function renderTVExtras() {
     (lista.length ? lista.map(p => { const t = p.F + p.L, q = p.F / t * 100; return `<div class="ufrow"><div class="nm"><b>${esc(p.nome)}</b></div><div class="bar2"><i class="f" style="width:${q}%"></i><i class="l" style="width:${100 - q}%"></i></div><div class="d" style="color:${p.F >= p.L ? 'var(--fl2)' : 'var(--lu2)'}">${fP(p.F >= p.L ? q : 100 - q, 1)}</div></div>`; }).join('') : '<div class="vazio" style="font-size:2.6vh">Sem votos do exterior ainda.</div>');
 }
 
+
+/* ===== Capitais ===== */
+const CAP = {"CE":{"cd":"13897","nm":"Fortaleza","j22":[633009,880559]},"RO":{"cd":"00035","nm":"Porto Velho","j22":[169299,92636]},"SP":{"cd":"71072","nm":"São Paulo","j22":[3191484,3677921]},"MS":{"cd":"90514","nm":"Campo Grande","j22":[313906,187109]},"TO":{"cd":"73440","nm":"Palmas","j22":[95715,62961]},"MT":{"cd":"90670","nm":"Cuiabá","j22":[213787,133852]},"DF":{"cd":"97012","nm":"Brasília","j22":[1041331,729295]},"MG":{"cd":"41238","nm":"Belo Horizonte","j22":[834548,703755]},"RR":{"cd":"03018","nm":"Boa Vista","j22":[144799,37412]},"PA":{"cd":"04278","nm":"Belém","j22":[427051,431858]},"MA":{"cd":"09210","nm":"São Luís","j22":[238285,363131]},"SC":{"cd":"81051","nm":"Florianópolis","j22":[169495,148344]},"SE":{"cd":"31054","nm":"Aracaju","j22":[142489,190875]},"GO":{"cd":"93734","nm":"Goiânia","j22":[513018,289172]},"PB":{"cd":"20516","nm":"João Pessoa","j22":[228326,229251]},"AL":{"cd":"27855","nm":"Maceió","j22":[273549,204887]},"ES":{"cd":"57053","nm":"Vitória","j22":[115293,95478]},"AC":{"cd":"01392","nm":"Rio Branco","j22":[142090,53873]},"RJ":{"cd":"60011","nm":"Rio De Janeiro","j22":[1929209,1734159]},"RN":{"cd":"17612","nm":"Natal","j22":[219306,246881]},"PR":{"cd":"75353","nm":"Curitiba","j22":[720322,391675]},"PE":{"cd":"25313","nm":"Recife","j22":[433317,558690]},"AM":{"cd":"02550","nm":"Manaus","j22":[692580,437691]},"PI":{"cd":"12190","nm":"Teresina","j22":[160558,317918]},"BA":{"cd":"38490","nm":"Salvador","j22":[451131,1089899]},"AP":{"cd":"06050","nm":"Macapá","j22":[125261,102810]},"RS":{"cd":"88013","nm":"Porto Alegre","j22":[380499,437798]}};
+const CD = { dados: {}, carregando: false, ativo: false, ult: 0 };
+const urlCap = (ele, uf, cd) => `${BASE}/${ele}/dados/${uf.toLowerCase()}/${uf.toLowerCase()}${cd}-c0001-e${pad6(ele)}-u.json`;
+async function carregarCap() {
+  if (CD.carregando) return; CD.carregando = true;
+  if (SIM) { Object.entries(CAP).forEach(([uf, c]) => { const x = D.uf[uf]; if (!x) return; const sh = c.j22[0] / (c.j22[0] + c.j22[1]) + 0.03; const v = (c.j22[0] + c.j22[1]) * x.pst / 100 * 1.02;
+      CD.dados[uf] = { cands: [{ num: NUM_F, votos: Math.round(v * sh) }, { num: NUM_L, votos: Math.round(v * (1 - sh)) }], pst: x.pst }; }); }
+  else await Promise.all(Object.entries(CAP).map(async ([uf, c]) => { try { const r = await baixar(urlCap(ELE2.fed, uf, c.cd)); if (r && r.ok) CD.dados[uf] = ler(await r.json()); } catch (e) {} }));
+  CD.carregando = false; CD.ult = Date.now(); renderCap();
+}
+function renderCap() {
+  const rows = Object.entries(CAP).sort((a, b) => (b[1].j22[0] + b[1].j22[1]) - (a[1].j22[0] + a[1].j22[1]));
+  let TF = 0, TL = 0, T22F = 0, T22L = 0, n = 0;
+  const body = rows.map(([uf, c]) => { const x = CD.dados[uf], F = vf(x), L = vl(x), v = F + L, j = c.j22[0] / (c.j22[0] + c.j22[1]) * 100, pF = v ? F / v * 100 : NaN;
+    if (v) { TF += F; TL += L; T22F += c.j22[0]; T22L += c.j22[1]; n++; }
+    return `<tr><td><b>${esc(c.nm)}</b> <span class="pmob" style="display:inline">${uf}</span></td><td class="m">${x ? fP(x.pst, 1) : '0%'}</td><td class="f">${v ? fN(F) : '-'}</td><td class="l">${v ? fN(L) : '-'}</td><td class="f">${fP(pF, 1)}</td><td class="l">${v ? fP(100 - pF, 1) : '-'}</td><td class="m">${fP(j, 1)}</td><td class="${pF - j > 0 ? 'up' : pF - j < 0 ? 'dn' : 'm'}">${v ? fPP(pF - j) : '-'}</td><td>${v ? `<span class="pill ${F >= L ? 'f' : 'l'}">${F >= L ? tit(FL.nome).split(' ')[0] : tit(LU.nome)}</span>` : '-'}</td></tr>`; }).join('');
+  const tv = TF + TL, t22 = T22F + T22L;
+  $('tabCap').innerHTML = `<thead><tr><th>Capital</th><th>Apurado</th><th>Flávio</th><th>Lula</th><th>% Flávio</th><th>% Lula</th><th>Jair 2022</th><th>vs. 2022</th><th>Lidera</th></tr></thead><tbody>${body}` +
+    (tv ? `<tr class="tot"><td>${n} capitais com votos</td><td></td><td class="f">${fN(TF)}</td><td class="l">${fN(TL)}</td><td class="f">${fP(TF / tv * 100, 1)}</td><td class="l">${fP(TL / tv * 100, 1)}</td><td class="m">${fP(T22F / t22 * 100, 1)}</td><td class="${TF / tv - T22F / t22 > 0 ? 'up' : 'dn'}">${fPP((TF / tv - T22F / t22) * 100)}</td><td></td></tr>` : '') + '</tbody>';
+  $('capAviso').innerHTML = !Object.keys(CD.dados).length ? `<div class="aviso">${CD.carregando ? 'Lendo as capitais no TSE...' : 'Os arquivos das capitais aparecem quando o TSE começar a divulgar os resultados por município.'}</div>` : '';
+}
+
 /* ===== Saúde da conexão (?equipe=1) ===== */
 let hgAnt = '', hgDesde = Date.now();
 function renderSaude() {
@@ -1081,6 +1113,7 @@ function render() {
   if (TV || FAIXA) renderTV(P);
   if (ufAberto && $('dlgUF').open) renderUF(ufAberto);
   if (EXT.ativo) { renderExt(); if (!EXT.carregando && !SIM && Date.now() - (EXT.ult || 0) > 5 * 60000) carregarExt(); }
+  if (CD.ativo) { renderCap(); if (!CD.carregando && Date.now() - CD.ult > (SIM ? 5000 : 60000)) carregarCap(); }
   renderSaude();
   const fotoF = FL.sq ? urlFoto(ELE1.fed, FL.sq) : '', fotoL = LU.sq ? urlFoto(ELE1.fed, LU.sq) : '';
   [['ftF', fotoF], ['ftL', fotoL], ['tvFtF', fotoF], ['tvFtL', fotoL]].forEach(([id, u]) => { const im = $(id); if (u && im.dataset.u !== u) { im.dataset.u = u; im.src = u; im.onerror = () => { im.style.visibility = 'hidden'; }; } });
@@ -1108,7 +1141,7 @@ function contagem() { const el = $('cdBox'); if (!el) return; let s = Math.max(0
 setInterval(() => { const el = $('prox'); if (el) { const s = Math.max(0, Math.round((proxima - Date.now()) / 1000)); el.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); } if (proxima && Date.now() >= proxima) { proxima = 0; ciclo(); } contagem(); if (TV) $('tvHora').textContent = hora(); }, 1000);
 
 /* interações */
-$('abas').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; aba = b.dataset.p; document.querySelectorAll('#abas button').forEach(x => x.classList.toggle('on', x === b)); document.querySelectorAll('.painel').forEach(p => p.classList.toggle('on', p.id === 'p-' + aba)); if (aba === 'ext') { EXT.ativo = true; renderExt(); carregarExt(); } });
+$('abas').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; aba = b.dataset.p; document.querySelectorAll('#abas button').forEach(x => x.classList.toggle('on', x === b)); document.querySelectorAll('.painel').forEach(p => p.classList.toggle('on', p.id === 'p-' + aba)); if (aba === 'ext') { EXT.ativo = true; renderExt(); carregarExt(); } if (aba === 'cap') { CD.ativo = true; renderCap(); carregarCap(); } });
 document.getElementById('mPres').addEventListener('click', () => { mapaModo = 'pres'; atualizaModo(); });
 document.getElementById('mGov').addEventListener('click', () => { mapaModo = 'gov'; atualizaModo(); });
 function atualizaModo() { $('mPres').classList.toggle('on', mapaModo === 'pres'); $('mGov').classList.toggle('on', mapaModo === 'gov'); $('legPres').style.display = mapaModo === 'pres' ? '' : 'none'; $('legGov').style.display = mapaModo === 'gov' ? '' : 'none'; $('notaMapa').textContent = mapaModo === 'gov' ? 'Azul quando o candidato do PL lidera; dourado quando outro candidato lidera. A cor escurece com a apuração. Toque no estado para ver os nomes.' : 'O estado começa bem claro e escurece à medida que a apuração avança.'; renderEstados(projetar()); }

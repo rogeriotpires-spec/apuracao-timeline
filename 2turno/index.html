@@ -361,7 +361,8 @@ body.faixa #faixa{display:flex;position:fixed;left:2vw;right:2vw;bottom:3vh;alig
   <section class="painel on" id="p-estados">
     <h2>Estado por estado</h2><div class="h2s">Azul quando Flávio lidera no estado, vermelho quando Lula lidera. A cor começa bem clara e escurece conforme os votos vão sendo apurados. <b>Toque em um estado</b> para abrir a tabela com o resultado do momento e o 1º turno para presidente e governador.</div>
     <div class="fil" id="filReg"></div>
-    <div class="mapa-wrap"><div><div id="mapa"></div><div class="ext-chip" id="extChip"></div><div class="leg"><span>Flávio lidera<span class="grad" style="background:linear-gradient(90deg,#d6e6fb,#0d3b85)"></span></span><span>Lula lidera<span class="grad" style="background:linear-gradient(90deg,#fbd6d0,#8f150d)"></span></span><span><i style="background:#221b17;border:1px solid #3a2e27"></i>sem votos</span></div><div class="nota" style="margin-top:6px">O estado começa bem claro e escurece à medida que a apuração avança.</div><div class="credmapa">Mapa: <a href="https://github.com/VictorCazanave/svg-maps" target="_blank" rel="noopener">svg-maps</a>, licença CC BY 4.0.</div></div>
+    <div class="fil"><span class="lb">Mapa</span><button id="mPres" class="on">Presidente</button><button id="mGov">Governadores</button></div>
+    <div class="mapa-wrap"><div><div id="mapa"></div><div class="ext-chip" id="extChip"></div><div class="leg" id="legPres"><span>Flávio lidera<span class="grad" style="background:linear-gradient(90deg,#d6e6fb,#0d3b85)"></span></span><span>Lula lidera<span class="grad" style="background:linear-gradient(90deg,#fbd6d0,#8f150d)"></span></span><span><i style="background:#221b17;border:1px solid #3a2e27"></i>sem votos</span></div><div class="leg" id="legGov" style="display:none"><span><i style="background:var(--fl)"></i>candidato do PL lidera</span><span><i style="background:#c9a227"></i>outro candidato lidera</span><span><i style="background:#221b17;border:1px solid #3a2e27"></i>sem 2º turno para governador</span></div><div class="nota" style="margin-top:6px" id="notaMapa">O estado começa bem claro e escurece à medida que a apuração avança.</div><div class="credmapa">Mapa: <a href="https://github.com/VictorCazanave/svg-maps" target="_blank" rel="noopener">svg-maps</a>, licença CC BY 4.0.</div></div>
       <div class="lista-uf" id="listaUF"></div></div>
     <h2 style="margin-top:26px">Tabela completa</h2><div class="h2s">Diferença em votos: positiva quando Flávio está à frente. Projeção: estimativa do resultado final do estado (apagada quando o estado ainda não tem votos e a estimativa vem só do histórico).</div>
     <div class="wrap"><table id="tabUF"></table></div>
@@ -649,7 +650,7 @@ function projetar() {
 }
 
 /* ======================= Renderização ======================= */
-let aba = 'estados', regSel = 'Brasil';
+let aba = 'estados', regSel = 'Brasil', mapaModo = 'pres';
 function corUF(F, L, pst) {
   if (F + L === 0) return { bg: '#2a221d', fg: 'var(--mut)' };
   const m = Math.abs(F - L) / (F + L); const a = 0.35 + Math.min(1, m / 0.3) * 0.65;
@@ -672,7 +673,8 @@ function montarMapa(el) {
   rotular(el);
   const tip = document.querySelector('.map-tip') || Object.assign(document.body.appendChild(document.createElement('div')), { className: 'map-tip' });
   svg.addEventListener('mousemove', e => { const p = e.target.closest('path'); if (!p) { tip.style.display = 'none'; return; } const uf = p.dataset.uf, x = D.uf[uf], F = vf(x), L = vl(x), v = F + L;
-    tip.innerHTML = `<b>${NOME[uf]}</b><br>${v ? `<span style="color:var(--fl2)">${esc(tit(FL.nome))} ${fP(F / v * 100)}</span><br><span style="color:var(--lu2)">${esc(tit(LU.nome))} ${fP(L / v * 100)}</span><br>` : 'sem votos apurados<br>'}<span style="color:var(--mut)">${x ? fP(x.pst, 1) : '0%'} apurado</span>`;
+    if (mapaModo === 'gov' && el.id === 'mapa') { const g = D.gov[uf]; const vg = g ? g.cands.reduce((t, c) => t + c.votos, 0) : 0; tip.innerHTML = `<b>${NOME[uf]}</b><br>` + (g && g.cands.length ? g.cands.slice(0, 2).map(c => `<span style="color:${ehPL(c) ? 'var(--fl2)' : '#e3c35a'}">${esc(tit(c.nome))} · ${esc(c.partido)} ${vg ? fP(c.votos / vg * 100) : ''}</span>`).join('<br>') + `<br><span style="color:var(--mut)">${fP(g.pst, 1)} apurado</span>` : '<span style="color:var(--mut)">sem 2º turno para governador</span>'); }
+    else tip.innerHTML = `<b>${NOME[uf]}</b><br>${v ? `<span style="color:var(--fl2)">${esc(tit(FL.nome))} ${fP(F / v * 100)}</span><br><span style="color:var(--lu2)">${esc(tit(LU.nome))} ${fP(L / v * 100)}</span><br>` : 'sem votos apurados<br>'}<span style="color:var(--mut)">${x ? fP(x.pst, 1) : '0%'} apurado</span>`;
     tip.style.display = 'block'; tip.style.left = Math.min(innerWidth - 190, e.clientX + 14) + 'px'; tip.style.top = (e.clientY + 14) + 'px'; });
   svg.addEventListener('mouseleave', () => tip.style.display = 'none');
   svg.addEventListener('click', e => { const p = e.target.closest('path'); if (p && !document.body.classList.contains('tv')) { tip.style.display = 'none'; abrirUF(p.dataset.uf); } });
@@ -691,8 +693,21 @@ function rotular(el) {
   });
   el.dataset.rot = '1';
 }
+const ehPL = c => /^pl$/i.test(c.partido || '');
+function corGov(uf) {
+  const g = D.gov[uf]; if (!g || !g.cands.length) return { bg: '#221b17', fg: '#8a7f76' };
+  const [a, b] = g.cands; const v = a.votos + (b ? b.votos : 0); if (!v) return { bg: mix('#d6e6fb', '#0d3b85', 0.06), fg: '#14100e' };
+  const t = 0.06 + 0.94 * Math.min(1, g.pst / 100); const pl = ehPL(a);
+  return { bg: pl ? mix('#d6e6fb', '#0d3b85', t) : mix('#f6ecc3', '#7a5b05', t), fg: t < 0.5 ? '#14100e' : '#fff' };
+}
 function pintarMapa(el) {
   montarMapa(el); rotular(el);
+  if (mapaModo === 'gov' && el.id === 'mapa') {
+    el.querySelectorAll('path').forEach(p => { const uf = p.dataset.uf, c = corGov(uf), g = D.gov[uf]; p.setAttribute('fill', c.bg);
+      p.querySelector('title').textContent = g && g.cands.length ? `${NOME[uf]}: ${g.cands.slice(0, 2).map(k => tit(k.nome) + ' (' + k.partido + ')').join(' × ')} · ${fP(g.pst, 1)} apurado` : `${NOME[uf]}: sem 2º turno para governador`; });
+    el.querySelectorAll('text').forEach(t => t.setAttribute('fill', corGov(t.dataset.uf).fg));
+    return;
+  }
   el.querySelectorAll('path').forEach(p => { const uf = p.dataset.uf, c = corEstado(D.uf[uf]); p.setAttribute('fill', c.bg);
     const x = D.uf[uf], F = vf(x), L = vl(x), v = F + L; p.querySelector('title').textContent = `${NOME[uf]}: ${v ? `${tit(FL.nome)} ${fP(F / v * 100)} × ${tit(LU.nome)} ${fP(L / v * 100)} · ` : ''}${x ? fP(x.pst, 1) : '0%'} apurado`; });
   el.querySelectorAll('text').forEach(t => t.setAttribute('fill', corEstado(D.uf[t.dataset.uf]).fg));
@@ -773,6 +788,12 @@ function renderEstados(P) {
   tiles($('mapa'));
   { const x = D.uf.ZZ, c = corEstado(x), F = vf(x), L = vl(x), v = F + L; $('extChip').innerHTML = `<i style="background:${c.bg}"></i>Exterior: ${v ? `${esc(tit(FL.nome))} ${fP(F / v * 100, 1)} × ${esc(tit(LU.nome))} ${fP(L / v * 100, 1)}` : 'sem votos apurados'} · ${x ? fP(x.pst, 1) : '0%'} apurado`; }
   const rows = linhasUF();
+  if (mapaModo === 'gov') {
+    const gs = (D.govUFs || []).map(uf => ({ uf, g: D.gov[uf] })).filter(o => o.g && o.g.cands.length);
+    $('listaUF').innerHTML = gs.length ? gs.map(({ uf, g }) => { const [a, c] = g.cands; const v = a.votos + (c ? c.votos : 0); const pa = v ? a.votos / v * 100 : 50;
+      return `<div class="ufrow"><div class="nm"><b>${esc(NOME[uf])}</b><small>${fP(g.pst, 1)} apurado</small></div><div class="bar2"><i style="width:${pa}%;background:${ehPL(a) ? 'var(--fl)' : '#c9a227'}"></i><i style="width:${100 - pa}%;background:${c && ehPL(c) ? 'var(--fl)' : '#6b5d3a'};margin-left:auto"></i></div><div class="d" style="color:${ehPL(a) ? 'var(--fl2)' : '#e3c35a'}">${esc(tit(a.nome).split(' ')[0])} · ${esc(a.partido)} ${fP(pa, 1)}</div></div>`; }).join('')
+      : '<div class="vazio">Nenhum estado com 2º turno para governador encontrado ainda.</div>';
+  } else
   $('listaUF').innerHTML = rows.slice(0, 12).map(({ uf, x, F, L }) => { const vv = F + L, pF = vv ? F / vv * 100 : 50;
     return `<div class="ufrow"><div class="nm"><b>${esc(NOME[uf])}</b><small>${x ? fP(x.pst, 1) : '0%'} apurado</small></div><div class="bar2"><i class="f" style="width:${vv ? pF : 0}%"></i><i class="l" style="width:${vv ? 100 - pF : 0}%"></i></div><div class="d" style="color:${F >= L ? 'var(--fl2)' : 'var(--lu2)'}">${vv ? (F >= L ? '+' : '−') + fMi(Math.abs(F - L)) : '–'}</div></div>`; }).join('') + (rows.length > 12 ? `<div class="nota">Os ${rows.length - 12} demais estados estão na tabela abaixo.</div>` : '');
   let tF = 0, tL = 0;
@@ -808,7 +829,7 @@ function renderTurnos() {
 function govHTML(uf, x) {
   const vv = x.cands.reduce((a, c) => a + c.votos, 0) || 1; const temPL = x.cands.some(c => /^pl$/i.test(c.partido));
   return `<div class="gov ${temPL ? 'pl' : ''}"><div class="gh"><b>${esc(NOME[uf])}</b><span>${fP(x.pst, 1)} apurado</span></div>` + x.cands.slice(0, 2).map((c, i) => { const p = c.votos / vv * 100; const cor = /^pl$/i.test(c.partido) ? 'var(--fl)' : i === 0 ? 'var(--gold)' : '#8a7f76';
-    return `<div class="gc"><div class="n">${esc(tit(c.nome))}<small>${esc(c.partido)}</small>${c.e ? ' <span class="selo solid">eleito</span>' : ''}</div><div class="p">${fP(p, 1)}</div><div class="b"><i style="width:${p}%;background:${cor}"></i></div></div>`; }).join('') + `<div class="nota" style="margin-top:2px">${fN(x.cands[0] ? x.cands[0].votos : 0)} × ${fN(x.cands[1] ? x.cands[1].votos : 0)} votos</div></div>`;
+    return `<div class="gc"><div class="n">${esc(tit(c.nome))} <span style="color:${ehPL(c) ? 'var(--fl2)' : 'var(--mut)'};font-weight:800">· ${esc(c.partido)}</span>${c.e ? ' <span class="selo solid">eleito</span>' : ''}</div><div class="p">${fP(p, 1)}</div><div class="b"><i style="width:${p}%;background:${cor}"></i></div></div>`; }).join('') + `<div class="nota" style="margin-top:2px">${fN(x.cands[0] ? x.cands[0].votos : 0)} × ${fN(x.cands[1] ? x.cands[1].votos : 0)} votos</div></div>`;
 }
 function renderGov() {
   const ufs = D.govUFs || [];
@@ -1020,6 +1041,10 @@ function checarAlertas() {
   D.lider = lid;
   ['ZZ', ...UFS].forEach(uf => { const x = D.uf[uf], a = vf(x), b = vl(x); if (a + b < 3000) return; const l = a >= b ? 'F' : 'L';
     if (D.liderUF[uf] && D.liderUF[uf] !== l) alertar(`<b>${esc(NOME[uf])} virou:</b> ${esc(tit(l === 'F' ? FL.nome : LU.nome))} passa à frente.`); D.liderUF[uf] = l; });
+  D.liderGov = D.liderGov || {}; D.elGov = D.elGov || {};
+  (D.govUFs || []).forEach(uf => { const g = D.gov[uf]; if (!g || g.cands.length < 2) return; const [a, b] = g.cands; if (a.votos + b.votos < 2000) return;
+    const l = a.num; if (D.liderGov[uf] && D.liderGov[uf] !== l) alertar(`<b>Governo de ${esc(NOME[uf])} virou:</b> ${esc(tit(a.nome))} (${esc(a.partido)}) passa à frente.`); D.liderGov[uf] = l;
+    const el = g.cands.find(c => c.e); if (el && !D.elGov[uf]) { D.elGov[uf] = 1; alertar(`<b>${esc(NOME[uf])}:</b> TSE declara ${esc(tit(el.nome))} (${esc(el.partido)}) eleito governador.`, 1); } });
   { const el = D.br && D.br.cands.find(c => c.e); if (el && !D._avisouEl) { D._avisouEl = 1; alertar(`<b>TSE declara eleito:</b> ${esc(tit(el.nome))}.`, 1); } }
   if (D.decidido && !D._avisouDec) { D._avisouDec = 1; alertar(`<b>Matematicamente decidido:</b> ${esc(tit(lid === 'F' ? FL.nome : LU.nome))} não pode mais ser alcançado.`, 1); }
   $('alertas').innerHTML = D.alertas.slice(0, 6).map(a => `<div class="alerta ${a.ok ? 'ok' : ''}"><time>${a.h}</time><span>${a.txt}</span></div>`).join('');
@@ -1084,6 +1109,9 @@ setInterval(() => { const el = $('prox'); if (el) { const s = Math.max(0, Math.r
 
 /* interações */
 $('abas').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; aba = b.dataset.p; document.querySelectorAll('#abas button').forEach(x => x.classList.toggle('on', x === b)); document.querySelectorAll('.painel').forEach(p => p.classList.toggle('on', p.id === 'p-' + aba)); if (aba === 'ext') { EXT.ativo = true; renderExt(); carregarExt(); } });
+document.getElementById('mPres').addEventListener('click', () => { mapaModo = 'pres'; atualizaModo(); });
+document.getElementById('mGov').addEventListener('click', () => { mapaModo = 'gov'; atualizaModo(); });
+function atualizaModo() { $('mPres').classList.toggle('on', mapaModo === 'pres'); $('mGov').classList.toggle('on', mapaModo === 'gov'); $('legPres').style.display = mapaModo === 'pres' ? '' : 'none'; $('legGov').style.display = mapaModo === 'gov' ? '' : 'none'; $('notaMapa').textContent = mapaModo === 'gov' ? 'Azul quando o candidato do PL lidera; dourado quando outro candidato lidera. A cor escurece com a apuração. Toque no estado para ver os nomes.' : 'O estado começa bem claro e escurece à medida que a apuração avança.'; renderEstados(projetar()); }
 $('filReg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; regSel = b.dataset.r; renderEstados(projetar()); });
 $('btnAt').addEventListener('click', () => ciclo());
 $('btnCalc').addEventListener('click', () => $('dlgCalc').showModal());

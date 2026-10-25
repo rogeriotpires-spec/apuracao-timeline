@@ -213,6 +213,7 @@ tr.tot td{font-weight:700;background:#0d0a09}
 .gc .n{font-weight:700;font-size:14px}.gc .n small{color:var(--mut);font-weight:600;margin-left:6px;font-size:11px;letter-spacing:1px}
 .gc .p{font:800 22px "Barlow Condensed",sans-serif;font-variant-numeric:tabular-nums}
 .gc .b{grid-column:1/3;height:8px;border-radius:4px;background:var(--deep);overflow:hidden}.gc .b i{display:block;height:100%;border-radius:4px}
+.flag{width:22px;height:15px;border-radius:2px;object-fit:cover;vertical-align:-2px;margin-right:8px;background:#222}
 .vazio{color:var(--mut);font-size:14px;padding:18px;background:var(--card);border:1px dashed var(--line);border-radius:14px}
 .diag{font-size:11px;color:var(--mut);margin-top:16px;line-height:1.6}
 .diag code{color:var(--gold2)}
@@ -318,6 +319,7 @@ body.faixa #faixa{display:flex;position:fixed;left:2vw;right:2vw;bottom:3vh;alig
     <button data-p="turnos">1º × 2º turno</button>
     <button data-p="gov">Governadores</button>
     <button data-p="compar">Comparecimento</button>
+    <button data-p="ext">Exterior</button>
   </nav>
 
   <section class="painel on" id="p-estados">
@@ -351,6 +353,14 @@ body.faixa #faixa{display:flex;position:fixed;left:2vw;right:2vw;bottom:3vh;alig
   <section class="painel" id="p-compar">
     <h2>Comparecimento, brancos e nulos</h2><div class="h2s">Comparecimento sobre o eleitorado das seções já apuradas, comparado com o 1º turno de 2026 e com o 2º turno de 2022 e 2018.</div>
     <div class="wrap"><table id="tabCompar"></table></div>
+  </section>
+
+  <section class="painel" id="p-ext">
+    <h2>Exterior · Presidente</h2><div class="h2s" id="extSub">Votos dos brasileiros que vivem fora do país, por país.</div>
+    <div id="extAviso"></div>
+    <div class="uf-kpi" id="extKpi" style="margin-bottom:14px"></div>
+    <div class="wrap"><table id="tabExt"></table></div>
+    <div class="nota" id="extNota"></div>
   </section>
 
   <div class="diag" id="diag"></div>
@@ -756,6 +766,96 @@ function renderCompar() {
   $('tabCompar').innerHTML = `<thead><tr><th>Estado</th><th>Comparec. agora</th><th>1º turno 2026</th><th>2º turno 2022</th><th>2º turno 2018</th><th>vs. 2022</th><th>Brancos + nulos</th><th>B+N 2022</th></tr></thead><tbody>${rows}</tbody>`;
 }
 
+
+/* ===== Exterior ===== */
+const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+const PAISES = [
+ ['Estados Unidos','us','atlanta,boston,chicago,houston,los angeles,miami,nova york,nova iorque,new york,sao francisco,san francisco,washington,hartford,orlando'],
+ ['Canadá','ca','montreal,ottawa,toronto,vancouver,calgary'],['México','mx','mexico'],
+ ['Argentina','ar','buenos aires,cordoba,mendoza,rosario,puerto iguazu,paso de los libres'],['Chile','cl','santiago'],
+ ['Uruguai','uy','montevideu,rivera,chuy,artigas,rio branco,salto'],
+ ['Paraguai','py','assuncao,ciudad del este,encarnacion,pedro juan caballero,concepcion,salto del guaira'],
+ ['Bolívia','bo','la paz,santa cruz de la sierra,cochabamba,cobija,puerto quijarro,guayaramerin,riberalta,puerto suarez'],
+ ['Peru','pe','lima,iquitos'],['Colômbia','co','bogota,leticia'],['Venezuela','ve','caracas,santa elena de uairen,ciudad guayana,puerto ayacucho'],
+ ['Equador','ec','quito'],['Guiana Francesa','gf','caiena,saint georges'],['Guiana','gy','georgetown,lethem'],['Suriname','sr','paramaribo'],
+ ['Panamá','pa','panama'],['Costa Rica','cr','sao jose'],['Cuba','cu','havana'],['República Dominicana','do','santo domingo'],
+ ['Guatemala','gt','guatemala'],['Honduras','hn','tegucigalpa'],['El Salvador','sv','san salvador'],['Nicarágua','ni','managua'],
+ ['Haiti','ht','porto principe'],['Jamaica','jm','kingston'],['Trinidad e Tobago','tt','port of spain'],
+ ['Portugal','pt','lisboa,porto,faro'],['Espanha','es','madri,madrid,barcelona'],['França','fr','paris,marselha'],
+ ['Alemanha','de','berlim,frankfurt,munique,hamburgo'],['Itália','it','roma,milao'],['Reino Unido','gb','londres,edimburgo'],
+ ['Irlanda','ie','dublin'],['Bélgica','be','bruxelas'],['Países Baixos','nl','amsterda,roterda,haia'],['Luxemburgo','lu','luxemburgo'],
+ ['Suíça','ch','zurique,genebra,berna'],['Áustria','at','viena'],['Suécia','se','estocolmo'],['Noruega','no','oslo'],
+ ['Dinamarca','dk','copenhague'],['Finlândia','fi','helsinque'],['Polônia','pl','varsovia'],['República Tcheca','cz','praga'],
+ ['Hungria','hu','budapeste'],['Grécia','gr','atenas'],['Romênia','ro','bucareste'],['Rússia','ru','moscou'],['Ucrânia','ua','kiev,kyiv'],
+ ['Turquia','tr','ancara,istambul'],['Israel','il','tel aviv,jerusalem'],['Líbano','lb','beirute'],['Jordânia','jo','ama'],
+ ['Egito','eg','cairo'],['Emirados Árabes','ae','abu dhabi,dubai'],['Catar','qa','doha'],['Kuwait','kw','kuwait'],
+ ['Arábia Saudita','sa','riade'],['Irã','ir','teera'],['Índia','in','nova delhi,mumbai'],
+ ['China','cn','pequim,xangai,cantao'],['Hong Kong','hk','hong kong'],['Japão','jp','toquio,nagoia,hamamatsu'],
+ ['Coreia do Sul','kr','seul'],['Singapura','sg','singapura'],['Malásia','my','kuala lumpur'],['Tailândia','th','bangkok,bangcoc'],
+ ['Indonésia','id','jacarta'],['Vietnã','vn','hanoi'],['Filipinas','ph','manila'],
+ ['Austrália','au','sydney,sidney,camberra,melbourne,brisbane,perth'],['Nova Zelândia','nz','wellington,auckland'],
+ ['África do Sul','za','pretoria,cidade do cabo,joanesburgo'],['Angola','ao','luanda'],['Moçambique','mz','maputo'],
+ ['Cabo Verde','cv','praia'],['Nigéria','ng','abuja,lagos'],['Marrocos','ma','rabat'],['Argélia','dz','argel'],
+ ['Gana','gh','acra'],['Senegal','sn','dacar'],['Quênia','ke','nairobi'],['Tunísia','tn','tunis']
+];
+const CIDADE_PAIS = {};
+PAISES.forEach(([nome, iso, cids]) => cids.split(',').forEach(c => { CIDADE_PAIS[c] = { nome, iso }; }));
+function paisDaCidade(nm) {
+  const n = norm(nm).replace(/[^a-z ]/g, ' ').replace(/\s+/g, ' ').trim();
+  if (CIDADE_PAIS[n]) return CIDADE_PAIS[n];
+  const k = Object.keys(CIDADE_PAIS).sort((a, b) => b.length - a.length).find(c => (' ' + n + ' ').includes(' ' + c + ' '));
+  return k ? CIDADE_PAIS[k] : { nome: nm.charAt(0) + nm.slice(1).toLowerCase(), iso: '' };
+}
+
+const EXT = { cidades: null, t1: {}, t2: {}, ok1: false, parcial: null, carregando: false, ativo: false };
+const urlCid = (ele, cd) => `${BASE}/${ele}/dados/zz/zz${cd}-c0001-e${pad6(ele)}-u.json`;
+async function carregarExt() {
+  if (EXT.carregando) return; EXT.carregando = true;
+  try {
+    if (!EXT.cidades) for (const ele of [ELE2.fed, ELE1.fed]) {
+      try { const r = await baixar(`${BASE}/${ele}/config/mun-e${pad6(ele)}-cm.json`, false); if (!r || !r.ok) continue;
+        const j = await r.json(); const zz = (j.abr || []).find(a => norm(a.cd) === 'zz');
+        if (zz) { EXT.cidades = (zz.mu || []).map(m => ({ cd: m.cd, nm: m.nm, pais: paisDaCidade(m.nm) })); break; } } catch (e) {}
+    }
+    if (EXT.cidades) {
+      const fila = EXT.cidades.slice();
+      const w = async () => { while (fila.length) { const m = fila.shift();
+        if (!EXT.ok1) { try { const r = await baixar(urlCid(ELE1.fed, m.cd), false); if (r && r.ok) EXT.t1[m.cd] = ler(await r.json()); } catch (e) {} }
+        if (!SIM) { try { const r = await baixar(urlCid(ELE2.fed, m.cd)); if (r && r.ok) EXT.t2[m.cd] = ler(await r.json()); } catch (e) {} } } };
+      await Promise.all(Array.from({ length: 6 }, w)); EXT.ok1 = true;
+    }
+  } catch (e) {}
+  try { const r = await fetch('../parcial-exterior-2t.json?t=' + Date.now(), { cache: 'no-store' }); if (r.ok) EXT.parcial = await r.json(); } catch (e) {}
+  EXT.carregando = false; renderExt();
+}
+function renderExt() {
+  const flag = iso => iso ? `<img class="flag" src="https://flagcdn.com/w40/${iso}.png" alt="" onerror="this.style.visibility='hidden'">` : '';
+  const P = {}; const pk = (nome, iso) => P[iso || nome] || (P[iso || nome] = { nome, iso, F: 0, L: 0, F1: 0, L1: 0, v1: 0, fonte: '' });
+  (EXT.cidades || []).forEach(m => { const p = pk(m.pais.nome, m.pais.iso); const a = EXT.t1[m.cd], b = EXT.t2[m.cd];
+    if (a) { p.F1 += vf(a); p.L1 += vl(a); p.v1 += a.vv || a.cands.reduce((t, c) => t + c.votos, 0); }
+    if (b) { p.F += vf(b); p.L += vl(b); } });
+  const zz = D.uf.ZZ, oficial = (vf(zz) + vl(zz) > 0) || Object.values(P).some(p => p.F + p.L > 0);
+  if (!oficial && EXT.parcial && Array.isArray(EXT.parcial.paises)) {
+    Object.values(P).forEach(p => { p.F = 0; p.L = 0; });
+    EXT.parcial.paises.forEach(([nome, iso, v, fonte]) => { const p = pk(nome, iso); p.F = v.flavio || 0; p.L = v.lula || 0; p.fonte = fonte || ''; });
+  }
+  let TF = 0, TL = 0, T1F = 0, T1L = 0, T1v = 0;
+  const lista = Object.values(P).filter(p => p.F + p.L > 0 || (!oficial && false));
+  Object.values(P).forEach(p => { TF += p.F; TL += p.L; T1F += p.F1; T1L += p.L1; T1v += p.v1; });
+  lista.sort((a, b) => (b.F + b.L) - (a.F + a.L) || a.nome.localeCompare(b.nome, 'pt-BR'));
+  const t1 = D.t1.ZZ; const t1F = t1 && t1.vv ? vf(t1) / t1.vv * 100 : (T1v ? T1F / T1v * 100 : NaN), t1L = t1 && t1.vv ? vl(t1) / t1.vv * 100 : (T1v ? T1L / T1v * 100 : NaN);
+  const vv = TF + TL;
+  $('extAviso').innerHTML = oficial ? '' : `<div class="aviso"><b>Parcial da imprensa, não oficial.</b> O TSE só divulga os votos do exterior a partir das 17h de Brasília. Até lá, esta tabela mostra os boletins de urna já divulgados pela imprensa nos países onde a votação terminou${EXT.parcial && EXT.parcial.atualizado ? ' · atualizado: <b>' + esc(EXT.parcial.atualizado) + '</b>' : ''}. Às 17h ela passa a mostrar os dados oficiais do TSE automaticamente.</div>`;
+  $('extSub').innerHTML = oficial ? `Dados oficiais do TSE · ${zz ? fP(zz.pst) + ' das seções do exterior apuradas' : ''}` : 'Votos dos brasileiros que vivem fora do país, por país.';
+  $('extKpi').innerHTML = `<div><b style="color:var(--fl2)">${vv ? fP(TF / vv * 100) : '–'}</b><span>${esc(tit(FL.nome))} · ${fN(TF)} votos</span></div><div><b style="color:var(--lu2)">${vv ? fP(TL / vv * 100) : '–'}</b><span>${esc(tit(LU.nome))} · ${fN(TL)} votos</span></div><div><b>${lista.length}</b><span>países com votos ${oficial ? 'apurados' : 'divulgados'}</span></div><div><b>${fP(t1F, 1)} × ${fP(t1L, 1)}</b><span>Flávio × Lula no 1º turno (exterior)</span></div>`;
+  $('tabExt').innerHTML = `<thead><tr><th>País</th><th>Flávio</th><th>Lula</th><th>% Flávio</th><th>% Lula</th><th>1º turno Flávio</th><th>1º turno Lula</th><th>Total</th></tr></thead><tbody>` +
+    (lista.length ? lista.map(p => { const v = p.F + p.L; const a = p.v1 ? p.F1 / p.v1 * 100 : NaN, b = p.v1 ? p.L1 / p.v1 * 100 : NaN;
+      return `<tr><td>${flag(p.iso)}<b>${esc(p.nome)}</b>${p.fonte ? `<span class="pmob" style="display:inline"> · ${esc(p.fonte)}</span>` : ''}</td><td class="f">${fN(p.F)}</td><td class="l">${fN(p.L)}</td><td class="f">${fP(p.F / v * 100, 1)}</td><td class="l">${fP(p.L / v * 100, 1)}</td><td class="m">${fP(a, 1)}</td><td class="m">${fP(b, 1)}</td><td>${fN(v)}</td></tr>`; }).join('')
+      : `<tr><td colspan="8" class="m" style="text-align:left;white-space:normal">${EXT.carregando || !EXT.ativo ? 'Carregando...' : 'Nenhum país com votos divulgados ainda.'}</td></tr>`) +
+    (lista.length ? `<tr class="tot"><td>Total</td><td class="f">${fN(TF)}</td><td class="l">${fN(TL)}</td><td class="f">${fP(TF / vv * 100, 1)}</td><td class="l">${fP(TL / vv * 100, 1)}</td><td class="m">${fP(t1F, 1)}</td><td class="m">${fP(t1L, 1)}</td><td>${fN(vv)}</td></tr>` : '') + '</tbody>';
+  $('extNota').innerHTML = `As colunas do 1º turno mostram o resultado oficial do TSE em cada país, em % dos votos válidos daquele turno (com todos os candidatos).${!oficial && EXT.parcial && EXT.parcial.links ? ' Fontes da parcial: ' + EXT.parcial.links.map(([n, u]) => `<a href="${u}" target="_blank" rel="noopener" style="color:var(--gold2)">${esc(n)}</a>`).join(', ') + '.' : ''}`;
+}
+
 /* alertas: mudança de liderança no Brasil e nos estados, e decisão matemática */
 function alertar(txt, ok) { D.alertas.unshift({ txt, ok, h: hora() }); D.alertas = D.alertas.slice(0, 6); }
 function checarAlertas() {
@@ -797,6 +897,7 @@ function render() {
   renderPlacar(P); renderEstados(P); renderComp(); renderTurnos(); renderGov(); renderCompar(); checarAlertas();
   if (TV || FAIXA) renderTV(P);
   if (ufAberto && $('dlgUF').open) renderUF(ufAberto);
+  if (EXT.ativo) { renderExt(); if (!EXT.carregando && !SIM) carregarExt(); }
   const fotoF = FL.sq ? urlFoto(ELE1.fed, FL.sq) : '', fotoL = LU.sq ? urlFoto(ELE1.fed, LU.sq) : '';
   [['ftF', fotoF], ['ftL', fotoL], ['tvFtF', fotoF], ['tvFtL', fotoL]].forEach(([id, u]) => { const im = $(id); if (u && im.dataset.u !== u) { im.dataset.u = u; im.src = u; im.onerror = () => { im.style.visibility = 'hidden'; }; } });
   const b = D.br;
@@ -823,7 +924,7 @@ function contagem() { const el = $('cdBox'); if (!el) return; let s = Math.max(0
 setInterval(() => { const el = $('prox'); if (el) { const s = Math.max(0, Math.round((proxima - Date.now()) / 1000)); el.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); } if (proxima && Date.now() >= proxima) { proxima = 0; ciclo(); } contagem(); if (TV) $('tvHora').textContent = hora(); }, 1000);
 
 /* interações */
-$('abas').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; aba = b.dataset.p; document.querySelectorAll('#abas button').forEach(x => x.classList.toggle('on', x === b)); document.querySelectorAll('.painel').forEach(p => p.classList.toggle('on', p.id === 'p-' + aba)); });
+$('abas').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; aba = b.dataset.p; document.querySelectorAll('#abas button').forEach(x => x.classList.toggle('on', x === b)); document.querySelectorAll('.painel').forEach(p => p.classList.toggle('on', p.id === 'p-' + aba)); if (aba === 'ext') { EXT.ativo = true; renderExt(); carregarExt(); } });
 $('filReg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; regSel = b.dataset.r; renderEstados(projetar()); });
 $('btnAt').addEventListener('click', () => ciclo());
 $('btnCalc').addEventListener('click', () => $('dlgCalc').showModal());

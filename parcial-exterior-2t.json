@@ -1,7 +1,17 @@
 {
- "atualizado": "25/10, 03h30 (Brasília)",
- "links": [["Poder360", "https://www.poder360.com.br/poder-eleicoes-2026/eleicoes-2026-2-turno-exterior-resultados/"], ["Brasil de Fato", "https://www.brasildefato.com.br/2026/10/25/lula-ampliou-vitoria-sobre-flavio-bolsonaro-em-quase-10-pontos-na-nova-zelandia-no-segundo-turno/"]],
+ "atualizado": "25/10, 09h49 (Brasília) · 11 países, Ásia e Oceania. Emirados Árabes: Flávio na frente, votos ainda não divulgados",
+ "links": [["g1", "https://g1.globo.com/mundo/noticia/2026/10/25/votacao-no-exterior-confira-os-resultados-do-2o-turno-entre-lula-e-flavio-bolsonaro.ghtml"], ["Metrópoles", "https://www.metropoles.com/mundo/votacao-no-exterior-apuracao-2o-turno-flavio-lula"], ["Poder360", "https://www.poder360.com.br/poder-eleicoes-2026/eleicoes-2026-2-turno-exterior-resultados/"]],
  "paises": [
-  ["Nova Zelândia", "nz", {"flavio": 101, "lula": 418}, "Poder360"]
+  ["Japão", "jp", {"flavio": 28538, "lula": 7098}, "Metrópoles"],
+  ["Austrália", "au", {"flavio": 3465, "lula": 6017}, "Metrópoles"],
+  ["China", "cn", {"flavio": 267, "lula": 502}, "Metrópoles"],
+  ["Nova Zelândia", "nz", {"flavio": 101, "lula": 418}, "Poder360"],
+  ["Singapura", "sg", {"flavio": 121, "lula": 213}, "Metrópoles"],
+  ["Coreia do Sul", "kr", {"flavio": 82, "lula": 148}, "Metrópoles"],
+  ["Taiwan", "tw", {"flavio": 130, "lula": 94}, "Metrópoles"],
+  ["Tailândia", "th", {"flavio": 60, "lula": 56}, "Metrópoles"],
+  ["Malásia", "my", {"flavio": 44, "lula": 41}, "Metrópoles"],
+  ["Filipinas", "ph", {"flavio": 39, "lula": 27}, "Metrópoles"],
+  ["Indonésia", "id", {"flavio": 15, "lula": 23}, "Metrópoles"]
  ]
 }

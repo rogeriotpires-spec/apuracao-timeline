@@ -385,10 +385,11 @@ body.faixa #faixa{display:flex;position:fixed;left:2vw;right:2vw;bottom:3vh;alig
     <div class="regs" id="regs"></div>
   </section>
   <section class="bloco" id="linha">
-    <h2 style="margin-top:22px">Linha do tempo da apuração</h2><div class="h2s" id="ltSub">Percentual dos votos válidos de cada candidato ao longo da noite, conforme as urnas vão sendo apuradas. As marcas verticais indicam viradas.</div>
-    <div class="gcard"><svg id="ltSvg" class="ltsvg" viewBox="0 0 1000 300" width="100%" role="img" aria-label="Linha do tempo"></svg></div>
-    <h2 style="margin-top:22px">Evolução por horário</h2><div class="h2s" id="lhSub">Percentual de cada candidato e urnas apuradas, em pontos a cada <b id="lhPasso">5</b> minutos. <span class="fil" style="display:inline-flex;margin-left:6px"><button data-passo="1">1 min</button><button data-passo="2">2 min</button><button data-passo="5" class="on">5 min</button><button data-passo="10">10 min</button><button data-passo="15">15 min</button></span></div>
-    <div class="gcard"><svg id="lhSvg" class="ltsvg" viewBox="0 0 1000 300" width="100%" role="img" aria-label="Evolução por horário"></svg></div>
+    <h2 style="margin-top:22px">Evolução da apuração</h2>
+    <div class="fil" style="margin-bottom:10px"><button id="ltHora" class="on">Por horário</button><button id="ltUrnas">Por urnas apuradas</button><span class="fil" id="passoBox" style="margin-left:14px;display:inline-flex;align-items:center"><span class="lb" style="min-width:0">Ponto a cada</span><button data-passo="1">1 min</button><button data-passo="2">2 min</button><button data-passo="5" class="on">5 min</button><button data-passo="10">10 min</button><button data-passo="15">15 min</button></span></div>
+    <div class="h2s" id="lhSub">Percentual de cada candidato ao longo da noite, por horário, em pontos a cada <b id="lhPasso">5</b> minutos. A linha dourada mostra o avanço das urnas apuradas.</div>
+    <div class="h2s" id="ltSub" style="display:none">Percentual dos votos válidos conforme as urnas vão sendo apuradas. As marcas verticais indicam viradas; o tracejado é a projeção até 100%.</div>
+    <div class="gcard"><svg id="lhSvg" class="ltsvg" viewBox="0 0 1000 300" width="100%" role="img" aria-label="Evolução por horário"></svg><svg id="ltSvg" class="ltsvg" viewBox="0 0 1000 300" width="100%" role="img" aria-label="Linha do tempo" style="display:none"></svg></div>
   </section>
 
   <nav class="abas" id="abas">
@@ -1078,7 +1079,7 @@ function desenharLT(svg, tv) {
   svg.innerHTML = grid + xs + vir + proj + `<path class="lf" d="${path('pF')}"/><path class="ll" d="${path('pL')}"/>` + fim;
 }
 function renderLT() { const P0 = projetar(); const tp0 = P0.PF + P0.PL; window._ltProj = tp0 ? P0.PF / tp0 * 100 : null; registrarLT(); desenharLT($('ltSvg')); if (TV) desenharLT($('tvLt'), true);
-  const u = LT[LT.length - 1]; if (u) $('ltSub').innerHTML = `Percentual dos votos válidos ao longo da noite. Registro desde <b>${hora(new Date(LT[0].t))}</b> · ${LT.length} leituras · ${LT.filter(p => p.vir).length} virada(s). As marcas verticais indicam viradas.`; }
+  const u = LT[LT.length - 1]; if (u) $('ltSub').innerHTML = `Percentual dos votos válidos conforme as urnas vão sendo apuradas. Registro desde <b>${hora(new Date(LT[0].t))}</b> · ${LT.length} leituras · ${LT.filter(p => p.vir).length} virada(s). Marcas verticais: viradas; tracejado: projeção até 100%.`; }
 function renderTVExtras() {
   $('tvAlertas').innerHTML = D.alertas.length ? D.alertas.slice(0, 7).map(a => `<div class="alerta ${a.ok ? 'ok' : ''}"><time>${a.h}</time><span>${a.txt}</span></div>`).join('') : '<div class="vazio" style="font-size:2.6vh">Nenhuma virada até agora.</div>';
   const P = {}; (EXT.cidades || []).forEach(m => { const p = P[m.pais.nome] || (P[m.pais.nome] = { nome: m.pais.nome, F: 0, L: 0 }); const b = EXT.t2[m.cd]; if (b) { p.F += vf(b); p.L += vl(b); } });
@@ -1246,6 +1247,9 @@ function desenharLH(svg) {
 }
 function renderLH() { desenharLH($('lhSvg')); if (TV) desenharLH($('tvLh')); $('lhPasso').textContent = PASSO; if (TV) $('tvPasso').textContent = PASSO; document.querySelectorAll('[data-passo]').forEach(b => b.classList.toggle('on', Number(b.dataset.passo) === PASSO)); }
 document.addEventListener('click', e => { const b = e.target.closest('[data-passo]'); if (b) { PASSO = Number(b.dataset.passo); renderLH(); } });
+let ltModo = 'hora';
+function ltTrocar(m) { ltModo = m; $('ltHora').classList.toggle('on', m === 'hora'); $('ltUrnas').classList.toggle('on', m === 'urnas'); $('lhSvg').style.display = m === 'hora' ? '' : 'none'; $('ltSvg').style.display = m === 'urnas' ? '' : 'none'; $('lhSub').style.display = m === 'hora' ? '' : 'none'; $('ltSub').style.display = m === 'urnas' ? '' : 'none'; $('passoBox').style.display = m === 'hora' ? 'inline-flex' : 'none'; }
+$('ltHora').addEventListener('click', () => ltTrocar('hora')); $('ltUrnas').addEventListener('click', () => ltTrocar('urnas'));
 
 
 /* ===== Bandeira e brasão do município (Wikipédia, no navegador) ===== */

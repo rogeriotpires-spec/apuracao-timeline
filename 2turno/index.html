@@ -129,7 +129,13 @@ main{max-width:1320px;margin:0 auto;padding:22px 26px 10px}
 .mun-lista{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 14px}
 .mun-lista button{font:600 13px Inter;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--tx);padding:7px 12px;border-radius:999px;cursor:pointer}.mun-lista button:hover{border-color:var(--gold)}.mun-lista button small{color:var(--mut);margin-left:6px}
 .mun-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 22px}
-.mun-card .mt{font-family:"Playfair Display",Georgia,serif;font-size:30px}.mun-card .ms{color:var(--mut);font-size:13px;margin-bottom:12px}
+.mun-head{display:flex;align-items:center;gap:16px;margin:-20px -22px 14px;padding:18px 22px;border-radius:18px 18px 0 0;background:linear-gradient(135deg,rgba(224,122,44,.14),rgba(16,13,11,0) 60%);border-bottom:1px solid var(--line);position:relative;overflow:hidden;min-height:110px}
+.mun-flag{height:64px;width:auto;max-width:110px;border-radius:6px;border:1px solid rgba(255,255,255,.15);box-shadow:0 6px 18px rgba(0,0,0,.5);object-fit:cover;flex:none}
+.mun-flag.uf{opacity:.9}.mun-brasao{height:64px;width:auto;flex:none;filter:drop-shadow(0 6px 14px rgba(0,0,0,.6))}
+.mun-foto{position:absolute;right:0;top:0;bottom:0;width:38%;object-fit:cover;opacity:.55;-webkit-mask-image:linear-gradient(90deg,transparent,#000 45%);mask-image:linear-gradient(90deg,transparent,#000 45%)}
+.mest{display:flex;align-items:center;gap:8px;color:var(--mut);font:700 14px Inter;letter-spacing:.5px;margin-top:4px}.mest img{height:14px;border-radius:2px}
+.mun-card .mt{font-family:"Playfair Display",Georgia,serif;font-size:36px;line-height:1.05;position:relative}
+@media(max-width:700px){.mun-foto{display:none}.mun-card .mt{font-size:28px}.mun-flag,.mun-brasao{height:48px}}.mun-card .ms{color:var(--mut);font-size:13px;margin-bottom:12px}
 .mun-card .uf-duo{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .mun-hist{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.mun-hist>div{background:var(--deep);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 .mun-hist .y{font:800 22px "Barlow Condensed",sans-serif;color:var(--gold2)}.mun-hist .q{font-size:11px;color:var(--mut)}.mun-hist .p{font:800 26px "Barlow Condensed",sans-serif;font-variant-numeric:tabular-nums;margin-top:4px}
@@ -1113,8 +1119,9 @@ let imgFmt = 'q';
 const LOGO_IMG = new Image(); LOGO_IMG.src = document.querySelector('header .logo').src;
 function rr(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
 function desenharImagem() {
-  const cv = $('cvImg'); const W = 1080, H = imgFmt === 'q' ? 1080 : 1920; cv.width = W; cv.height = H; const c = cv.getContext('2d');
+  const cv = $('cvImg'); const W = 1080, H = imgFmt === 'q' ? (imgCidade ? 1350 : 1080) : 1920; cv.width = W; cv.height = H; const c = cv.getContext('2d');
   let b = D.br; let cid = ''; if (imgCidade) { b = MUN.dados[imgCidade[0] + imgCidade[1]] || { cands: [], pst: 0 }; cid = imgCidade[2] + ' · ' + imgCidade[0]; }
+  const yTop = imgFmt === 'q' ? 70 : 300; const extraCid = imgCidade ? 150 : 0;
   const F = vf(b), L = vl(b), vv = F + L, pF = vv ? F / vv * 100 : 0, pL = vv ? L / vv * 100 : 0;
   const g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#120c09'); g.addColorStop(1, '#050403'); c.fillStyle = g; c.fillRect(0, 0, W, H);
   c.fillStyle = 'rgba(224,122,44,.10)'; for (let x = 0; x < W; x += 94) c.fillRect(x, 0, 2, H);
@@ -1122,7 +1129,13 @@ function desenharImagem() {
   if (LOGO_IMG.complete && LOGO_IMG.naturalWidth) { c.save(); rr(c, 70, y0, 110, 110, 24); c.clip(); c.drawImage(LOGO_IMG, 70, y0, 110, 110); c.restore(); }
   c.fillStyle = '#f6f2ee'; c.font = '700 64px "Playfair Display", Georgia, serif'; c.fillText('Timeline', 205, y0 + 62);
   c.fillStyle = '#f4a65a'; c.font = '700 26px "Barlow Condensed", sans-serif'; c.fillText(cid ? ('APURAÇÃO 2026  ·  2º TURNO  ·  ' + cid.toUpperCase()) : 'APURAÇÃO 2026  ·  2º TURNO  ·  PRESIDENTE', 207, y0 + 100);
-  const y1 = y0 + 190;
+  if (imgCidade) { // faixa da cidade: bandeira + nome + estado
+    const yc = y0 + 150; rr(c, 70, yc, W - 140, 130, 24); c.fillStyle = 'rgba(255,255,255,.05)'; c.fill(); c.strokeStyle = 'rgba(224,122,44,.45)'; c.lineWidth = 2; c.stroke();
+    let xTxt = 100; if (imgFlagEl) { const fh = 90, fw = Math.min(150, fh * imgFlagEl.naturalWidth / imgFlagEl.naturalHeight); c.save(); rr(c, 96, yc + 20, fw, fh, 8); c.clip(); c.drawImage(imgFlagEl, 96, yc + 20, fw, fh); c.restore(); c.strokeStyle = 'rgba(255,255,255,.25)'; c.lineWidth = 2; rr(c, 96, yc + 20, fw, fh, 8); c.stroke(); xTxt = 96 + fw + 28; }
+    c.fillStyle = '#f6f2ee'; let fsz = 64; do { c.font = `700 ${fsz}px "Playfair Display", Georgia, serif`; fsz -= 4; } while (c.measureText(imgCidade[2]).width > W - 70 - xTxt - 30 && fsz > 30); c.fillText(imgCidade[2], xTxt, yc + 72);
+    c.fillStyle = '#f4a65a'; c.font = '700 26px "Barlow Condensed", sans-serif'; c.fillText((NOME[imgCidade[0]] + ' · ' + imgCidade[0]).toUpperCase(), xTxt, yc + 108);
+  }
+  const y1 = y0 + 190 + extraCid;
   c.fillStyle = '#a89c92'; c.font = '600 28px Inter, sans-serif'; c.fillText(`Urnas apuradas: ${b ? fP(b.pst) : '--'}`, 70, y1);
   c.textAlign = 'right'; c.fillText(hora() + ' · dados oficiais do TSE', W - 70, y1); c.textAlign = 'left';
   const y2 = y1 + 70, colW = (W - 140 - 40) / 2;
@@ -1197,7 +1210,8 @@ function renderMun() {
   const h = (a, b) => a + b ? a / (a + b) * 100 : NaN; const j22 = h(m[3], m[4]), j18 = h(m[5], m[6]);
   const f1 = t1 && t1.vv ? vf(t1) / t1.vv * 100 : NaN, l1 = t1 && t1.vv ? vl(t1) / t1.vv * 100 : NaN;
   const pF = v ? F / v * 100 : NaN;
-  $('munDet').innerHTML = `<div class="mun-card"><div class="mt">${esc(m[2])} <span style="font:700 16px Inter;color:var(--mut)">· ${m[0]}</span></div>
+  const sb = SIMB[k] || {}; if (!SIMB[k]) simbolosMun(m).then(renderMun);
+  $('munDet').innerHTML = `<div class="mun-card"><div class="mun-head">${sb.bandeira ? `<img class="mun-flag" src="${sb.bandeira}" alt="Bandeira de ${esc(m[2])}">` : `<img class="mun-flag uf" src="${bandeiraUF(m[0])}" alt="Bandeira de ${esc(NOME[m[0]])}">`}${sb.brasao ? `<img class="mun-brasao" src="${sb.brasao}" alt="Brasão de ${esc(m[2])}">` : ''}<div><div class="mt">${esc(m[2])}</div><div class="mest"><img src="${bandeiraUF(m[0])}" alt="">${esc(NOME[m[0]])} · ${m[0]}</div></div>${sb.foto ? `<img class="mun-foto" src="${sb.foto}" alt="">` : ''}</div>
     <div class="ms">${x ? `2º turno agora · <b style="color:var(--tx)">${fP(x.pst)}</b> das urnas apuradas${x.hg ? ' · arquivo do TSE de ' + esc(x.dg || '') + ' ' + esc(x.hg) : ''}` : 'Aguardando o TSE publicar o resultado desta cidade.'}</div>
     <div class="uf-duo"><div class="f"><div class="n">${esc(tit(FL.nome))} · ${esc(FL.partido)}</div><div class="p">${v ? fP(pF) : '–'}</div><div class="v">${fN(F)} votos</div></div><div class="l"><div class="n">${esc(tit(LU.nome))} · ${esc(LU.partido)}</div><div class="p">${v ? fP(100 - pF) : '–'}</div><div class="v">${fN(L)} votos</div></div></div>
     <div class="mun-hist">
@@ -1206,9 +1220,9 @@ function renderMun() {
       <div><div class="y">2018 · 2º turno</div><div class="q">Jair Bolsonaro · PSL × Haddad · PT</div><div class="p"><span style="color:var(--fl2)">${fP(j18, 1)}</span> <span style="color:var(--mut);font-size:16px">×</span> <span style="color:var(--lu2)">${fP(100 - j18, 1)}</span></div><div class="q"><span style="color:var(--fl2)">Jair ${fMi(m[5])}</span> × <span style="color:var(--lu2)">Haddad ${fMi(m[6])}</span> votos</div></div>
     </div>
     <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" id="munImg">Imagem desta cidade</button></div></div>`;
-  $('munImg').addEventListener('click', async () => { try { await document.fonts.load('800 100px "Barlow Condensed"'); await document.fonts.load('700 60px "Playfair Display"'); } catch (e) {} imgCidade = m; desenharImagem(); $('dlgImg').showModal(); });
+  $('munImg').addEventListener('click', async () => { try { await document.fonts.load('800 100px "Barlow Condensed"'); await document.fonts.load('700 60px "Playfair Display"'); } catch (e) {} imgCidade = m; const sb = await simbolosMun(m); imgFlagEl = await carregarImg(sb.bandeira) || await carregarImg(bandeiraUF(m[0])); desenharImagem(); $('dlgImg').showModal(); });
 }
-let imgCidade = null;
+let imgCidade = null, imgFlagEl = null;
 $('munQ').addEventListener('input', buscarMun); $('munUF').addEventListener('change', buscarMun);
 $('munLista').addEventListener('click', e => { const b = e.target.closest('button'); if (b) abrirMun(b.dataset.uf, b.dataset.cd); });
 
@@ -1232,6 +1246,31 @@ function desenharLH(svg) {
 }
 function renderLH() { desenharLH($('lhSvg')); if (TV) desenharLH($('tvLh')); $('lhPasso').textContent = PASSO; if (TV) $('tvPasso').textContent = PASSO; document.querySelectorAll('[data-passo]').forEach(b => b.classList.toggle('on', Number(b.dataset.passo) === PASSO)); }
 document.addEventListener('click', e => { const b = e.target.closest('[data-passo]'); if (b) { PASSO = Number(b.dataset.passo); renderLH(); } });
+
+
+/* ===== Bandeira e brasão do município (Wikipédia, no navegador) ===== */
+const SIMB = {}; // chave uf+cd -> {bandeira, brasao, foto, titulo}
+const UF_NOME_WIKI = NOME;
+async function simbolosMun(m) {
+  const k = m[0] + m[1]; if (SIMB[k]) return SIMB[k]; SIMB[k] = { pend: true };
+  const tentar = async titulo => {
+    const u = `https://pt.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1&prop=images|pageimages&piprop=original&imlimit=200&titles=${encodeURIComponent(titulo)}`;
+    const r = await fetch(u); const j = await r.json(); const pg = Object.values(j.query.pages)[0]; if (!pg || pg.missing) return null;
+    const ims = (pg.images || []).map(i => i.title);
+    const ach = re => ims.find(t => re.test(nrm(t)));
+    const band = ach(/bandeira.*\.(svg|png|jpg)/) , bras = ach(/brasao.*\.(svg|png|jpg)/);
+    return { band, bras, foto: pg.original && pg.original.source, titulo: pg.title };
+  };
+  const urlArq = async titulo => { if (!titulo) return ''; const u = `https://pt.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=imageinfo&iiprop=url&iiurlwidth=400&titles=${encodeURIComponent(titulo)}`; const r = await fetch(u); const j = await r.json(); const pg = Object.values(j.query.pages)[0]; const ii = pg && pg.imageinfo && pg.imageinfo[0]; return ii ? (ii.thumburl || ii.url) : ''; };
+  try {
+    let info = await tentar(`${m[2]} (${UF_NOME_WIKI[m[0]]})`); if (!info || (!info.band && !info.bras)) { const alt = await tentar(m[2]); if (alt && (alt.band || alt.bras || !info)) info = alt; }
+    const out = { bandeira: info ? await urlArq(info.band) : '', brasao: info ? await urlArq(info.bras) : '', foto: info && info.foto && !/bandeira|brasao|mapa|map|locat/i.test(info.foto) ? info.foto : '', titulo: info ? info.titulo : '' };
+    SIMB[k] = out;
+  } catch (e) { SIMB[k] = { bandeira: '', brasao: '', foto: '' }; }
+  return SIMB[k];
+}
+const bandeiraUF = uf => `https://flagcdn.com/w160/br-${uf.toLowerCase()}.png`;
+function carregarImg(src) { return new Promise(res => { if (!src) return res(null); const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => res(im); im.onerror = () => res(null); im.src = src; }); }
 
 /* ===== Saúde da conexão (?equipe=1) ===== */
 let hgAnt = '', hgDesde = Date.now();

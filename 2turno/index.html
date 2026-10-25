@@ -992,6 +992,8 @@ function paisDaCidade(nm) {
 
 const EXT = { cidades: null, t1: {}, t2: {}, ok1: false, parcial: null, carregando: false, ativo: false };
 const urlCid = (ele, cd) => `${BASE}/${ele}/dados/zz/zz${cd}-c0001-e${pad6(ele)}-u.json`;
+async function carregarParcial() { if (SIM) return; try { const r = await fetch('../parcial-exterior-2t.json?t=' + Date.now(), { cache: 'no-store' }); if (r.ok) { EXT.parcial = await r.json(); renderRegioes(); } } catch (e) {} }
+setTimeout(carregarParcial, 1500); setInterval(carregarParcial, 5 * 60000);
 async function carregarExt() {
   if (EXT.carregando) return; EXT.carregando = true;
   try {
@@ -1047,13 +1049,17 @@ const REGS = ['Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul', 'Exterior']
 function regStats(nome) {
   const ufs = ['ZZ', ...UFS].filter(u => REGIAO[u] === nome); let F = 0, L = 0, te = 0, apur = 0;
   ufs.forEach(u => { const x = D.uf[u]; F += vf(x); L += vl(x); const t = (x && x.te) || HIST[u].a22[0]; te += t; apur += (x ? x.pst : 0) * t; });
-  return { nome, ufs, F, L, pst: te ? apur / te : 0 };
+  const r = { nome, ufs, F, L, pst: te ? apur / te : 0 };
+  if (nome === 'Exterior' && !F && !L && !SIM && EXT.parcial && Array.isArray(EXT.parcial.paises) && EXT.parcial.paises.length) {
+    EXT.parcial.paises.forEach(([, , v]) => { r.F += v.flavio || 0; r.L += v.lula || 0; }); r.imprensa = true;   // parcial da imprensa até o TSE publicar
+  }
+  return r;
 }
 function regHTML(r, tv) {
   const v = r.F + r.L, pF = v ? r.F / v * 100 : 50, d = r.F - r.L;
-  const ufs = r.ufs.sort((a, b) => HIST[b].a22[0] - HIST[a].a22[0]).map(u => { const x = D.uf[u], a = vf(x), c = vl(x), vv = a + c, p = vv ? a / vv * 100 : 50;
-    return `<div class="ufrow"><div class="nm"><b>${esc(NOME[u])}</b><small>${x ? fP(x.pst, 1) : '0%'} apurado</small></div><div class="bar2"><i class="f" style="width:${vv ? p : 0}%"></i><i class="l" style="width:${vv ? 100 - p : 0}%"></i></div><div class="d" style="color:${a >= c ? 'var(--fl2)' : 'var(--lu2)'}">${vv ? (a >= c ? '+' : '−') + fMi(Math.abs(a - c)) : '–'}</div></div>`; }).join('');
-  return `<div class="reg ${!tv && regAberta === r.nome ? 'on' : ''}" data-reg="${r.nome}"><div class="rh"><b>${r.nome}</b><span>${fP(r.pst, 1)} apurado</span></div>
+  const ufs = r.ufs.sort((a, b) => HIST[b].a22[0] - HIST[a].a22[0]).map(u => { const x = D.uf[u]; let a = vf(x), c = vl(x); if (r.imprensa && u === 'ZZ') { a = r.F; c = r.L; } const vv = a + c, p = vv ? a / vv * 100 : 50;
+    return `<div class="ufrow"><div class="nm"><b>${esc(NOME[u])}</b><small>${r.imprensa ? 'imprensa, não oficial' : (x ? fP(x.pst, 1) : '0%') + ' apurado'}</small></div><div class="bar2"><i class="f" style="width:${vv ? p : 0}%"></i><i class="l" style="width:${vv ? 100 - p : 0}%"></i></div><div class="d" style="color:${a >= c ? 'var(--fl2)' : 'var(--lu2)'}">${vv ? (a >= c ? '+' : '−') + fMi(Math.abs(a - c)) : '–'}</div></div>`; }).join('');
+  return `<div class="reg ${!tv && regAberta === r.nome ? 'on' : ''}" data-reg="${r.nome}"><div class="rh"><b>${r.nome}</b><span>${r.imprensa ? `parcial da imprensa · ${EXT.parcial.paises.length} países` : fP(r.pst, 1) + ' apurado'}</span></div>
     <div class="rd" style="color:${d >= 0 ? 'var(--fl2)' : 'var(--lu2)'}">${v ? (d >= 0 ? '+' : '−') + fN(Math.abs(d)) : '–'} <span style="font:600 12px Inter;color:var(--mut)">${v ? (d >= 0 ? tit(FL.nome) : tit(LU.nome)) + ' à frente' : 'sem votos'}</span></div>
     <div class="bar2"><i class="f" style="width:${v ? pF : 0}%"></i><i class="l" style="width:${v ? 100 - pF : 0}%"></i></div>
     <div class="pp"><span class="f">${tit(FL.nome)} ${v ? fP(pF) : '–'}</span><span class="l">${v ? fP(100 - pF) : '–'} ${tit(LU.nome)}</span></div>

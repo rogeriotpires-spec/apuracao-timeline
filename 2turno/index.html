@@ -111,6 +111,9 @@ main{max-width:1320px;margin:0 auto;padding:22px 26px 10px}
 .selo{display:inline-block;padding:3px 10px;border-radius:999px;font:700 11px Inter;letter-spacing:1px;text-transform:uppercase}
 .selo.solid{background:rgba(63,207,134,.14);color:var(--up);border:1px solid rgba(63,207,134,.4)}
 .selo.aberto{background:rgba(224,122,44,.12);color:var(--gold2);border:1px solid rgba(224,122,44,.4)}
+.imprensa{margin-top:14px;padding:12px 14px;border:1px dashed rgba(246,242,238,.22);border-radius:12px;font-size:13px;line-height:1.5;color:var(--mut)}
+.imprensa b{color:var(--tx)}.imprensa .k{display:block;font:800 11px "Barlow Condensed",sans-serif;letter-spacing:2px;text-transform:uppercase;color:var(--ouro,#e0a94a);margin-bottom:4px}
+.imprensa .bar2{margin:8px 0 4px}.imprensa .pp{display:flex;justify-content:space-between;font-weight:700}.imprensa .pp .f{color:var(--fl2)}.imprensa .pp .l{color:var(--lu2)}
 .nota{font-size:11px;color:var(--mut);margin-top:10px;line-height:1.5}
 .regs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
 .reg{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;cursor:pointer;transition:border-color .15s}
@@ -370,6 +373,7 @@ body.faixa #faixa{display:flex;position:fixed;left:2vw;right:2vw;bottom:3vh;alig
     </div>
     <div class="trilho"><i class="tf" id="trF" style="width:50%"></i><i class="tl" id="trL" style="width:50%"></i></div>
     <div class="trilho-l"><span>votos válidos</span><span>50%</span><span id="vvTot">&nbsp;</span></div>
+    <div class="imprensa" id="imprensa" hidden></div>
   </section>
 
   <div class="chance" id="chance" style="display:none">
@@ -840,6 +844,10 @@ function renderPlacar(P) {
   $('dif').style.color = d > 0 ? 'var(--fl2)' : d < 0 ? 'var(--lu2)' : 'var(--tx)';
   $('difq').textContent = vv ? (d >= 0 ? tit(FL.nome) : tit(LU.nome)) + ' à frente' : ' ';
   if (vv) { const chave = b.dg + ' ' + b.hg + ' ' + b.pst; if (D.hgDelta !== chave) { if (D.difAnt != null && D.difAnt !== d) D.difDelta = d - D.difAnt; D.difAnt = d; D.hgDelta = chave; } }
+  { const el = $('imprensa'), P2 = EXT.parcial; const mostrar = !vv && !SIM && P2 && Array.isArray(P2.paises) && P2.paises.length;
+    if (mostrar) { let pf = 0, pl = 0; P2.paises.forEach(([, , v]) => { pf += v.flavio || 0; pl += v.lula || 0; }); const pv = pf + pl, pp = pv ? pf / pv * 100 : 50;
+      el.hidden = false; el.innerHTML = `<span class="k">Enquanto o TSE não publica · exterior, parcial da imprensa</span>Urnas já abertas em <b>${P2.paises.length} países</b> (Ásia e Oceania): <b style="color:var(--fl2)">${esc(tit(FL.nome))} ${fN(pf)}</b> × <b style="color:var(--lu2)">${esc(tit(LU.nome))} ${fN(pl)}</b>. Não oficial; não entra no placar.<div class="bar2"><i class="f" style="width:${pp}%"></i><i class="l" style="width:${100 - pp}%"></i></div><div class="pp"><span class="f">${fP(pp)}</span><span class="l">${fP(100 - pp)}</span></div>`; }
+    else el.hidden = true; }
   $('difd').innerHTML = vv && D.difDelta ? `${D.difDelta > 0 ? '▲' : '▼'} <b>${D.difDelta > 0 ? '+' : '−'}${fN(Math.abs(D.difDelta))}</b> para ${esc(tit(FL.nome).split(' ')[0])} desde a última atualização` : ' ';
   $('trF').style.width = (vv ? pF : 50) + '%'; $('trL').style.width = (vv ? pL : 50) + '%';
   $('vvTot').textContent = vv ? fN(vv) + ' válidos' : ' ';
@@ -992,7 +1000,7 @@ function paisDaCidade(nm) {
 
 const EXT = { cidades: null, t1: {}, t2: {}, ok1: false, parcial: null, carregando: false, ativo: false };
 const urlCid = (ele, cd) => `${BASE}/${ele}/dados/zz/zz${cd}-c0001-e${pad6(ele)}-u.json`;
-async function carregarParcial() { if (SIM) return; try { const r = await fetch('../parcial-exterior-2t.json?t=' + Date.now(), { cache: 'no-store' }); if (r.ok) { EXT.parcial = await r.json(); renderRegioes(); } } catch (e) {} }
+async function carregarParcial() { if (SIM) return; try { const r = await fetch('../parcial-exterior-2t.json?t=' + Date.now(), { cache: 'no-store' }); if (r.ok) { EXT.parcial = await r.json(); renderRegioes(); try { render(); } catch (e) {} } } catch (e) {} }
 setTimeout(carregarParcial, 1500); setInterval(carregarParcial, 5 * 60000);
 async function carregarExt() {
   if (EXT.carregando) return; EXT.carregando = true;

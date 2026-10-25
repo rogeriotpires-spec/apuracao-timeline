@@ -792,10 +792,16 @@ function tiles(el) { pintarMapa(el); }
 /* ===== Detalhe do estado (toque no mapa) ===== */
 const G1 = {}; let ufAberto = null;
 const pctDe = (v, t) => t ? v / t * 100 : NaN;
-function tagSt(c) { const st = (c.st || '').toLowerCase(); if (c.e || /^eleito/.test(st)) return '<span class="st-tag el">eleito</span>'; if (/2.?\s*turno/.test(st)) return '<span class="st-tag t2">2º turno</span>'; return ''; }
-function tabCands(x, lim) {
+function tagSt(c, i, t2) {
+  const st = (c.st || '').toLowerCase();
+  if (t2 && i < 2) return '<span class="st-tag t2">2º turno</span>';            // 1º turno de presidente: os dois primeiros foram ao 2º turno, ninguém foi eleito
+  if (/2.?\s*turno/.test(st)) return '<span class="st-tag t2">2º turno</span>';
+  if (/^eleito/.test(st) || (c.e && !/n[aã]o/.test(st))) return '<span class="st-tag el">eleito</span>';
+  return '';
+}
+function tabCands(x, lim, t2) {
   const tot = x.vv || x.cands.reduce((a, c) => a + c.votos, 0);
-  return `<div class="wrap"><table><thead><tr><th>Candidato</th><th>Partido</th><th>Votos</th><th>% válidos</th></tr></thead><tbody>${x.cands.slice(0, lim || 99).map(c => `<tr class="${/^pl$/i.test(c.partido) ? 'pl' : ''}"><td><b>${esc(tit(c.nome))}</b><span class="pmob"> · ${esc(c.partido)}</span>${tagSt(c)}</td><td class="m">${esc(c.partido)}</td><td>${fN(c.votos)}</td><td>${fP(pctDe(c.votos, tot))}</td></tr>`).join('')}<tr class="tot"><td>Total de votos válidos</td><td></td><td>${fN(tot)}</td><td>100%</td></tr></tbody></table></div>`;
+  return `<div class="wrap"><table><thead><tr><th>Candidato</th><th>Partido</th><th>Votos</th><th>% válidos</th></tr></thead><tbody>${x.cands.slice(0, lim || 99).map((c, i) => `<tr class="${/^pl$/i.test(c.partido) ? 'pl' : ''}"><td><b>${esc(tit(c.nome))}</b><span class="pmob"> · ${esc(c.partido)}</span>${tagSt(c, i, t2)}</td><td class="m">${esc(c.partido)}</td><td>${fN(c.votos)}</td><td>${fP(pctDe(c.votos, tot))}</td></tr>`).join('')}<tr class="tot"><td>Total de votos válidos</td><td></td><td>${fN(tot)}</td><td>100%</td></tr></tbody></table></div>`;
 }
 function renderUF(uf) {
   const x = D.uf[uf], F = vf(x), L = vl(x), v = F + L, t1 = D.t1[uf], g2 = D.gov[uf], g1 = G1[uf];
@@ -803,19 +809,25 @@ function renderUF(uf) {
     <div class="uf-kpi"><div><b>${x ? fP(x.pst) : '0%'}</b><span>urnas apuradas</span></div><div><b>${fN(v)}</b><span>votos válidos</span></div><div><b>${x ? fN(x.c) : '0'}</b><span>compareceram</span></div><div><b>${x ? fN(x.vb + x.vn) : '0'}</b><span>brancos e nulos</span></div></div>
     <div class="uf-duo"><div class="f"><div class="n">${esc(tit(FL.nome))} · ${esc(FL.partido)}</div><div class="p">${v ? fP(F / v * 100) : '–'}</div><div class="v">${fN(F)} votos</div></div><div class="l"><div class="n">${esc(tit(LU.nome))} · ${esc(LU.partido)}</div><div class="p">${v ? fP(L / v * 100) : '–'}</div><div class="v">${fN(L)} votos</div></div></div></div>`;
   if (g2 && g2.cands.length) h += `<div class="uf-sec"><h3>Governador · 2º turno agora<span>${fP(g2.pst)} apurado</span></h3>${tabCands(g2)}</div>`;
-  h += `<div class="uf-sec"><h3>Presidente · 1º turno<span>4 de outubro · resultado final</span></h3>${t1 ? tabCands(t1) : '<div class="vazio">Não foi possível ler o 1º turno no TSE agora.</div>'}</div>`;
-  h += uf === 'ZZ' ? `<div class="uf-sec"><h3>Governador · 1º turno</h3><div class="vazio">Eleitores no exterior votam só para presidente.</div></div>`
-    : `<div class="uf-sec"><h3>Governador · 1º turno<span>4 de outubro · resultado final</span></h3>${!g1 ? '<div class="vazio">Carregando do TSE...</div>' : g1.erro ? '<div class="vazio">Não foi possível ler o resultado de governador no TSE agora.</div>' : tabCands(g1)}</div>`;
+  h += `<div class="uf-sec"><h3>Presidente · 1º turno<span>4 de outubro · resultado final</span></h3>${t1 ? tabCands(t1, 0, true) : '<div class="vazio">Não foi possível ler o 1º turno no TSE agora.</div>'}</div>`;
+  if (uf === 'ZZ') h += `<div class="uf-sec"><h3>Governador e Senado · 1º turno</h3><div class="vazio">Eleitores no exterior votam só para presidente.</div></div>`;
+  else {
+    h += `<div class="uf-sec"><h3>Governador · 1º turno<span>4 de outubro · resultado final</span></h3>${!g1 ? '<div class="vazio">Carregando do TSE...</div>' : g1.erro ? '<div class="vazio">Não foi possível ler o resultado de governador no TSE agora.</div>' : tabCands(g1)}</div>`;
+    const s1 = S1[uf];
+    h += `<div class="uf-sec"><h3>Senador · 1º turno<span>1 vaga em 2026 · 4 de outubro</span></h3>${!s1 ? '<div class="vazio">Carregando do TSE...</div>' : s1.erro ? '<div class="vazio">Não foi possível ler o resultado de senador no TSE agora.</div>' : tabCands(s1, 6)}</div>`;
+  }
   $('ufCorpo').innerHTML = h;
 }
+const S1 = {};
+const urlSen = (ele, uf) => { const a = uf.toLowerCase(); return `${BASE}/${ele}/dados/${a}/${a}-c0005-e${pad6(ele)}-u.json`; };
 async function abrirUF(uf) {
   ufAberto = uf; $('ufTit').textContent = NOME[uf]; renderUF(uf);
   if (!$('dlgUF').open) $('dlgUF').showModal();
-  if (uf !== 'ZZ' && !G1[uf]) {
-    try { const r = await baixar(urlGov(ELE1.est, uf), false); if (r && r.ok) G1[uf] = ler(await r.json()); } catch (e) {}
-    if (!G1[uf]) G1[uf] = { erro: 1 };
-    if (ufAberto === uf) renderUF(uf);
-  }
+  if (uf === 'ZZ') return;
+  await Promise.all([
+    (async () => { if (G1[uf]) return; try { const r = await baixar(urlGov(ELE1.est, uf), false); if (r && r.ok) G1[uf] = ler(await r.json()); } catch (e) {} if (!G1[uf]) G1[uf] = { erro: 1 }; if (ufAberto === uf) renderUF(uf); })(),
+    (async () => { if (S1[uf]) return; try { const r = await baixar(urlSen(ELE1.est, uf), false); if (r && r.ok) S1[uf] = ler(await r.json()); } catch (e) {} if (!S1[uf]) S1[uf] = { erro: 1 }; if (ufAberto === uf) renderUF(uf); })(),
+  ]);
 }
 function renderPlacar(P) {
   const b = D.br; const F = vf(b), L = vl(b), vv = F + L;
@@ -1061,10 +1073,13 @@ function registrarLT() {
   const b = D.br; if (!b) return; const F = vf(b), L = vl(b), v = F + L; if (!v) return;
   const ult = LT[LT.length - 1]; if (b.pst === ltUltPst && LT.length && ult && Date.now() - ult.t < 60000) return; ltUltPst = b.pst;
   const pF = F / v * 100; const ant = LT[LT.length - 1];
-  LT.push({ t: Date.now(), pst: b.pst, pF, pL: 100 - pF, vir: ant ? (ant.pF >= 50) !== (pF >= 50) : false });
-  try { localStorage.setItem('lt2t', JSON.stringify(LT.slice(-600))); } catch (e) {}
+  // a apuração real nunca anda para trás: se o histórico guardado está "à frente" do TSE, ele veio de um ensaio ou de outro dia → descarta
+  if (ant && (ant.pst > b.pst + 0.01 || Date.now() - ant.t > 12 * 3600e3)) { LT.length = 0; try { localStorage.removeItem('lt2t_real'); } catch (e) {} }
+  LT.push({ t: Date.now(), pst: b.pst, pF, pL: 100 - pF, vir: LT.length ? (LT[LT.length - 1].pF >= 50) !== (pF >= 50) : false });
+  if (!SIM) try { localStorage.setItem('lt2t_real', JSON.stringify(LT.slice(-600))); } catch (e) {}
 }
-try { const g = JSON.parse(localStorage.getItem('lt2t') || '[]'); if (Array.isArray(g) && g.length && !SIM) LT.push(...g); } catch (e) {}
+try { localStorage.removeItem('lt2t'); } catch (e) {}   // chave antiga, misturava ensaio e apuração real
+try { const g = JSON.parse(localStorage.getItem('lt2t_real') || '[]'); if (Array.isArray(g) && g.length && !SIM && Date.now() - g[g.length - 1].t < 12 * 3600e3) LT.push(...g); } catch (e) {}
 function desenharLT(svg, tv) {
   const mob = MOB() && !tv; const W = mob ? 600 : 1000, H = mob ? 420 : 300, ml = mob ? 56 : 46, mr = mob ? 80 : 70, mt = mob ? 24 : 18, mb = mob ? 40 : 34; svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.classList.toggle('mob', mob); const w = W - ml - mr, h = H - mt - mb;
   const pts = LT.filter(p => p.pst > 0); if (pts.length < 2) { svg.innerHTML = `<text x="${W / 2}" y="${H / 2}" text-anchor="middle" style="font-size:16px">A linha aparece quando a apuração começar.</text>`; return; }

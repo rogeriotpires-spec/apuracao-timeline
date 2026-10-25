@@ -409,7 +409,7 @@ body.faixa #faixa{display:flex;position:fixed;left:2vw;right:2vw;bottom:3vh;alig
     <h2>Estado por estado</h2><div class="h2s">Azul quando Flávio lidera no estado, vermelho quando Lula lidera. A cor começa bem clara e escurece conforme os votos vão sendo apurados. <b>Toque em um estado</b> para abrir a tabela com o resultado do momento e o 1º turno para presidente e governador.</div>
     <div class="fil" id="filReg"></div>
     <div class="fil"><span class="lb">Mapa</span><button id="mPres" class="on">Presidente</button><button id="mGov">Governadores</button></div>
-    <div class="mapa-wrap"><div><div id="mapa"></div><div class="ext-chip" id="extChip"></div><div class="leg" id="legPres"><span>Flávio lidera<span class="grad" style="background:linear-gradient(90deg,#8fbaf2,#0b2f6b)"></span></span><span>Lula lidera<span class="grad" style="background:linear-gradient(90deg,#f2a399,#7a100a)"></span></span><span><i style="background:#221b17;border:1px solid #3a2e27"></i>sem votos</span></div><div class="leg" id="legGov" style="display:none"><span><i style="background:var(--fl)"></i>candidato do PL lidera</span><span><i style="background:#c9a227"></i>outro candidato lidera</span><span><i style="background:#221b17;border:1px solid #3a2e27"></i>sem 2º turno para governador</span></div><div class="nota" style="margin-top:6px" id="notaMapa">O estado começa bem claro e escurece à medida que a apuração avança.</div><div class="credmapa">Mapa: <a href="https://github.com/VictorCazanave/svg-maps" target="_blank" rel="noopener">svg-maps</a>, licença CC BY 4.0.</div></div>
+    <div class="mapa-wrap"><div><div id="mapa"></div><div class="ext-chip" id="extChip"></div><div class="leg" id="legPres"><span>Flávio lidera<span class="grad" style="background:linear-gradient(90deg,#8fbaf2,#0b2f6b)"></span></span><span>Lula lidera<span class="grad" style="background:linear-gradient(90deg,#f2a399,#7a100a)"></span></span><span><i style="background:#221b17;border:1px solid #3a2e27"></i>sem votos</span></div><div class="leg" id="legGov" style="display:none"><span><i style="background:var(--fl)"></i>candidato do PL lidera</span><span><i style="background:#c9a227"></i>outro candidato lidera</span><span><i style="background:#0f0c0a;border:1px solid #2a221d"></i>sem 2º turno para governador (apagado)</span><span><i style="background:#6f655d"></i>em disputa, ainda sem votos</span></div><div class="nota" style="margin-top:6px" id="notaMapa">O estado começa bem claro e escurece à medida que a apuração avança.</div><div class="credmapa">Mapa: <a href="https://github.com/VictorCazanave/svg-maps" target="_blank" rel="noopener">svg-maps</a>, licença CC BY 4.0.</div></div>
       <div class="lista-uf" id="listaUF"></div></div>
     <h2 style="margin-top:26px">Tabela completa</h2><div class="h2s">Diferença em votos: positiva quando Flávio está à frente. Projeção: estimativa do resultado final do estado (apagada quando o estado ainda não tem votos e a estimativa vem só do histórico).</div>
     <div class="wrap"><table id="tabUF"></table></div>
@@ -770,19 +770,20 @@ function rotular(el) {
 }
 const ehPL = c => /^pl$/i.test(c.partido || '');
 function corGov(uf) {
-  const g = D.gov[uf]; if (!g || !g.cands.length) return { bg: '#221b17', fg: '#8a7f76' };
-  const [a, b] = g.cands; const v = a.votos + (b ? b.votos : 0); if (!v) return { bg: mix('#d6e6fb', '#0d3b85', 0.06), fg: '#14100e' };
+  const g = D.gov[uf]; if (!g || !g.cands.length) return { bg: '#0f0c0a', fg: '#3a322c', fora: true };
+  const [a, b] = g.cands; const v = a.votos + (b ? b.votos : 0); if (!v) return { bg: '#6f655d', fg: '#f6f2ee' };
   const t = 0.06 + 0.94 * Math.min(1, g.pst / 100); const pl = ehPL(a);
   return { bg: pl ? mix('#8fbaf2', '#0b2f6b', t) : mix('#e8cf7a', '#6b4e04', t), fg: t < 0.45 ? '#0b0a09' : '#fff' };
 }
 function pintarMapa(el) {
   montarMapa(el); rotular(el);
   if (mapaModo === 'gov' && el.id === 'mapa') {
-    el.querySelectorAll('path').forEach(p => { const uf = p.dataset.uf, c = corGov(uf), g = D.gov[uf]; p.setAttribute('fill', c.bg);
+    el.querySelectorAll('path').forEach(p => { const uf = p.dataset.uf, c = corGov(uf), g = D.gov[uf]; p.setAttribute('fill', c.bg); p.style.stroke = c.fora ? '#1c1613' : '#f6f2ee'; p.style.strokeWidth = c.fora ? '0.8' : '2';
       p.querySelector('title').textContent = g && g.cands.length ? `${NOME[uf]}: ${g.cands.slice(0, 2).map(k => tit(k.nome) + ' (' + k.partido + ')').join(' × ')} · ${fP(g.pst, 1)} apurado` : `${NOME[uf]}: sem 2º turno para governador`; });
-    el.querySelectorAll('text').forEach(t => t.setAttribute('fill', corGov(t.dataset.uf).fg));
+    el.querySelectorAll('text').forEach(t => { const c = corGov(t.dataset.uf); t.setAttribute('fill', c.fg); t.style.fontWeight = c.fora ? '600' : '800'; });
     return;
   }
+  el.querySelectorAll('path').forEach(p => { p.style.stroke = ''; p.style.strokeWidth = ''; }); el.querySelectorAll('text').forEach(t => { t.style.fontWeight = ''; });
   el.querySelectorAll('path').forEach(p => { const uf = p.dataset.uf, c = corEstado(D.uf[uf]); p.setAttribute('fill', c.bg);
     const x = D.uf[uf], F = vf(x), L = vl(x), v = F + L; p.querySelector('title').textContent = `${NOME[uf]}: ${v ? `${tit(FL.nome)} ${fP(F / v * 100)} × ${tit(LU.nome)} ${fP(L / v * 100)} · ` : ''}${x ? fP(x.pst, 1) : '0%'} apurado`; });
   el.querySelectorAll('text').forEach(t => t.setAttribute('fill', corEstado(D.uf[t.dataset.uf]).fg));

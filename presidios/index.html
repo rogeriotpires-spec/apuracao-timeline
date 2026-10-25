@@ -375,13 +375,13 @@ async function carregar() {
       if (PLEITO) break; }
   }
   if (T2 && !PLEITO) { carregando = false; document.getElementById('status').innerHTML = 'Aguardando o TSE';
-    document.getElementById('prog').innerHTML = '<b>O TSE ainda não publicou os boletins de urna do 2º turno.</b> A publicação começa depois das 17h de Brasília, quando termina a votação. A página tenta de novo a cada 5 minutos.'; render(); return; }
-  const fila = SECOES.slice(); const w = async () => { while (fila.length) await lerSecao(fila.shift()); };
+    document.getElementById('prog').innerHTML = '<b>O TSE ainda não publicou os boletins de urna do 2º turno.</b> A publicação começa depois das 17h de Brasília, quando termina a votação. A página tenta de novo a cada 2 minutos.'; render(); return; }
+  const fila = SECOES.filter(s => !(R[k(s)] && R[k(s)].st === 'ok')); const w = async () => { while (fila.length) await lerSecao(fila.shift()); };   // relê só as urnas que ainda faltam (o BU é definitivo)
   await Promise.all(Array.from({ length: 5 }, w));
   if (T2 && !Object.keys(R1).length) { const f1 = SECOES.slice(); const w1 = async () => { while (f1.length) await lerSecao(f1.shift(), '3220', R1); }; await Promise.all(Array.from({ length: 5 }, w1)); }
   carregando = false; document.getElementById('status').innerHTML = 'Atualizado às <b>' + new Date().toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' }) + '</b>'; render();
 }
-if (T2) setInterval(() => { if (!carregando) carregar(); }, 5 * 60 * 1000);
+if (T2) setInterval(() => { if (!carregando) carregar(); }, 2 * 60 * 1000);
 const sel = () => SECOES.filter(s => (fTipo === 'todos' || s[6] === fTipo) && (fReg === 'Brasil' || REGIAO[s[0]] === fReg) && (!fUF || s[0] === fUF));
 function soma(lista, store = R) {
   const t = { votos: {}, br: 0, nu: 0, aptos: 0, comp: 0, ok: 0, er: 0, apt: 0 };
@@ -395,7 +395,7 @@ function render() {
   const ufs = [...new Set(SECOES.map(s => s[0]))].filter(u => fReg === 'Brasil' || REGIAO[u] === fReg).sort();
   document.getElementById('fUF').innerHTML = `<option value="">Todos</option>` + ufs.map(u => `<option ${u === fUF ? 'selected' : ''}>${u}</option>`).join('');
   const lst = sel(), t = soma(lst);
-  if (T2 && !PLEITO && !carregando) document.getElementById('prog').innerHTML = '<b>O TSE ainda não publicou os boletins de urna do 2º turno.</b> A publicação começa depois das 17h de Brasília, quando termina a votação. A página tenta de novo a cada 5 minutos.';
+  if (T2 && !PLEITO && !carregando) document.getElementById('prog').innerHTML = '<b>O TSE ainda não publicou os boletins de urna do 2º turno.</b> A publicação começa depois das 17h de Brasília, quando termina a votação. A página tenta de novo a cada 2 minutos.';
   else document.getElementById('prog').textContent = carregando ? `Lendo boletins de urna... ${feitos} de ${SECOES.length} seções` : (t.er ? `${t.er} seção(ões) do recorte sem boletim lido; elas ficam fora da soma.` : '');
   const top = CANDS.filter(c => t.votos[c.num]).sort((a, b) => (t.votos[b.num] || 0) - (t.votos[a.num] || 0));
   const lider = top[0];

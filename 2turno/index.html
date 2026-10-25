@@ -125,7 +125,7 @@ main{max-width:1320px;margin:0 auto;padding:22px 26px 10px}
 .gcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
 .ltsvg text{font:600 12px Inter;fill:var(--mut)}.ltsvg .lf{stroke:var(--fl);stroke-width:3;fill:none}.ltsvg .ll{stroke:var(--lu);stroke-width:3;fill:none}
 .ltsvg .grid{stroke:#2c221c;stroke-width:1}.ltsvg .meio{stroke:#8a7f76;stroke-dasharray:4 4}.ltsvg .vir{stroke:var(--gold);stroke-width:2;stroke-dasharray:3 3}
-.ltsvg .fim{font:800 15px "Barlow Condensed",sans-serif}#tvLt text{font-size:18px}#tvLt .fim{font-size:24px}#tvLt .lf,#tvLt .ll{stroke-width:5}
+.ltsvg .fim{font:800 15px "Barlow Condensed",sans-serif}#tvLt text,#tvLh text{font-size:18px}#tvLt .fim,#tvLh .fim{font-size:24px}#tvLt .lf,#tvLt .ll,#tvLh .lf,#tvLh .ll{stroke-width:5}.ltsvg .lp{stroke:var(--gold);stroke-width:2;fill:none;opacity:.8}
 .mun-lista{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 14px}
 .mun-lista button{font:600 13px Inter;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--tx);padding:7px 12px;border-radius:999px;cursor:pointer}.mun-lista button:hover{border-color:var(--gold)}.mun-lista button small{color:var(--mut);margin-left:6px}
 .mun-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 22px}
@@ -244,6 +244,8 @@ tr.tot td{font-weight:700;background:#0d0a09}
 .ano .p{font:800 40px/1.1 "Barlow Condensed",sans-serif;margin-top:8px;font-variant-numeric:tabular-nums}
 .ano .v{font-size:13px;color:var(--mut)}.ano .v b{color:var(--tx)}
 .ano.hoje{border-color:rgba(57,135,229,.5);box-shadow:0 0 0 1px rgba(57,135,229,.25) inset}
+.duo2{display:flex;justify-content:space-between;gap:10px;margin-top:8px}.duo2 .n{font:700 13px Inter}.duo2 .p{font:800 38px/1.1 "Barlow Condensed",sans-serif;font-variant-numeric:tabular-nums}.duo2 .v{font-size:12px;color:var(--mut)}
+.tv-card .duo2 .n{font-size:2.2vh}.tv-card .duo2 .p{font-size:7vh}.tv-card .duo2 .v{font-size:2vh}
 .div-bars{display:flex;flex-direction:column;gap:5px}
 .dvrow{display:grid;grid-template-columns:44px 1fr 1fr 64px;gap:0;align-items:center;font-size:12px}
 .dvrow .u{font:700 14px "Barlow Condensed",sans-serif}
@@ -378,6 +380,8 @@ body.faixa #faixa{display:flex;position:fixed;left:2vw;right:2vw;bottom:3vh;alig
   <section class="bloco" id="linha">
     <h2 style="margin-top:22px">Linha do tempo da apuração</h2><div class="h2s" id="ltSub">Percentual dos votos válidos de cada candidato ao longo da noite, conforme as urnas vão sendo apuradas. As marcas verticais indicam viradas.</div>
     <div class="gcard"><svg id="ltSvg" class="ltsvg" viewBox="0 0 1000 300" width="100%" role="img" aria-label="Linha do tempo"></svg></div>
+    <h2 style="margin-top:22px">Evolução por horário</h2><div class="h2s" id="lhSub">Percentual de cada candidato e urnas apuradas, em pontos a cada <b id="lhPasso">5</b> minutos. <span class="fil" style="display:inline-flex;margin-left:6px"><button data-passo="1">1 min</button><button data-passo="2">2 min</button><button data-passo="5" class="on">5 min</button><button data-passo="10">10 min</button><button data-passo="15">15 min</button></span></div>
+    <div class="gcard"><svg id="lhSvg" class="ltsvg" viewBox="0 0 1000 300" width="100%" role="img" aria-label="Evolução por horário"></svg></div>
   </section>
 
   <nav class="abas" id="abas">
@@ -507,8 +511,12 @@ body.faixa #faixa{display:flex;position:fixed;left:2vw;right:2vw;bottom:3vh;alig
     <div class="regs" id="tvRegs" style="grid-template-columns:repeat(3,1fr);gap:2vh"></div>
   </div>
   <div class="cena" data-c="linha">
-    <div class="tv-k">A noite até agora</div>
+    <div class="tv-k">A noite até agora · por urnas apuradas</div>
     <div class="gcard" style="padding:2vh"><svg id="tvLt" class="ltsvg" viewBox="0 0 1000 300" width="100%"></svg></div>
+  </div>
+  <div class="cena" data-c="hora">
+    <div class="tv-k">Evolução por horário · a cada <span id="tvPasso">5</span> min</div>
+    <div class="gcard" style="padding:2vh"><svg id="tvLh" class="ltsvg" viewBox="0 0 1000 300" width="100%"></svg></div>
   </div>
   <div class="cena" data-c="ext">
     <div class="tv-k">Brasileiros no exterior</div>
@@ -877,11 +885,13 @@ function renderEstados(P) {
 function renderComp() {
   const b = D.br, F = vf(b), L = vl(b), H = HIST.BR;
   const anos = [
-    { y: '2018', q: 'Jair × Haddad', p: H.j18[0] / (H.j18[0] + H.j18[1]) * 100, v: H.j18[0], r: 'Jair eleito' },
-    { y: '2022', q: 'Jair × Lula', p: H.j22[0] / (H.j22[0] + H.j22[1]) * 100, v: H.j22[0], r: 'Lula eleito' },
-    { y: '2026', q: 'Flávio × Lula', p: F + L ? F / (F + L) * 100 : NaN, v: F, r: b ? fP(b.pst, 1) + ' apurado' : 'aguardando', hoje: 1 }];
-  const html = anos.map(a => `<div class="ano ${a.hoje ? 'hoje' : ''}"><div class="y">${a.y}</div><div class="q">${a.q}</div><div class="p" style="color:${a.p >= 50 ? 'var(--fl2)' : 'var(--lu2)'}">${fP(a.p, 2)}</div><div class="v"><b>${fN(a.v)}</b> votos · ${a.r}</div></div>`).join('');
-  $('tres').innerHTML = html; $('tvTres').innerHTML = anos.map(a => `<div class="tv-card"><div class="k">${a.y} · ${a.q}</div><div class="b" style="color:${a.p >= 50 ? 'var(--fl2)' : 'var(--lu2)'}">${fP(a.p, 1)}</div><div class="t"><b>${fMi(a.v)}</b> votos · ${a.r}</div></div>`).join('');
+    { y: '2018', q: 'Jair × Haddad', a: 'Jair Bolsonaro', b: 'Haddad', pa: H.j18[0] / (H.j18[0] + H.j18[1]) * 100, va: H.j18[0], vb: H.j18[1], r: 'Jair eleito' },
+    { y: '2022', q: 'Jair × Lula', a: 'Jair Bolsonaro', b: 'Lula', pa: H.j22[0] / (H.j22[0] + H.j22[1]) * 100, va: H.j22[0], vb: H.j22[1], r: 'Lula eleito' },
+    { y: '2026', q: 'Flávio × Lula', a: tit(FL.nome), b: tit(LU.nome), pa: F + L ? F / (F + L) * 100 : NaN, va: F, vb: L, r: b ? fP(b.pst, 1) + ' apurado' : 'aguardando', hoje: 1 }];
+  const card = (a, tv) => `<div class="${tv ? 'tv-card' : 'ano'} ${a.hoje ? 'hoje' : ''}"><div class="${tv ? 'k' : 'y'}">${a.y}${tv ? ' · ' + a.q : ''}</div>${tv ? '' : `<div class="q">${a.q}</div>`}
+    <div class="duo2"><div><div class="n" style="color:var(--fl2)">${esc(a.a)}</div><div class="p" style="color:var(--fl2)">${fP(a.pa, tv ? 1 : 2)}</div><div class="v">${isFinite(a.pa) ? fMi(a.va) + ' votos' : '–'}</div></div><div style="text-align:right"><div class="n" style="color:var(--lu2)">${esc(a.b)}</div><div class="p" style="color:var(--lu2)">${isFinite(a.pa) ? fP(100 - a.pa, tv ? 1 : 2) : '–'}</div><div class="v">${isFinite(a.pa) ? fMi(a.vb) + ' votos' : '–'}</div></div></div>
+    <div class="bar2" style="height:${tv ? '1.6vh' : '10px'};margin-top:8px"><i class="f" style="width:${isFinite(a.pa) ? a.pa : 0}%"></i><i class="l" style="width:${isFinite(a.pa) ? 100 - a.pa : 0}%"></i></div><div class="v" style="margin-top:6px">${a.r}</div></div>`;
+  $('tres').innerHTML = anos.map(a => card(a, false)).join(''); $('tvTres').innerHTML = anos.map(a => card(a, true)).join('');
   const ds = ['ZZ', ...UFS].map(uf => { const x = D.uf[uf], Fx = vf(x), Lx = vl(x), h = HIST[uf]; return { uf, d: Fx + Lx > 0 ? Fx / (Fx + Lx) * 100 - h.j22[0] / (h.j22[0] + h.j22[1]) * 100 : null }; }).filter(r => r.d !== null).sort((a, b) => b.d - a.d);
   const mx = Math.max(5, ...ds.map(r => Math.abs(r.d)));
   $('divBars').innerHTML = ds.length ? ds.map(r => `<div class="dvrow"><div class="u">${r.uf === 'ZZ' ? 'EXT' : r.uf}</div><div class="neg">${r.d < 0 ? `<i style="width:${-r.d / mx * 100}%"></i>` : ''}</div><div class="pos">${r.d > 0 ? `<i style="width:${r.d / mx * 100}%"></i>` : ''}</div><div class="vv" style="color:${r.d >= 0 ? 'var(--fl2)' : 'var(--lu2)'}">${fPP(r.d)}</div></div>`).join('') : '<div class="vazio">Aparece assim que houver votos apurados.</div>';
@@ -1037,7 +1047,7 @@ const LT = []; // {t, pst, pF, pL, vir}
 let ltUltPst = -1;
 function registrarLT() {
   const b = D.br; if (!b) return; const F = vf(b), L = vl(b), v = F + L; if (!v) return;
-  if (b.pst === ltUltPst && LT.length) return; ltUltPst = b.pst;
+  const ult = LT[LT.length - 1]; if (b.pst === ltUltPst && LT.length && ult && Date.now() - ult.t < 60000) return; ltUltPst = b.pst;
   const pF = F / v * 100; const ant = LT[LT.length - 1];
   LT.push({ t: Date.now(), pst: b.pst, pF, pL: 100 - pF, vir: ant ? (ant.pF >= 50) !== (pF >= 50) : false });
   try { localStorage.setItem('lt2t', JSON.stringify(LT.slice(-600))); } catch (e) {}
@@ -1201,6 +1211,27 @@ let imgCidade = null;
 $('munQ').addEventListener('input', buscarMun); $('munUF').addEventListener('change', buscarMun);
 $('munLista').addEventListener('click', e => { const b = e.target.closest('button'); if (b) abrirMun(b.dataset.uf, b.dataset.cd); });
 
+
+/* ===== Evolução por horário (passo ajustável; ?passo=N em minutos) ===== */
+let PASSO = Math.max(1, Math.min(60, Number(qs.get('passo')) || 5));
+function desenharLH(svg) {
+  const W = 1000, H = 300, ml = 46, mr = 120, mt = 18, mb = 34; const w = W - ml - mr, h = H - mt - mb;
+  const all = LT.filter(p => p.pst > 0); if (all.length < 2) { svg.innerHTML = `<text x="${W / 2}" y="${H / 2}" text-anchor="middle" style="font-size:16px">A evolução aparece quando a apuração começar.</text>`; return; }
+  // um ponto por intervalo de PASSO minutos (o último registro dentro do intervalo), mais o ponto atual
+  const ms = PASSO * 60000; const porSlot = new Map(); all.forEach(p => porSlot.set(Math.floor(p.t / ms), p)); const pts = [...porSlot.values()]; const u = all[all.length - 1]; if (pts[pts.length - 1] !== u) pts.push(u);
+  const t0 = Math.min(pts[0].t, INICIO > pts[0].t - 3600000 && INICIO <= pts[0].t ? INICIO : pts[0].t), t1 = Math.max(u.t, t0 + 30 * 60000);
+  const x = t => ml + (t - t0) / (t1 - t0) * w; const y = v => mt + (1 - (v - 20) / 60) * h; const yp = v => mt + (1 - v / 100) * h;
+  const path = k => pts.map((p, i) => (i ? 'L' : 'M') + x(p.t).toFixed(1) + ' ' + y(p[k]).toFixed(1)).join(' ');
+  const grid = [20, 35, 50, 65, 80].map(v => `<line class="grid ${v === 50 ? 'meio' : ''}" x1="${ml}" x2="${W - mr}" y1="${y(v)}" y2="${y(v)}"/><text x="${ml - 8}" y="${y(v) + 4}" text-anchor="end">${v}%</text>`).join('');
+  const nT = 6; const xs = Array.from({ length: nT + 1 }, (_, i) => t0 + (t1 - t0) * i / nT).map(t => `<text x="${x(t)}" y="${H - 10}" text-anchor="middle">${hora(new Date(t))}</text>`).join('');
+  const dots = pts.map(p => `<circle cx="${x(p.t)}" cy="${y(p.pF)}" r="3" fill="var(--fl)"/><circle cx="${x(p.t)}" cy="${y(p.pL)}" r="3" fill="var(--lu)"/>`).join('');
+  const apur = `<path class="lp" d="${pts.map((p, i) => (i ? 'L' : 'M') + x(p.t).toFixed(1) + ' ' + yp(p.pst).toFixed(1)).join(' ')}"/><text x="${W - mr + 6}" y="${yp(u.pst) + 4}" style="fill:var(--gold2)">${fP(u.pst, 0)} apurado</text>`;
+  const fim = `<circle cx="${x(u.t)}" cy="${y(u.pF)}" r="5" fill="var(--fl)"/><circle cx="${x(u.t)}" cy="${y(u.pL)}" r="5" fill="var(--lu)"/><text class="fim" x="${x(u.t) + 10}" y="${y(u.pF) - 8}" style="fill:var(--fl2)">${fP(u.pF, 1)}</text><text class="fim" x="${x(u.t) + 10}" y="${y(u.pL) + 18}" style="fill:var(--lu2)">${fP(u.pL, 1)}</text>`;
+  svg.innerHTML = grid + xs + apur + `<path class="lf" d="${path('pF')}"/><path class="ll" d="${path('pL')}"/>` + dots + fim;
+}
+function renderLH() { desenharLH($('lhSvg')); if (TV) desenharLH($('tvLh')); $('lhPasso').textContent = PASSO; if (TV) $('tvPasso').textContent = PASSO; document.querySelectorAll('[data-passo]').forEach(b => b.classList.toggle('on', Number(b.dataset.passo) === PASSO)); }
+document.addEventListener('click', e => { const b = e.target.closest('[data-passo]'); if (b) { PASSO = Number(b.dataset.passo); renderLH(); } });
+
 /* ===== Saúde da conexão (?equipe=1) ===== */
 let hgAnt = '', hgDesde = Date.now();
 function renderSaude() {
@@ -1273,15 +1304,15 @@ function renderTV(P) {
 }
 let cenaI = 0;
 function girarCenas() {
-  const ordem = ['placar', 'calc', 'mapa', 'reg', 'linha', 'hist', 'gov', 'ext', 'vir'];
-  const cenas = ordem.map(k => document.querySelector(`#tv .cena[data-c="${k}"]`)).filter(c => c && (c.dataset.c !== 'gov' || (D.govUFs && D.govUFs.length)) && (c.dataset.c !== 'vir' || D.alertas.length) && (c.dataset.c !== 'linha' || LT.length > 2));
+  const ordem = ['placar', 'calc', 'mapa', 'reg', 'linha', 'hora', 'hist', 'gov', 'ext', 'vir'];
+  const cenas = ordem.map(k => document.querySelector(`#tv .cena[data-c="${k}"]`)).filter(c => c && (c.dataset.c !== 'gov' || (D.govUFs && D.govUFs.length)) && (c.dataset.c !== 'vir' || D.alertas.length) && (c.dataset.c !== 'linha' || LT.length > 2) && (c.dataset.c !== 'hora' || LT.length > 2));
   cenas.forEach(c => c.classList.remove('on')); cenaI = (cenaI + 1) % cenas.length; cenas[cenaI].classList.add('on'); pintarMapa($('tvMapa'));
   $('tvPts').innerHTML = cenas.map((c, i) => `<i class="${i === cenaI ? 'on' : ''}"></i>`).join('');
 }
 
 function render() {
   const P = projetar();
-  renderPlacar(P); renderEstados(P); renderComp(); renderTurnos(); renderGov(); renderCompar(); checarAlertas(); renderRegioes(); renderLT();
+  renderPlacar(P); renderEstados(P); renderComp(); renderTurnos(); renderGov(); renderCompar(); checarAlertas(); renderRegioes(); renderLT(); renderLH();
   if (TV) { renderTVExtras(); if (!EXT.ativo) { EXT.ativo = true; carregarExt(); } }
   if (TV || FAIXA) renderTV(P);
   if (ufAberto && $('dlgUF').open) renderUF(ufAberto);

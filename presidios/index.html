@@ -380,7 +380,7 @@ async function carregar() {
   const fila = SECOES.filter(s => !(R[k(s)] && R[k(s)].st === 'ok')); const w = async () => { while (fila.length) await lerSecao(fila.shift()); };   // relê só as urnas que ainda faltam (o BU é definitivo)
   await Promise.all(Array.from({ length: 5 }, w));
   if (T2 && !Object.keys(R1).length) { const f1 = SECOES.slice(); const w1 = async () => { while (f1.length) await lerSecao(f1.shift(), '3220', R1); }; await Promise.all(Array.from({ length: 5 }, w1)); }
-  carregando = false; document.getElementById('status').innerHTML = 'Atualizado às <b>' + new Date().toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' }) + '</b> <button type="button" class="btn-atu" onclick="if(!carregando)carregar()">↻ Atualizar</button>'; render();
+  carregando = false; document.getElementById('status').innerHTML = 'Atualizado às <b>' + new Date().toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' }) + '</b>'; render();
 }
 if (T2 && new URLSearchParams(location.search).get('auto')) setInterval(() => { if (!carregando) carregar(); }, 2 * 60 * 1000);
 const sel = () => SECOES.filter(s => (fTipo === 'todos' || s[6] === fTipo) && (fReg === 'Brasil' || REGIAO[s[0]] === fReg) && (!fUF || s[0] === fUF));

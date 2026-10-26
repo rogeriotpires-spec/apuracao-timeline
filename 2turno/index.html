@@ -1433,10 +1433,9 @@ async function ciclo() {
   render();
   const antes = Date.now() < INICIO && !SIM;
   $('avisos').innerHTML = SIM ? `<div class="aviso"><b>Modo ensaio (simulação).</b> Os números são fictícios, gerados para testar o painel. Nada aqui é resultado real.</div>`
-    : !b ? `<div class="aviso">${antes ? `<b>A apuração começa às 17h de Brasília do dia 25.</b> O painel passa a mostrar os números assim que o TSE publicar o primeiro boletim.<div class="cd" id="cdBox"></div>` : `<b>O TSE ainda não publicou os resultados do 2º turno</b> nos endereços esperados. ${AUTO ? `O painel tenta de novo a cada ${intervalo() >= 60 ? intervalo() / 60 + ' minutos' : intervalo() + ' segundos'}.` : 'Use o botão Atualizar agora para tentar de novo.'}`}</div>` : '';
+    : !b ? `<div class="aviso">${antes ? `<b>A apuração começa às 17h de Brasília do dia 25.</b> O painel passa a mostrar os números assim que o TSE publicar o primeiro boletim.<div class="cd" id="cdBox"></div>` : `<b>O TSE ainda não publicou os resultados do 2º turno</b> nos endereços esperados. ${AUTO ? `O painel tenta de novo a cada ${intervalo() >= 60 ? intervalo() / 60 + ' minutos' : intervalo() + ' segundos'}.` : 'Use o botão Atualizar agora, no alto da página, para tentar de novo.'}`}</div>` : '';
   if (antes && !b) contagem();
-  $('status').innerHTML = (b ? `Arquivo do TSE de <b>${b.dg} ${b.hg}</b>${b.final ? ' · <b>totalização final</b>' : ''} · ` : '') + (D.ultima ? `atualizado às <b>${hora(D.ultima)}</b>` : '') + (AUTO ? ` · próxima em <b id="prox">--</b>` : '') + ` <button type="button" class="btn-atu" id="btnAtu">↻ Atualizar agora</button>`;
-  $('btnAtu').addEventListener('click', () => { proxima = 0; ciclo(); });
+  $('status').innerHTML = (b ? `Arquivo do TSE de <b>${b.dg} ${b.hg}</b>${b.final ? ' · <b>totalização final</b>' : ''} · ` : '') + (D.ultima ? `atualizado às <b>${hora(D.ultima)}</b>` : '') + (AUTO ? ` · próxima em <b id="prox">--</b>` : '');
   proxima = AUTO ? Date.now() + intervalo() * 1000 : 0;
 }
 let proxima = 0;

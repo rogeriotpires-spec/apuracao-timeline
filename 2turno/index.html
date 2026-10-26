@@ -118,6 +118,7 @@ main{max-width:1320px;margin:0 auto;padding:22px 26px 10px}
 .imprensa{margin-top:14px;padding:12px 14px;border:1px dashed rgba(246,242,238,.22);border-radius:12px;font-size:13px;line-height:1.5;color:var(--mut)}
 .imprensa b{color:var(--tx)}.imprensa .k{display:block;font:800 11px "Barlow Condensed",sans-serif;letter-spacing:2px;text-transform:uppercase;color:var(--ouro,#e0a94a);margin-bottom:4px}
 .imprensa .bar2{margin:8px 0 4px}.imprensa .pp{display:flex;justify-content:space-between;font-weight:700}.imprensa .pp .f{color:var(--fl2)}.imprensa .pp .l{color:var(--lu2)}
+.btn-atu{margin-left:10px;border:1px solid rgba(224,122,44,.6);background:rgba(224,122,44,.12);color:var(--tx);font:700 12px Inter,sans-serif;padding:6px 12px;border-radius:999px;cursor:pointer;vertical-align:middle}.btn-atu:hover{background:rgba(224,122,44,.28)}
 .nota{font-size:11px;color:var(--mut);margin-top:10px;line-height:1.5}
 .regs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
 .reg{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;cursor:pointer;transition:border-color .15s}
@@ -586,7 +587,8 @@ const ELE1 = { fed: '6257', est: '6259' };                       // 1º turno 20
 const ELE2 = { fed: qs.get('fed') || '', est: qs.get('est') || '', fonte: '' }; // 2º turno: detectado no TSE
 const NUM_F = '22', NUM_L = '13';
 const INICIO = Date.parse('2026-10-25T20:00:00Z');               // 17h de Brasília
-const intervalo = () => Number(qs.get('seg')) || (Date.now() >= INICIO ? 60 : 120);       // segundos entre atualizações: 60 s (apuração encerrada; ?seg=N ajusta)
+const AUTO = Number(qs.get('seg')) || (qs.get('auto') ? 60 : 0) || (SIM ? 6 : 0);  // 0 = só pelo botão; ?seg=N ou ?auto=1 religam a atualização automática
+const intervalo = () => AUTO;
 const EQUIPE = qs.get('equipe') === '1';
 const UFS = ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'];
 const REGIAO = {AC:'Norte',AM:'Norte',AP:'Norte',PA:'Norte',RO:'Norte',RR:'Norte',TO:'Norte',AL:'Nordeste',BA:'Nordeste',CE:'Nordeste',MA:'Nordeste',PB:'Nordeste',PE:'Nordeste',PI:'Nordeste',RN:'Nordeste',SE:'Nordeste',DF:'Centro-Oeste',GO:'Centro-Oeste',MS:'Centro-Oeste',MT:'Centro-Oeste',ES:'Sudeste',MG:'Sudeste',RJ:'Sudeste',SP:'Sudeste',PR:'Sul',RS:'Sul',SC:'Sul',ZZ:'Exterior'};
@@ -1018,7 +1020,7 @@ function paisDaCidade(nm) {
 const EXT = { cidades: null, t1: {}, t2: {}, ok1: false, parcial: null, carregando: false, ativo: false };
 const urlCid = (ele, cd) => `${BASE}/${ele}/dados/zz/zz${cd}-c0001-e${pad6(ele)}-u.json`;
 async function carregarParcial() { if (SIM) return; try { const r = await fetch('../parcial-exterior-2t.json?t=' + Date.now(), { cache: 'no-store' }); if (r.ok) { EXT.parcial = await r.json(); renderRegioes(); try { render(); } catch (e) {} } } catch (e) {} }
-setTimeout(carregarParcial, 1500); setInterval(carregarParcial, 5 * 60000);
+setTimeout(carregarParcial, 1500); if (AUTO) setInterval(carregarParcial, 5 * 60000);
 async function carregarExt() {
   if (EXT.carregando) return; EXT.carregando = true;
   try {
@@ -1344,7 +1346,7 @@ function renderSaude() {
     (EXT.cidades ? ck(Object.keys(EXT.t2).length ? '' : 'av', `Exterior por cidade: ${Object.keys(EXT.t2).length}/${EXT.cidades.length}`) : '') +
     ck(b ? (parado ? 'av' : '') : 'er', b ? `Arquivo do TSE: ${b.dg} ${b.hg}` + (parado ? ` · parado há ${Math.round((Date.now() - hgDesde) / 60000)} min` : '') : 'sem arquivo do TSE') +
     ck(ELE2.fonte.startsWith('detectados') || ELE2.fonte.startsWith('informados') ? '' : 'av', `Códigos ${ELE2.fed} / ${ELE2.est} · ${ELE2.fonte.split(' (')[0]}`) +
-    ck('', `Leitura: ${S.quando ? hora(S.quando) : '--'} · a cada ${intervalo()} s`) +
+    ck('', `Leitura: ${S.quando ? hora(S.quando) : '--'} · ${AUTO ? 'a cada ' + intervalo() + ' s' : 'manual, pelo botão Atualizar'}`) +
     `<button class="btn" id="btnSom" style="padding:4px 12px;margin-left:4px">${somOn ? '🔔 Som ligado' : '🔕 Ativar som dos alertas'}</button>`;
 }
 /* ===== Alertas da equipe: aviso na tela + toque ===== */
@@ -1412,7 +1414,7 @@ function render() {
   if (TV) { renderTVExtras(); if (!EXT.ativo) { EXT.ativo = true; carregarExt(); } }
   if (TV || FAIXA) renderTV(P);
   if (ufAberto && $('dlgUF').open) renderUF(ufAberto);
-  if (EXT.ativo) { renderExt(); if (!EXT.carregando && !SIM && Date.now() - (EXT.ult || 0) > (Date.now() >= INICIO ? 2 : 5) * 60000) carregarExt(); }
+  if (EXT.ativo) { renderExt(); if (!EXT.carregando && !SIM && (!EXT.ult || AUTO) && Date.now() - (EXT.ult || 0) > (Date.now() >= INICIO ? 2 : 5) * 60000) carregarExt(); }
   if (MUN.sel && aba === 'mun' && !SIM) abrirMun(MUN.sel[0], MUN.sel[1]); else if (MUN.sel && SIM) abrirMun(MUN.sel[0], MUN.sel[1]);
   if (CD.ativo) { renderCap(); if (!CD.carregando && Date.now() - CD.ult > (SIM ? 5000 : 60000)) carregarCap(); }
   renderSaude();
@@ -1431,10 +1433,11 @@ async function ciclo() {
   render();
   const antes = Date.now() < INICIO && !SIM;
   $('avisos').innerHTML = SIM ? `<div class="aviso"><b>Modo ensaio (simulação).</b> Os números são fictícios, gerados para testar o painel. Nada aqui é resultado real.</div>`
-    : !b ? `<div class="aviso">${antes ? `<b>A apuração começa às 17h de Brasília do dia 25.</b> O painel passa a mostrar os números assim que o TSE publicar o primeiro boletim.<div class="cd" id="cdBox"></div>` : `<b>O TSE ainda não publicou os resultados do 2º turno</b> nos endereços esperados. O painel tenta de novo a cada ${intervalo() >= 60 ? intervalo() / 60 + ' minutos' : intervalo() + ' segundos'}.`}</div>` : '';
+    : !b ? `<div class="aviso">${antes ? `<b>A apuração começa às 17h de Brasília do dia 25.</b> O painel passa a mostrar os números assim que o TSE publicar o primeiro boletim.<div class="cd" id="cdBox"></div>` : `<b>O TSE ainda não publicou os resultados do 2º turno</b> nos endereços esperados. ${AUTO ? `O painel tenta de novo a cada ${intervalo() >= 60 ? intervalo() / 60 + ' minutos' : intervalo() + ' segundos'}.` : 'Use o botão Atualizar agora para tentar de novo.'}`}</div>` : '';
   if (antes && !b) contagem();
-  $('status').innerHTML = (b ? `Arquivo do TSE de <b>${b.dg} ${b.hg}</b>${b.final ? ' · <b>totalização final</b>' : ''} · ` : '') + (D.ultima ? `atualizado às <b>${hora(D.ultima)}</b> · ` : '') + `próxima em <b id="prox">--</b>`;
-  proxima = Date.now() + intervalo() * 1000;
+  $('status').innerHTML = (b ? `Arquivo do TSE de <b>${b.dg} ${b.hg}</b>${b.final ? ' · <b>totalização final</b>' : ''} · ` : '') + (D.ultima ? `atualizado às <b>${hora(D.ultima)}</b>` : '') + (AUTO ? ` · próxima em <b id="prox">--</b>` : '') + ` <button type="button" class="btn-atu" id="btnAtu">↻ Atualizar agora</button>`;
+  $('btnAtu').addEventListener('click', () => { proxima = 0; ciclo(); });
+  proxima = AUTO ? Date.now() + intervalo() * 1000 : 0;
 }
 let proxima = 0;
 function contagem() { const el = $('cdBox'); if (!el) return; let s = Math.max(0, Math.floor((INICIO - Date.now()) / 1000)); const d = Math.floor(s / 86400); s %= 86400; const h = Math.floor(s / 3600); s %= 3600; const m = Math.floor(s / 60);

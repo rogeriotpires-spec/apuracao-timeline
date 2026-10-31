@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,500&display=swap">
 <style>
 /* Identidade visual Timeline (mesma do Observatório Eleitoral): preto profundo, cobre, âmbar e vermelho */
 :root{
@@ -148,9 +148,12 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .p-evento .date small{font-size:13px;color:var(--soft-ink);letter-spacing:.06em}
 .p-evento .live{font-family:var(--f-cond);font-size:30px;font-weight:800;letter-spacing:.04em;color:#fff;display:flex;align-items:center;gap:10px}
 .p-evento .live i{width:12px;height:12px;border-radius:50%;background:#e5321c;box-shadow:0 0 12px #e5321c}
-.p-assine{display:flex;align-items:center;justify-content:center;gap:14px;background:var(--grad-red)}
+.p-assine{display:flex;align-items:center;justify-content:center;gap:16px;background:radial-gradient(circle at 78% 30%,rgba(224,122,44,.38),transparent 55%),radial-gradient(circle at 15% 90%,rgba(197,59,38,.25),transparent 50%),#0d0907}
+.p-assine::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--grad)}
 .p-assine img{width:72px;height:72px;border-radius:10px;box-shadow:0 10px 24px rgba(0,0,0,.4)}
-.p-assine span{font-family:var(--f-display);font-size:34px;color:#fff;letter-spacing:.01em}
+.p-assine .lema{display:grid;line-height:1}
+.p-assine .lema i{font-family:var(--f-display);font-style:italic;font-weight:500;font-size:19px;color:var(--cream);transform:rotate(-6deg);transform-origin:left bottom;margin:0 0 4px 2px;justify-self:start}
+.p-assine .lema b{font-family:var(--f-display);font-weight:700;font-size:36px;color:#fff;letter-spacing:-.01em}
 .p-fiscalize{background:radial-gradient(circle at 60% 50%,#26170e,#0f0c0a 70%)}
 .p-fiscalize>img{object-fit:contain;padding:6px 0;-webkit-mask-image:radial-gradient(ellipse 48% 60% at 50% 50%,#000 70%,transparent);mask-image:radial-gradient(ellipse 48% 60% at 50% 50%,#000 70%,transparent)}
 .p-loja{display:grid;place-items:center;background:radial-gradient(circle at 70% 70%,#2c1b12,#100c0a 70%)}
@@ -216,7 +219,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
         </div>
       </article>
       <article class="feat" id="v-assine">
-        <a class="pic p-assine" href="https://lp.revistatimeline.com/" tabindex="-1" aria-hidden="true"><img src="img/t.png" alt="" width="72" height="72"><span>Membros</span></a>
+        <a class="pic p-assine" href="https://lp.revistatimeline.com/" tabindex="-1" aria-hidden="true"><img src="img/t.png" alt="" width="72" height="72"><span class="lema"><i>torne-se</i><b>Assinante</b></span></a>
         <div class="txt">
           <span class="eyebrow">Assine a Timeline</span>
           <h3>Faça parte da Timeline</h3>

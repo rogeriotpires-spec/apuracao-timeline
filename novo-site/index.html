@@ -95,7 +95,7 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:
 @media(max-width:600px){.grid{grid-template-columns:1fr}}
 
 /* Blocos institucionais */
-.blocks{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:16px}
+.blocks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 .block{border-radius:16px;padding:28px 26px;display:grid;gap:12px;align-content:start;border:1px solid var(--line);background:linear-gradient(145deg,#211d1b,#121110);box-shadow:var(--shadow);min-width:0}
 .block.red{background:var(--grad-red);border-color:#a3211e}
 .block.red .eyebrow{color:#ffe1cf}
@@ -107,7 +107,7 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:
 .live{display:flex;align-items:center;gap:9px;font-family:var(--f-cond);font-size:22px;font-weight:700}
 .live i{width:10px;height:10px;border-radius:50%;background:#e5321c;box-shadow:0 0 10px #e5321c}
 .stat{font-family:var(--f-cond);font-size:56px;font-weight:800;line-height:.9;letter-spacing:-.02em}
-@media(max-width:900px){.blocks{grid-template-columns:1fr}}
+@media(max-width:700px){.blocks{grid-template-columns:1fr}}
 
 /* Assinatura */
 .join{margin-top:64px;border-top:1px solid rgba(224,122,44,.42);border-bottom:1px solid var(--line);background:radial-gradient(700px 320px at 20% 0%,rgba(197,59,38,.22),transparent 70%),#050403}
@@ -138,6 +138,8 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:
     <a href="./" aria-current="page">Início</a>
     <a href="https://www.revistatimeline.com/podcast">Podcasts</a>
     <a href="https://lp.revistatimeline.com/">Assine</a>
+    <a href="https://editora.revistatimeline.com/">Editora</a>
+    <a href="https://eventos.revistatimeline.com/">Eventos</a>
     <a href="https://loja.revistatimeline.com/">Loja Timeline</a>
     <a href="https://observatorio.revistatimeline.com/">Observatório Eleitoral</a>
     <a href="https://www.youtube.com/@conversatimeline" target="_blank" rel="noopener">YouTube</a>
@@ -163,10 +165,10 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:
     <section class="section" aria-label="Timeline em outros formatos">
       <div class="blocks">
         <div class="block red">
-          <span class="eyebrow">Black Friday · 27 de novembro</span>
-          <h3>Almanaque Político Timeline 2026</h3>
-          <p>A retrospectiva ilustrada do ano eleitoral, feita a partir dos artigos da revista e dos programas gravados. Edição digital e impressa.</p>
-          <a class="btn" href="https://loja.revistatimeline.com/">Ir à Loja Timeline</a>
+          <span class="eyebrow">Editora Timeline · Já à venda</span>
+          <h3>Almanaque Timeline 2026: o ano do Brasil</h3>
+          <p>De novembro de 2025 a outubro de 2026, os artigos da revista e os programas do Conversa Timeline em ordem cronológica. Leitura digital na hora, em qualquer aparelho.</p>
+          <a class="btn" href="https://editora.revistatimeline.com/livro.html?l=almanaque-timeline&amp;src=site">Ver na Editora</a>
         </div>
         <div class="block">
           <span class="eyebrow">Ao vivo</span>
@@ -174,6 +176,12 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:
           <div class="live"><i aria-hidden="true"></i>Segunda a sexta, 12h</div>
           <p>O programa diário com os temas que pautam o dia.</p>
           <a class="btn" href="https://www.youtube.com/@conversatimeline" target="_blank" rel="noopener">Assistir no YouTube</a>
+        </div>
+        <div class="block">
+          <span class="eyebrow">Encontros</span>
+          <h3>Eventos Timeline</h3>
+          <p>Encontros presenciais e transmissões on-line com a equipe da revista. Inscrições e ingressos pelo site de eventos.</p>
+          <a class="btn" href="https://eventos.revistatimeline.com/">Ver os próximos eventos</a>
         </div>
         <div class="block">
           <span class="eyebrow">Estudo Timeline</span>
@@ -207,6 +215,8 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:
     <span>© 2026 Revista Timeline</span>
     <nav aria-label="Rodapé">
       <a href="https://www.revistatimeline.com/archive">Arquivo</a>
+      <a href="https://editora.revistatimeline.com/">Editora</a>
+      <a href="https://eventos.revistatimeline.com/">Eventos</a>
       <a href="https://observatorio.revistatimeline.com/">Observatório Eleitoral</a>
       <a href="https://www.revistatimeline.com/about">Sobre</a>
       <a href="https://www.revistatimeline.com/tos">Termos</a>
@@ -271,7 +281,11 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:
   let seed = {};
   try{ seed = JSON.parse(document.getElementById("seed").textContent); }catch(e){}
   render(seed);
-  fetch("data/posts.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(d=>{ if(d && d.posts && d.posts.length) render(d); }).catch(()=>{});
+  // Publicado pelo Worker da Cloudflare, /api/posts traz os artigos do Substack ao vivo; no GitHub Pages vale a cópia em data/posts.json
+  const ok = d => d && d.posts && d.posts.length;
+  fetch("api/posts",{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null)
+    .then(d=> ok(d) ? d : fetch("data/posts.json",{cache:"no-store"}).then(r=>r.ok?r.json():null))
+    .then(d=>{ if(ok(d)) render(d); }).catch(()=>{});
 })();
 </script>
 </body>

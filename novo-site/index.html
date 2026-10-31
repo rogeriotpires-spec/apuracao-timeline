@@ -78,6 +78,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 
 /* Seções */
 .section{padding-top:64px}
+#artigos{padding-top:20px}
 .section-head{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:24px}
 .section-num{display:inline-flex;background:var(--red);color:#fff;padding:5px 8px;border-radius:4px;font-family:var(--f-cond);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
 .section-head h2{font-size:clamp(29px,4vw,46px);line-height:1.05;margin-top:10px}
@@ -127,7 +128,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .more{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:26px 0 0}
 
 /* Vitrine: faixa compacta com o Almanaque e o próximo evento, logo abaixo do destaque */
-.vitrine{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding-top:8px}
+.vitrine{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding-top:24px}
 .feat{position:relative;overflow:hidden;border-radius:12px;padding:16px 18px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;min-width:0;background:var(--card-2);border:1px solid var(--line);transition:border-color .2s}
 .feat:hover{border-color:var(--orange)}
 .feat .txt{display:grid;gap:4px;min-width:0}
@@ -190,8 +191,6 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 
 <main>
   <div class="wrap">
-    <section class="hero" id="hero" aria-label="Destaque"></section>
-
     <section class="vitrine" aria-label="Editora e Eventos Timeline">
       <article class="feat" id="v-livro">
         <a class="cover" href="https://editora.revistatimeline.com/livro.html?l=almanaque-timeline&amp;src=site" tabindex="-1" aria-hidden="true"><div class="fake">Almanaque Timeline 2026</div></a>
@@ -212,6 +211,9 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
         </div>
       </article>
     </section>
+
+    <section class="hero" id="hero" aria-label="Destaque"></section>
+
 
     <section class="section" id="artigos">
       <div class="section-head">

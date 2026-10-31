@@ -53,8 +53,12 @@
     '.tlm-assine{position:relative;padding:12px 14px;background:linear-gradient(90deg,#b5361f,#e07a2c 55%,#f4a65a);color:#140a04!important;box-shadow:0 4px 18px rgba(214,96,30,.26)}' +
     '.tlm-assine:hover{filter:brightness(1.07)}' +
     '.tlm-assine::after{content:"";position:absolute;inset:0;border-radius:7px;pointer-events:none;animation:tlm-anel 3.6s ease-out infinite}' +
-    '.tlm-hand{position:absolute;right:-12px;bottom:-17px;width:26px;height:26px;fill:#fff;stroke:#140a04;stroke-width:1.4;stroke-linejoin:round;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));transform-origin:30% 10%;animation:tlm-toque 3.6s ease-in-out infinite;transition:opacity .2s}' +
-    '.tlm-assine:hover .tlm-hand{opacity:0}' +
+    '.tlm-hand{position:absolute;right:-17px;bottom:-24px;width:36px;height:36px;fill:#fff;stroke:#140a04;stroke-width:1.4;stroke-linejoin:round;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));transform-origin:30% 10%;animation:tlm-toque 3.6s ease-in-out infinite;transition:opacity .2s}' +
+    '.tlm-assine:hover .tlm-hand,.tlm-links a.tlm-m-assine:hover .tlm-hand{opacity:0}' +
+    '.tlm-links a.tlm-m-assine{overflow:visible;animation:tlm-pisca 3.6s ease-in-out infinite}' +
+    '.tlm-links a.tlm-m-assine .tlm-hand{right:-27px;bottom:4px;width:30px;height:30px;animation-delay:1.8s}' +
+    '.tlm-links a.tlm-m-assine{animation-delay:1.8s}' +
+    '@keyframes tlm-pisca{0%,70%,100%{color:var(--tlm-soft)}74%,86%{color:var(--tlm-cream)}}' +
     '@keyframes tlm-toque{0%,55%{transform:translate(7px,7px)}68%{transform:translate(0,0)}73%{transform:translate(0,0) scale(.86)}79%{transform:translate(0,0) scale(1)}100%{transform:translate(7px,7px)}}' +
     '@keyframes tlm-anel{0%,72%{box-shadow:0 0 0 0 rgba(244,166,90,.75)}100%{box-shadow:0 0 0 12px rgba(244,166,90,0)}}' +
     '.tlm-links{display:flex;align-items:center;justify-content:safe center;gap:clamp(14px,1.3vw,22px);max-width:1600px;margin:0 auto;padding:0 18px;min-height:56px;white-space:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}' +
@@ -67,12 +71,14 @@
     '.tlm-novo{align-self:flex-start;margin:-3px 0 0 -3px;font:700 10px/1 Inter,system-ui,sans-serif;letter-spacing:.02em;text-transform:lowercase;color:var(--tlm-orange)}' +
     '@media(max-width:1400px){.tlm-links{gap:15px}.tlm-links a{font-size:14px}}' +
     '@media(max-width:1000px){.tlm-mast{min-height:75px}.tlm-brand{font-size:44px}.tlm-links{justify-content:flex-start}}' +
-    '@media(max-width:600px){.tlm-mast{min-height:62px;padding:10px}.tlm-brand{font-size:34px}.tlm-tools{right:10px;gap:8px}.tlm-lupa{width:34px;height:34px}.tlm-assine{padding:10px 11px;font-size:12px}.tlm-links{gap:22px;min-height:50px}.tlm-links a{font-size:15px;padding:15px 0 13px}}' +
-    '@media(prefers-reduced-motion:reduce){.tlm-assine::after,.tlm-hand{animation:none}.tlm-links a,.tlm-links a::after{transition:none}}';
+    '@media(max-width:600px){.tlm-mast{min-height:62px;padding:10px}.tlm-brand{font-size:34px}.tlm-tools{right:10px;gap:8px}.tlm-lupa{width:34px;height:34px}.tlm-assine{padding:10px 11px;font-size:12px}.tlm-assine .tlm-hand{right:-4px;width:32px;height:32px}.tlm-links{gap:22px;min-height:50px}.tlm-links a{font-size:15px;padding:15px 0 13px}}' +
+    '@media(prefers-reduced-motion:reduce){.tlm-assine::after,.tlm-hand,.tlm-links a.tlm-m-assine{animation:none}.tlm-links a,.tlm-links a::after{transition:none}}';
 
+  var MAO = '<svg class="tlm-hand" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V4.5a1.5 1.5 0 0 1 3 0V10V9a1.5 1.5 0 0 1 3 0v1.5a1.5 1.5 0 0 1 3 0V12a1.5 1.5 0 0 1 3 0v4.5c0 3.6-2.6 6.5-6.5 6.5h-1.6c-2 0-3.4-.8-4.6-2.3L4.6 16.2a1.6 1.6 0 0 1 2.4-2.1L9 16z"/></svg>';
   var links = ITENS.map(function (i) {
-    return '<a href="' + esc(i.u) + '"' + (atual(i) ? ' aria-current="page"' : '') + (i.title ? ' title="' + esc(i.title) + '"' : '') +
-      (i.ext || (i.aba && !atual(i)) ? ' target="_blank" rel="noopener"' : '') + '>' + esc(i.t) + (i.novo ? '<span class="tlm-novo">novo</span>' : '') + '</a>';
+    var mao = i.t === 'Assine' && !atual(i);
+    return '<a href="' + esc(i.u) + '"' + (mao ? ' class="tlm-m-assine"' : '') + (atual(i) ? ' aria-current="page"' : '') + (i.title ? ' title="' + esc(i.title) + '"' : '') +
+      (i.ext || (i.aba && !atual(i)) ? ' target="_blank" rel="noopener"' : '') + '>' + esc(i.t) + (i.novo ? '<span class="tlm-novo">novo</span>' : '') + (mao ? MAO : '') + '</a>';
   }).join('');
 
   var html = '<header class="tlm" id="tlm">' +

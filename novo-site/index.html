@@ -108,6 +108,11 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:
 .live i{width:10px;height:10px;border-radius:50%;background:#e5321c;box-shadow:0 0 10px #e5321c}
 .stat{font-family:var(--f-cond);font-size:56px;font-weight:800;line-height:.9;letter-spacing:-.02em}
 @media(max-width:700px){.blocks{grid-template-columns:1fr}}
+.search{display:flex;gap:8px;flex:1 1 320px;max-width:460px}
+.search input{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:7px;color:var(--ink);font:15px var(--f-body);padding:10px 12px}
+.search input:focus{outline:none;border-color:var(--orange)}
+.search-info{color:var(--muted);margin:-6px 0 16px}
+.more{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:26px 0 0}
 
 /* Assinatura */
 .join{margin-top:64px;border-top:1px solid rgba(224,122,44,.42);border-bottom:1px solid var(--line);background:radial-gradient(700px 320px at 20% 0%,rgba(197,59,38,.22),transparent 70%),#050403}
@@ -157,9 +162,12 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:
     <section class="section" id="artigos">
       <div class="section-head">
         <div><span class="section-num">Últimos artigos</span><h2>Reportagem e opinião</h2></div>
-        <a href="https://www.revistatimeline.com/archive">Ver o arquivo completo ↗</a>
+        <form class="search" id="busca" role="search"><input type="search" name="q" placeholder="Buscar artigos: Moraes, pesquisa, Senado..." aria-label="Buscar artigos"><button class="btn" type="submit">Buscar</button></form>
       </div>
+      <p class="search-info" id="busca-info" hidden></p>
       <div class="grid" id="grid"></div>
+      <p class="more"><button class="btn" type="button" id="mais" hidden>Carregar mais artigos</button>
+        <a class="btn" id="arquivo" href="https://www.revistatimeline.com/archive">Ver o arquivo completo ↗</a></p>
     </section>
 
     <section class="section" aria-label="Timeline em outros formatos">
@@ -283,9 +291,22 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:
   render(seed);
   // Publicado pelo Worker da Cloudflare, /api/posts traz os artigos do Substack ao vivo; no GitHub Pages vale a cópia em data/posts.json
   const ok = d => d && d.posts && d.posts.length;
-  fetch("api/posts",{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null)
-    .then(d=> ok(d) ? d : fetch("data/posts.json",{cache:"no-store"}).then(r=>r.ok?r.json():null))
-    .then(d=>{ if(ok(d)) render(d); }).catch(()=>{});
+  const grid = document.getElementById("grid"), mais = document.getElementById("mais"), info = document.getElementById("busca-info");
+  let live = false, offset = 0, termo = "";
+  const api = (o, s) => fetch("api/posts?offset="+o+(s?"&search="+encodeURIComponent(s):""),{cache:"no-store"}).then(r=>r.ok?r.json():null);
+  api(0,"").catch(()=>null)
+    .then(d=>{ if(ok(d)){ live = true; offset = d.posts.length; mais.hidden = !d.more; return d; }
+      return fetch("data/posts.json",{cache:"no-store"}).then(r=>r.ok?r.json():null); })
+    .then(d=>{ if(ok(d)) render(d); if(!live) document.getElementById("busca").hidden = true; }).catch(()=>{});
+  mais.onclick = () => { mais.disabled = true;
+    api(offset, termo).then(d=>{ mais.disabled = false; if(!ok(d)){ mais.hidden = true; return; }
+      offset += d.posts.length; grid.insertAdjacentHTML("beforeend", d.posts.map(card).join("")); mais.hidden = !d.more; }).catch(()=>{ mais.disabled = false; }); };
+  document.getElementById("busca").onsubmit = (e) => { e.preventDefault();
+    termo = e.target.q.value.trim(); offset = 0; grid.innerHTML = '<p class="search-info">Buscando...</p>';
+    api(0, termo).then(d=>{ const n = ok(d) ? d.posts.length : 0;
+      info.hidden = !termo; info.textContent = termo ? (n ? 'Resultados para "'+termo+'"' : 'Nenhum artigo encontrado para "'+termo+'".') : "";
+      grid.innerHTML = n ? d.posts.map(card).join("") : ""; offset = n; mais.hidden = !(d && d.more);
+      document.getElementById("artigos").scrollIntoView({behavior:"smooth"}); }).catch(()=>{ grid.innerHTML = ""; }); };
 })();
 </script>
 </body>

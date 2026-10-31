@@ -127,43 +127,60 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .search-info .clear:hover{background:var(--cream);color:#140a04}
 .more{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:26px 0 0}
 
-/* Vitrine: faixa compacta com o Almanaque e o próximo evento, logo abaixo do destaque */
+/* Vitrine: faixa de cartões com imagem própria para cada produto, rolada pela pessoa (sem giro automático) */
 .vitrine{position:relative;padding-top:24px}
-/* Faixa rolável: 3 cartões visíveis no computador, 2 no tablet, 1 e um pedaço do próximo no celular; sem rolagem automática */
-.rail{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 28px)/3);gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;overscroll-behavior-x:contain}
+.rail{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 32px)/3);gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;overscroll-behavior-x:contain;padding:4px 0}
 .rail::-webkit-scrollbar{display:none}
-.rail:focus-visible{outline:2px solid var(--cream);outline-offset:4px;border-radius:12px}
-.rail>.feat{scroll-snap-align:start}
-.nav-btn{position:absolute;top:calc(50% + 12px);z-index:2;width:38px;height:38px;margin-top:-19px;display:grid;place-items:center;border-radius:50%;background:#0b0908;border:1px solid #4a3a30;color:var(--ink);cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.5);transition:border-color .18s,color .18s,opacity .18s}
-.nav-btn:hover{border-color:var(--orange);color:var(--cream)}
-.nav-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.nav-btn.prev{left:-19px}.nav-btn.next{right:-19px}
-.nav-btn[hidden]{display:none}
-@media(hover:none){.nav-btn{display:none}}
-.feat{position:relative;overflow:hidden;border-radius:12px;padding:16px 18px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;min-width:0;background:var(--card-2);border:1px solid var(--line);transition:border-color .2s}
-.feat:hover{border-color:var(--orange)}
-.feat .txt{display:grid;gap:4px;min-width:0}
+.rail:focus-visible{outline:2px solid var(--cream);outline-offset:4px;border-radius:14px}
+.feat{scroll-snap-align:start;display:flex;flex-direction:column;min-width:0;border-radius:14px;overflow:hidden;background:var(--card-2);border:1px solid var(--line);transition:border-color .2s,transform .2s}
+.feat:hover{border-color:var(--orange);transform:translateY(-3px)}
+.pic{position:relative;display:block;height:136px;overflow:hidden;background:#1a120d}
+.pic>img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s ease}
+.feat:hover .pic>img{transform:scale(1.04)}
+.chip{position:absolute;left:12px;top:12px;z-index:1;font:700 11px/1 var(--f-cond);letter-spacing:.08em;text-transform:uppercase;color:#fff;background:rgba(6,5,4,.72);padding:5px 7px;border-radius:4px}
+.feat .txt{flex:1;display:flex;flex-direction:column;gap:5px;padding:14px 18px 18px;min-width:0}
 .feat .eyebrow{font-size:11px}
-.feat h3{font-size:19px;line-height:1.15}
-.feat .info{margin:0;font-size:13px;color:var(--soft-ink)}
+.feat h3{font-size:19px;line-height:1.18}
+.feat .info{margin:0;font-size:13px;line-height:1.45;color:var(--soft-ink)}
 .feat .info b{color:var(--cream);font-weight:700}
-.feat .acts{display:flex;gap:6px 14px;flex-wrap:wrap;align-items:center;margin-top:6px}
-.feat .acts .btn{padding:7px 12px;font-size:13px}
+.feat .acts{display:flex;gap:6px 14px;flex-wrap:wrap;align-items:center;margin-top:auto;padding-top:10px}
+.feat .acts .btn{padding:8px 13px;font-size:13px}
 .feat .lnk{color:var(--cream);font-weight:700;font-size:13px}
 .feat .lnk:hover{text-decoration:underline;text-underline-offset:3px}
-.cover{display:block;width:62px;aspect-ratio:2/3;border-radius:2px 4px 4px 2px;overflow:hidden;background:#e8792b;box-shadow:0 6px 16px rgba(0,0,0,.45)}
-.cover img{width:100%;height:100%;object-fit:cover;display:block}
-.cover .fake{height:100%;display:grid;align-content:end;padding:6px;color:#140a04;font-family:var(--f-display);font-weight:800;font-size:9px;line-height:1.05}
-.when{display:grid;justify-items:center;align-content:center;width:62px;height:93px;border-radius:8px;background:var(--orange);color:#140a04;font-family:var(--f-cond);text-transform:uppercase;line-height:1}
-.when b{font-size:32px;font-weight:800}
-.when span{font-size:13px;font-weight:700;letter-spacing:.08em;margin-top:2px}
-.when.bu b{font-size:26px}
-.when.ico svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.when.ico span{margin-top:6px}
-.when.tl b{font-family:var(--f-display);font-size:40px;text-transform:none}
-.when.tl span{font-size:11px;letter-spacing:.05em}
-@media(max-width:1100px){.rail{grid-auto-columns:calc((100% - 14px)/2)}}
-@media(max-width:700px){.rail{grid-auto-columns:86%}.nav-btn{display:none}}
+/* imagens de cada cartão */
+.p-livro{background:radial-gradient(circle at 70% 30%,#f39a4f,#d9661f 70%)}
+.p-livro .book{position:absolute;left:50%;top:12px;width:74px;aspect-ratio:2/3;margin-left:-37px;border-radius:2px 5px 5px 2px;overflow:hidden;background:#e8792b;box-shadow:0 14px 28px rgba(60,20,0,.55),inset 4px 0 0 rgba(0,0,0,.18);transform:rotate(-5deg);transition:transform .4s ease}
+.feat:hover .p-livro .book{transform:rotate(0) translateY(-3px)}
+.p-livro .book img{width:100%;height:100%;object-fit:cover;display:block}
+.p-livro .book .fake{height:100%;display:grid;align-content:end;padding:6px;background:#1a0f08;color:#f4a65a;font-family:var(--f-display);font-weight:800;font-size:9px;line-height:1.05}
+.p-evento{display:grid;place-items:center;background:radial-gradient(circle at 30% 20%,#3a2114,#120c09 70%)}
+.p-evento.has-pic::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,5,4,0) 40%,rgba(6,5,4,.55))}
+.p-evento .date{display:flex;align-items:baseline;gap:10px;font-family:var(--f-cond);text-transform:uppercase;color:var(--cream);line-height:1}
+.p-evento .date b{font-size:64px;font-weight:800;color:#fff}
+.p-evento .date span{display:grid;gap:4px;font-size:18px;font-weight:700;letter-spacing:.06em}
+.p-evento .date small{font-size:13px;color:var(--soft-ink);letter-spacing:.06em}
+.p-evento .live{font-family:var(--f-cond);font-size:30px;font-weight:800;letter-spacing:.04em;color:#fff;display:flex;align-items:center;gap:10px}
+.p-evento .live i{width:12px;height:12px;border-radius:50%;background:#e5321c;box-shadow:0 0 12px #e5321c}
+.p-assine{display:flex;align-items:center;justify-content:center;gap:14px;background:var(--grad-red)}
+.p-assine img{width:72px;height:72px;border-radius:10px;box-shadow:0 10px 24px rgba(0,0,0,.4)}
+.p-assine span{font-family:var(--f-display);font-size:34px;color:#fff;letter-spacing:.01em}
+.p-fiscalize{background:radial-gradient(circle at 60% 50%,#26170e,#0f0c0a 70%)}
+.p-fiscalize>img{object-fit:contain;padding:6px 0;-webkit-mask-image:radial-gradient(ellipse 48% 60% at 50% 50%,#000 70%,transparent);mask-image:radial-gradient(ellipse 48% 60% at 50% 50%,#000 70%,transparent)}
+.p-loja{display:grid;place-items:center;background:radial-gradient(circle at 70% 70%,#2c1b12,#100c0a 70%)}
+.p-loja svg{width:118px;height:118px;transition:transform .4s ease}
+.feat:hover .p-loja svg{transform:rotate(-4deg) scale(1.05)}
+/* setas e pontos de navegação */
+.nav-btn{position:absolute;top:calc(24px + 68px);z-index:2;width:40px;height:40px;margin-top:-20px;display:grid;place-items:center;border-radius:50%;background:#0b0908;border:1px solid #4a3a30;color:var(--ink);cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.55);transition:border-color .18s,color .18s}
+.nav-btn:hover{border-color:var(--orange);color:var(--cream)}
+.nav-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.nav-btn.prev{left:-20px}.nav-btn.next{right:-20px}
+.nav-btn[hidden]{display:none}
+.dots{display:flex;justify-content:center;gap:8px;margin-top:14px}
+.dots button{width:8px;height:8px;padding:0;border:0;border-radius:4px;background:#4a3a30;cursor:pointer;transition:width .25s,background-color .25s}
+.dots button[aria-current="true"]{width:22px;background:var(--orange)}
+@media(hover:none){.nav-btn{display:none}}
+@media(max-width:1100px){.rail{grid-auto-columns:calc((100% - 16px)/2)}}
+@media(max-width:700px){.rail{grid-auto-columns:84%;gap:12px}.nav-btn{display:none}}
 
 /* Assinatura */
 .join{margin-top:64px;border-top:1px solid rgba(224,122,44,.42);border-bottom:1px solid var(--line);background:radial-gradient(700px 320px at 20% 0%,rgba(197,59,38,.22),transparent 70%),#050403}
@@ -213,7 +230,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
       <button class="nav-btn next" type="button" aria-label="Próximos destaques"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
       <div class="rail" id="rail" tabindex="0" role="region" aria-label="Destaques: Editora, eventos, assinatura, Fiscalize e loja">
       <article class="feat" id="v-livro">
-        <a class="cover" href="https://editora.revistatimeline.com/livro.html?l=almanaque-timeline&amp;src=site" tabindex="-1" aria-hidden="true"><div class="fake">Almanaque Timeline 2026</div></a>
+        <a class="pic p-livro" href="https://editora.revistatimeline.com/livro.html?l=almanaque-timeline&amp;src=site" tabindex="-1" aria-hidden="true"><span class="chip">Lançamento</span><span class="book"><span class="fake">Almanaque Timeline 2026</span></span></a>
         <div class="txt">
           <span class="eyebrow">Editora Timeline</span>
           <h3>Almanaque Timeline 2026: o ano do Brasil</h3>
@@ -222,7 +239,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
         </div>
       </article>
       <article class="feat" id="v-evento">
-        <div class="when" aria-hidden="true"><b>Ao</b><span>vivo</span></div>
+        <a class="pic p-evento" href="https://eventos.revistatimeline.com/?src=site" tabindex="-1" aria-hidden="true"><span class="live"><i></i>Ao vivo</span></a>
         <div class="txt">
           <span class="eyebrow">Eventos Timeline</span>
           <h3>Encontros com a equipe da revista</h3>
@@ -231,7 +248,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
         </div>
       </article>
       <article class="feat" id="v-assine">
-        <div class="when tl" aria-hidden="true"><b>T</b><span>membro</span></div>
+        <a class="pic p-assine" href="https://lp.revistatimeline.com/" tabindex="-1" aria-hidden="true"><img src="img/t.png" alt="" width="72" height="72"><span>Membros</span></a>
         <div class="txt">
           <span class="eyebrow">Assine a Timeline</span>
           <h3>Faça parte da Timeline</h3>
@@ -240,7 +257,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
         </div>
       </article>
       <article class="feat" id="v-boletim">
-        <div class="when bu" aria-hidden="true"><b>BU</b><span>urna</span></div>
+        <a class="pic p-fiscalize" href="https://fiscalize.revistatimeline.com/enviar/" tabindex="-1" aria-hidden="true"><img src="img/fiscalize.jpg" alt="" width="690" height="450" loading="lazy"></a>
         <div class="txt">
           <span class="eyebrow">Fiscalize seu voto</span>
           <h3>Envie o boletim da sua seção</h3>
@@ -249,7 +266,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
         </div>
       </article>
       <article class="feat" id="v-loja">
-        <div class="when ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span>loja</span></div>
+        <a class="pic p-loja" href="https://loja.revistatimeline.com/" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 120 120" aria-hidden="true"><path d="M42 18l-26 14 9 20 10-5v55h50V47l10 5 9-20-26-14c-3 8-10 12-18 12s-15-4-18-12z" fill="#e07a2c"/><path d="M42 18c3 8 10 12 18 12s15-4 18-12" fill="none" stroke="#140a04" stroke-width="3"/><text x="60" y="84" text-anchor="middle" font-family="Playfair Display,Georgia,serif" font-weight="700" font-size="34" fill="#140a04">T</text></svg></a>
         <div class="txt">
           <span class="eyebrow">Loja Timeline</span>
           <h3>Produtos oficiais da revista</h3>
@@ -258,6 +275,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
         </div>
       </article>
       </div>
+      <div class="dots" id="dots" aria-hidden="true"></div>
     </section>
 
     <section class="hero" id="hero" aria-label="Destaque"></section>
@@ -394,13 +412,24 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
   document.getElementById("lupa").onclick = (e) => { const q = document.querySelector("#busca input"); if(!q || document.getElementById("busca").hidden) return;
     e.preventDefault(); document.getElementById("artigos").scrollIntoView({behavior:"smooth"}); setTimeout(()=>q.focus({preventScroll:true}), 450); };
 
-  // Setas da faixa de destaques: andam um cartão por clique e somem nas pontas
+  // Faixa de destaques: setas andam um cartão por clique e somem nas pontas; os pontos mostram onde se está
   (function(){
-    const rail = document.getElementById("rail"), prev = document.querySelector(".nav-btn.prev"), next = document.querySelector(".nav-btn.next");
-    const step = () => { const c = rail.querySelector(".feat"); return c ? c.getBoundingClientRect().width + 14 : rail.clientWidth; };
-    const upd = () => { prev.hidden = rail.scrollLeft < 8; next.hidden = rail.scrollLeft + rail.clientWidth > rail.scrollWidth - 8; };
+    const rail = document.getElementById("rail"), prev = document.querySelector(".nav-btn.prev"), next = document.querySelector(".nav-btn.next"), dots = document.getElementById("dots");
+    const cards = () => [...rail.querySelectorAll(".feat")];
+    const step = () => { const c = cards()[0]; return c ? c.getBoundingClientRect().width + parseFloat(getComputedStyle(rail).columnGap||16) : rail.clientWidth; };
+    function build(){
+      const n = cards().length, vis = Math.max(1, Math.round(rail.clientWidth / step())), pages = Math.max(1, n - vis + 1);
+      dots.innerHTML = pages > 1 ? Array.from({length:pages}, (_, i) => '<button type="button" tabindex="-1" data-i="'+i+'"></button>').join("") : "";
+      upd();
+    }
+    function upd(){
+      prev.hidden = rail.scrollLeft < 8; next.hidden = rail.scrollLeft + rail.clientWidth > rail.scrollWidth - 8;
+      const i = next.hidden ? dots.children.length - 1 : Math.round(rail.scrollLeft / step());
+      [...dots.children].forEach((d, k) => d.setAttribute("aria-current", k === i ? "true" : "false"));
+    }
     prev.onclick = () => rail.scrollBy({left:-step()}); next.onclick = () => rail.scrollBy({left:step()});
-    rail.addEventListener("scroll", upd, {passive:true}); addEventListener("resize", upd); upd();
+    dots.onclick = (e) => { const i = e.target.dataset && e.target.dataset.i; if(i != null) rail.scrollTo({left: i * step()}); };
+    rail.addEventListener("scroll", upd, {passive:true}); addEventListener("resize", build); build();
   })();
 
   // Vitrine: livro em destaque da Editora e próximo evento, ao vivo pelo Worker (/api/destaques); sem ele, fica o conteúdo fixo
@@ -414,7 +443,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
       const pre = b.price_digital_old ? '<s>'+brl(b.price_digital_old)+'</s>' : '';
       const alt = b.price_rental ? ' · ou '+brl(b.price_rental)+' por '+(b.rental_days||30)+' dias' : '';
       document.getElementById("v-livro").innerHTML =
-        '<a class="cover" href="'+esc(href)+'" tabindex="-1" aria-hidden="true">'+(b.cover_url?'<img alt="" src="'+esc(b.cover_url)+'">':'<div class="fake">'+esc(b.title)+'</div>')+'</a>'+
+        '<a class="pic p-livro" href="'+esc(href)+'" tabindex="-1" aria-hidden="true"><span class="chip">'+(b.price_digital_old?'Promoção':'Lançamento')+'</span><span class="book">'+(b.cover_url?'<img alt="" src="'+esc(b.cover_url)+'">':'<span class="fake">'+esc(b.title)+'</span>')+'</span></a>'+
         '<div class="txt"><span class="eyebrow">Editora Timeline</span><h3>'+esc(b.title)+'</h3>'+
         (b.price_digital?'<p class="info">'+(b.price_digital_old?'<s>'+brl(b.price_digital_old)+'</s> ':'')+'<b>'+brl(b.price_digital)+'</b> para sempre'+(b.price_rental?' ou '+brl(b.price_rental)+' por '+(b.rental_days||30)+' dias':'')+'</p>':'')+
         '<div class="acts"><a class="btn primary" href="'+esc(href)+'">Comprar</a>'+
@@ -430,7 +459,8 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
       const where = [e.venue, how && how.charAt(0).toUpperCase()+how.slice(1)].filter(Boolean).join(" · ");
       const preco = prices.length ? ' · '+(prices.length>1?'a partir de ':'')+'<b>'+brl(Math.min.apply(null,prices))+'</b>' : '';
       document.getElementById("v-evento").innerHTML =
-        '<div class="when"><b>'+esc(part({day:"2-digit"}))+'</b><span>'+esc(part({month:"short"}))+'</span></div>'+
+        (e.cover_url ? '<a class="pic p-evento has-pic" href="'+esc(href)+'" tabindex="-1" aria-hidden="true"><img alt="" src="'+esc(e.cover_url)+'"><span class="chip">'+esc(part({day:"2-digit",month:"short"}))+'</span></a>'
+          : '<a class="pic p-evento" href="'+esc(href)+'" tabindex="-1" aria-hidden="true"><span class="date"><b>'+esc(part({day:"2-digit"}))+'</b><span>'+esc(part({month:"short"}))+'<small>'+esc(part({weekday:"short"}))+' · '+esc(part({hour:"2-digit",minute:"2-digit"}))+'</small></span></span></a>')+
         '<div class="txt"><span class="eyebrow">Próximo evento · '+esc(part({weekday:"short"}))+', '+esc(part({hour:"2-digit",minute:"2-digit"}))+'</span><h3>'+esc(e.title)+'</h3>'+
         '<p class="info">'+esc(where)+preco+'</p>'+
         '<div class="acts"><a class="btn primary" href="'+esc(href)+'">Garantir ingresso</a><a class="lnk" href="'+EV+'/?src=site">Agenda completa</a></div></div>';

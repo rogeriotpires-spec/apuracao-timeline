@@ -36,6 +36,7 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:
 .wrap{max-width:var(--max);margin:auto;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
 .eyebrow{font-family:var(--f-cond);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--cream)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:7px;padding:11px 16px;font-size:14px;font-weight:800;border:1px solid rgba(255,255,255,.3);color:var(--ink);white-space:nowrap}
+button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .btn.primary{background:var(--grad);border-color:transparent;color:#140a04;box-shadow:0 4px 18px rgba(214,96,30,.26)}
 .btn.primary:hover{filter:brightness(1.07)}
 .btn:not(.primary):hover{border-color:var(--cream);color:var(--cream)}
@@ -46,13 +47,22 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:
 .brand{font-family:var(--f-display);font-size:50px;line-height:1;letter-spacing:.025em;color:var(--ink)}
 .tools{position:absolute;right:20px;top:50%;transform:translateY(-50%);display:flex;gap:10px}
 .tools .btn{padding:8px 14px;font-size:13px}
-.links{display:flex;align-items:center;justify-content:center;gap:clamp(14px,1.6vw,26px);max-width:1380px;margin:0 auto;padding:0 18px;min-height:51px;white-space:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.tools .icon-btn{width:38px;height:38px;padding:0}
+.icon-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+/* Menu: caixa alta condensada, sublinhado laranja que cresce do centro ao passar o mouse */
+.links{display:flex;align-items:center;justify-content:safe center;gap:clamp(14px,1.4vw,22px);max-width:1380px;margin:0 auto;padding:0 18px;min-height:56px;white-space:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .links::-webkit-scrollbar{display:none}
-.links a{flex:0 0 auto;padding:15px 0 13px;font-size:13px;color:var(--soft-ink);border-bottom:2px solid transparent}
-.links a:hover{color:var(--cream)}
-.links a[aria-current="page"]{border-bottom-color:var(--orange);color:#fff}
+.links a{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;padding:17px 0 15px;font-family:var(--f-cond);font-size:15px;font-weight:600;letter-spacing:.035em;text-transform:uppercase;color:#ddd5cf;transition:color .18s}
+.links a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;border-radius:2px 2px 0 0;background:var(--orange);transform:scaleX(0);transition:transform .22s ease}
+.links a:hover,.links a:focus-visible{color:var(--cream)}
+.links a:hover::after,.links a:focus-visible::after,.links a[aria-current="page"]::after{transform:scaleX(1)}
+.links a[aria-current="page"]{color:#fff}
+/* Carimbo "Novo": contorno laranja levemente inclinado; ao passar o mouse, o carimbo é preenchido */
+.novo{display:inline-block;font:800 10px/1 var(--f-cond);letter-spacing:.14em;color:var(--orange);border:1.5px solid currentColor;border-radius:3px;padding:3px 4px 2px 5px;transform:rotate(-7deg) translateY(-1px);transition:background-color .18s,color .18s,border-color .18s}
+.links a:hover .novo,.links a:focus-visible .novo{background:var(--orange);border-color:var(--orange);color:#140a04}
+@media(max-width:1340px){.links{gap:15px}.links a{font-size:14px;letter-spacing:.03em}}
 @media(max-width:1000px){.masthead{min-height:75px}.brand{font-size:44px}.links{justify-content:flex-start}}
-@media(max-width:600px){.masthead{min-height:62px;padding:10px}.brand{font-size:34px}.tools{right:max(10px,env(safe-area-inset-right,0px))}.tools .btn{padding:7px 11px;font-size:12px}.links{gap:20px;min-height:46px}.links a{font-size:14px;padding:12px 0 11px}}
+@media(max-width:600px){.masthead{min-height:62px;padding:10px}.brand{font-size:34px}.tools{right:max(10px,env(safe-area-inset-right,0px));gap:8px}.tools .btn{padding:7px 11px;font-size:12px}.tools .icon-btn{width:34px;height:34px}.links{gap:22px;min-height:50px}.links a{font-size:15px;padding:15px 0 13px}}
 
 /* Destaque principal */
 .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:42px;align-items:center;padding-block:56px 40px}
@@ -109,10 +119,45 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:
 .stat{font-family:var(--f-cond);font-size:56px;font-weight:800;line-height:.9;letter-spacing:-.02em}
 @media(max-width:700px){.blocks{grid-template-columns:1fr}}
 .search{display:flex;gap:8px;flex:1 1 320px;max-width:460px}
-.search input{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:7px;color:var(--ink);font:15px var(--f-body);padding:10px 12px}
-.search input:focus{outline:none;border-color:var(--orange)}
+.search input{flex:1;min-width:0;background:var(--card);border:1px solid #4a3a30;border-radius:7px;color:var(--ink);font:16px var(--f-body);padding:12px 14px 12px 40px;background:var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f4a65a' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E") 13px 50%/18px no-repeat}
+.search input:focus{outline:none;border-color:var(--orange);box-shadow:0 0 0 3px rgba(224,122,44,.22)}
 .search-info{color:var(--muted);margin:-6px 0 16px}
 .more{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:26px 0 0}
+
+/* Vitrine: Almanaque e próximo evento, logo abaixo do destaque */
+.vitrine{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;padding-top:16px}
+.feat{position:relative;overflow:hidden;border-radius:18px;padding:32px 30px;min-height:340px;display:grid;gap:22px;align-items:center;min-width:0}
+.feat h3{font-size:clamp(26px,2.6vw,34px);line-height:1.06}
+.feat p{margin:0;font-size:15px;line-height:1.5}
+.feat .acts{display:flex;gap:10px 16px;flex-wrap:wrap;align-items:center;margin-top:4px}
+.feat .txt{display:grid;gap:12px;align-content:center;min-width:0}
+.price{font-family:var(--f-cond);font-weight:800;font-size:34px;line-height:1;letter-spacing:-.01em}
+.price small{display:block;font-family:var(--f-body);font-size:13px;font-weight:500;letter-spacing:0;margin-top:6px}
+.price s{font-size:20px;font-weight:600;opacity:.7;margin-right:8px}
+.feat-book{background:var(--grad-red);grid-template-columns:auto 1fr}
+.feat-book .eyebrow{color:#ffe1cf}
+.feat-book p,.feat-book .price small{color:#fff3ea}
+.feat-book .btn.dark{background:#140a04;color:#ffe1cf;border-color:transparent}
+.feat-book .btn.dark:hover{background:#000;color:#fff}
+.feat-book .lnk{color:#fff;font-weight:700;font-size:14px;text-decoration:underline;text-underline-offset:4px}
+.cover{display:block;width:clamp(120px,13vw,168px);aspect-ratio:2/3;border-radius:3px 7px 7px 3px;overflow:hidden;background:#e8792b;box-shadow:0 22px 44px rgba(0,0,0,.45);transform:rotate(-4deg);transition:transform .35s ease}
+.cover img{width:100%;height:100%;object-fit:cover;display:block}
+.cover .fake{height:100%;display:grid;align-content:space-between;padding:14px 12px;color:#140a04;font-family:var(--f-display);font-weight:800;font-size:19px;line-height:1.02;box-shadow:inset 5px 0 0 rgba(0,0,0,.18)}
+.cover .fake span{font-family:var(--f-cond);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.feat-book:hover .cover{transform:rotate(0) translateY(-4px)}
+.feat-event{background:#120e0c;border:1px solid #4a2f1f;grid-template-columns:auto 1fr;background-size:cover;background-position:center}
+.feat-event.has-pic{background-image:linear-gradient(100deg,rgba(6,5,4,.94) 30%,rgba(6,5,4,.62)),var(--pic)}
+.feat-event p{color:#d4cbc5}
+.when{display:grid;justify-items:center;align-content:center;width:112px;padding:16px 8px;border-radius:12px;background:var(--orange);color:#140a04;font-family:var(--f-cond);text-transform:uppercase;line-height:1}
+.when b{font-size:58px;font-weight:800;letter-spacing:-.02em}
+.when span{font-size:16px;font-weight:700;letter-spacing:.1em;margin-top:4px}
+.when small{font-size:12px;font-weight:600;letter-spacing:.06em;margin-top:8px;opacity:.85}
+.where{display:grid;gap:3px;font-size:14px;color:var(--soft-ink)}
+.where b{color:var(--ink);font-weight:600}
+.feat-event .price{color:var(--cream)}
+.feat-event .price small{color:var(--muted)}
+@media(max-width:960px){.vitrine{grid-template-columns:1fr}}
+@media(max-width:520px){.feat{grid-template-columns:1fr!important;padding:26px 22px;min-height:0}.cover{width:132px}.when{width:auto;grid-auto-flow:column;gap:10px;justify-content:start;align-items:baseline;padding:12px 16px}.when b{font-size:40px}.when small{margin:0}}
 
 /* Assinatura */
 .join{margin-top:64px;border-top:1px solid rgba(224,122,44,.42);border-bottom:1px solid var(--line);background:radial-gradient(700px 320px at 20% 0%,rgba(197,59,38,.22),transparent 70%),#050403}
@@ -137,16 +182,16 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:
 <header class="sitebar">
   <div class="masthead">
     <a class="brand" href="./" aria-label="Revista Timeline, página inicial">Timeline</a>
-    <div class="tools"><a class="btn primary" href="https://lp.revistatimeline.com/">Assine</a></div>
+    <div class="tools"><a class="btn icon-btn" id="lupa" href="#artigos" aria-label="Buscar artigos" title="Buscar artigos"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></a><a class="btn primary" href="https://lp.revistatimeline.com/">Assine</a></div>
   </div>
   <nav class="links" aria-label="Menu principal da Revista Timeline">
     <a href="./" aria-current="page">Início</a>
     <a href="https://www.revistatimeline.com/podcast">Podcasts</a>
     <a href="https://lp.revistatimeline.com/">Assine</a>
-    <a href="https://editora.revistatimeline.com/">Editora</a>
-    <a href="https://eventos.revistatimeline.com/">Eventos</a>
-    <a href="https://loja.revistatimeline.com/">Loja Timeline</a>
-    <a href="https://observatorio.revistatimeline.com/">Observatório Eleitoral</a>
+    <a href="https://editora.revistatimeline.com/">Editora <span class="novo">Novo</span></a>
+    <a href="https://eventos.revistatimeline.com/">Eventos <span class="novo">Novo</span></a>
+    <a href="https://loja.revistatimeline.com/">Loja</a>
+    <a href="https://observatorio.revistatimeline.com/" title="Observatório Eleitoral">Observatório</a>
     <a href="https://www.youtube.com/@conversatimeline" target="_blank" rel="noopener">YouTube</a>
     <a href="https://www.instagram.com/_revistatimeline/" target="_blank" rel="noopener">Instagram</a>
     <a href="https://www.facebook.com/profile.php?id=61572807617119" target="_blank" rel="noopener">Facebook</a>
@@ -159,10 +204,32 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:
   <div class="wrap">
     <section class="hero" id="hero" aria-label="Destaque"></section>
 
+    <section class="vitrine" aria-label="Editora e Eventos Timeline">
+      <article class="feat feat-book" id="v-livro">
+        <a class="cover" href="https://editora.revistatimeline.com/livro.html?l=almanaque-timeline&amp;src=site" tabindex="-1" aria-hidden="true"><div class="fake"><span>Timeline</span>Almanaque Timeline 2026<span>O ano do Brasil</span></div></a>
+        <div class="txt">
+          <span class="eyebrow">Editora Timeline · Lançamento</span>
+          <h3>Almanaque Timeline 2026: o ano do Brasil</h3>
+          <p>Um ano de artigos da revista e programas do Conversa Timeline, em ordem cronológica. Leitura digital na hora, em qualquer aparelho.</p>
+          <div class="price">R$&nbsp;59,90<small>leitura para sempre · ou R$&nbsp;24,90 por 30 dias</small></div>
+          <div class="acts"><a class="btn dark" href="https://editora.revistatimeline.com/livro.html?l=almanaque-timeline&amp;src=site">Comprar o Almanaque</a><a class="lnk" href="https://editora.revistatimeline.com/ler.html?l=almanaque-timeline&amp;amostra=1">Ler amostra grátis</a></div>
+        </div>
+      </article>
+      <article class="feat feat-event" id="v-evento">
+        <div class="when" aria-hidden="true"><b>Ao</b><span>vivo</span></div>
+        <div class="txt">
+          <span class="eyebrow">Eventos Timeline</span>
+          <h3>Encontros com a equipe da revista</h3>
+          <p>Eventos presenciais e transmissões on-line. Inscrição, ingresso com QR Code e acesso à transmissão no mesmo lugar.</p>
+          <div class="acts"><a class="btn primary" href="https://eventos.revistatimeline.com/?src=site">Ver a agenda de eventos</a></div>
+        </div>
+      </article>
+    </section>
+
     <section class="section" id="artigos">
       <div class="section-head">
         <div><span class="section-num">Últimos artigos</span><h2>Reportagem e opinião</h2></div>
-        <form class="search" id="busca" role="search"><input type="search" name="q" placeholder="Buscar artigos: Moraes, pesquisa, Senado..." aria-label="Buscar artigos"><button class="btn" type="submit">Buscar</button></form>
+        <form class="search" id="busca" role="search"><input type="search" name="q" placeholder="Buscar artigos: Moraes, pesquisa, Senado..." aria-label="Buscar artigos"><button class="btn primary" type="submit">Buscar</button></form>
       </div>
       <p class="search-info" id="busca-info" hidden></p>
       <div class="grid" id="grid"></div>
@@ -172,24 +239,12 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:
 
     <section class="section" aria-label="Timeline em outros formatos">
       <div class="blocks">
-        <div class="block red">
-          <span class="eyebrow">Editora Timeline · Já à venda</span>
-          <h3>Almanaque Timeline 2026: o ano do Brasil</h3>
-          <p>De novembro de 2025 a outubro de 2026, os artigos da revista e os programas do Conversa Timeline em ordem cronológica. Leitura digital na hora, em qualquer aparelho.</p>
-          <a class="btn" href="https://editora.revistatimeline.com/livro.html?l=almanaque-timeline&amp;src=site">Ver na Editora</a>
-        </div>
         <div class="block">
           <span class="eyebrow">Ao vivo</span>
           <h3>Conversa Timeline</h3>
           <div class="live"><i aria-hidden="true"></i>Segunda a sexta, 12h</div>
           <p>O programa diário com os temas que pautam o dia.</p>
           <a class="btn" href="https://www.youtube.com/@conversatimeline" target="_blank" rel="noopener">Assistir no YouTube</a>
-        </div>
-        <div class="block">
-          <span class="eyebrow">Encontros</span>
-          <h3>Eventos Timeline</h3>
-          <p>Encontros presenciais e transmissões on-line com a equipe da revista. Inscrições e ingressos pelo site de eventos.</p>
-          <a class="btn" href="https://eventos.revistatimeline.com/">Ver os próximos eventos</a>
         </div>
         <div class="block">
           <span class="eyebrow">Estudo Timeline</span>
@@ -297,7 +352,45 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:
   api(0,"").catch(()=>null)
     .then(d=>{ if(ok(d)){ live = true; offset = d.posts.length; mais.hidden = !d.more; return d; }
       return fetch("data/posts.json",{cache:"no-store"}).then(r=>r.ok?r.json():null); })
-    .then(d=>{ if(ok(d)) render(d); if(!live) document.getElementById("busca").hidden = true; }).catch(()=>{});
+    .then(d=>{ if(ok(d)) render(d); if(!live){ document.getElementById("busca").hidden = true; document.getElementById("lupa").hidden = true; } }).catch(()=>{});
+  document.getElementById("lupa").onclick = (e) => { const q = document.querySelector("#busca input"); if(!q || document.getElementById("busca").hidden) return;
+    e.preventDefault(); document.getElementById("artigos").scrollIntoView({behavior:"smooth"}); setTimeout(()=>q.focus({preventScroll:true}), 450); };
+
+  // Vitrine: livro em destaque da Editora e próximo evento, ao vivo pelo Worker (/api/destaques); sem ele, fica o conteúdo fixo
+  const brl = c => new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format((c||0)/100).replace(/\s/," ");
+  const ED = "https://editora.revistatimeline.com", EV = "https://eventos.revistatimeline.com";
+  fetch("api/destaques",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(d=>{
+    if(!d) return;
+    const b = d.book;
+    if(b){
+      const href = ED+"/livro.html?l="+encodeURIComponent(b.slug)+"&src=site";
+      const pre = b.price_digital_old ? '<s>'+brl(b.price_digital_old)+'</s>' : '';
+      const alt = b.price_rental ? ' · ou '+brl(b.price_rental)+' por '+(b.rental_days||30)+' dias' : '';
+      document.getElementById("v-livro").innerHTML =
+        '<a class="cover" href="'+esc(href)+'" tabindex="-1" aria-hidden="true">'+(b.cover_url?'<img alt="" src="'+esc(b.cover_url)+'">':'<div class="fake"><span>Timeline</span>'+esc(b.title)+'</div>')+'</a>'+
+        '<div class="txt"><span class="eyebrow">Editora Timeline · Lançamento</span><h3>'+esc(b.title)+'</h3>'+
+        '<p>'+esc(b.subtitle || "Leitura digital na hora, em qualquer aparelho.")+'</p>'+
+        (b.price_digital?'<div class="price">'+pre+brl(b.price_digital)+'<small>leitura para sempre'+alt+'</small></div>':'')+
+        '<div class="acts"><a class="btn dark" href="'+esc(href)+'">Comprar o livro</a>'+
+        (b.has_sample?'<a class="lnk" href="'+esc(ED+"/ler.html?l="+encodeURIComponent(b.slug)+"&amostra=1")+'">Ler amostra grátis</a>':'')+'</div></div>';
+    }
+    const e = d.event;
+    if(e){
+      const tz = e.timezone || TZ, dt = new Date(e.starts_at);
+      const part = o => new Intl.DateTimeFormat("pt-BR",Object.assign({timeZone:tz},o)).format(dt).replace(".","");
+      const how = [e.in_person && "Presencial", e.online && "on-line"].filter(Boolean).join(" e ");
+      const prices = [e.in_person && e.price_in_person, e.online && e.price_online].filter(v=>v>0);
+      const href = EV+"/evento.html?e="+encodeURIComponent(e.slug)+"&src=site";
+      const box = document.getElementById("v-evento");
+      if(e.cover_url){ box.classList.add("has-pic"); box.style.setProperty("--pic",'url("'+e.cover_url.replace(/["\\]/g,"")+'")'); }
+      box.innerHTML =
+        '<div class="when"><b>'+esc(part({day:"2-digit"}))+'</b><span>'+esc(part({month:"short"}))+'</span><small>'+esc(part({weekday:"short"}))+' · '+esc(part({hour:"2-digit",minute:"2-digit"}))+'</small></div>'+
+        '<div class="txt"><span class="eyebrow">Próximo evento Timeline</span><h3>'+esc(e.title)+'</h3>'+
+        '<div class="where">'+(e.venue?'<b>'+esc(e.venue)+'</b>':'')+(e.address?'<span>'+esc(e.address)+'</span>':'')+(how?'<span>'+esc(how.charAt(0).toUpperCase()+how.slice(1))+'</span>':'')+'</div>'+
+        (prices.length?'<div class="price">'+(prices.length>1?'<small style="margin:0 0 4px">a partir de</small>':'')+brl(Math.min.apply(null,prices))+'</div>':'')+
+        '<div class="acts"><a class="btn primary" href="'+esc(href)+'">Garantir meu ingresso</a><a class="btn" href="'+EV+'/?src=site">Agenda completa</a></div></div>';
+    }
+  }).catch(()=>{});
   mais.onclick = () => { mais.disabled = true;
     api(offset, termo).then(d=>{ mais.disabled = false; if(!ok(d)){ mais.hidden = true; return; }
       offset += d.posts.length; grid.insertAdjacentHTML("beforeend", d.posts.map(card).join("")); mais.hidden = !d.more; }).catch(()=>{ mais.disabled = false; }); };

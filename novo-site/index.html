@@ -140,10 +140,10 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .p-livro{overflow:visible;z-index:2}
 /* Capa em 3D flutuando: sai por cima do cartão e invade a área do texto, sobe e desce devagar; a sombra no "chão" acompanha */
 .p-livro .flutua{position:absolute;z-index:2;right:22px;top:-18px;width:122px;perspective:700px;animation:flutua 4.2s ease-in-out infinite}
-.p-livro .book{display:block;position:relative;width:100%;aspect-ratio:2/3;border-radius:2px 7px 7px 2px;overflow:hidden;background:#e8792b;transform:rotateY(-20deg) rotateX(5deg) rotate(-3deg);transform-style:preserve-3d;box-shadow:-2px 0 0 #2a1408,-5px 3px 0 #120904,18px 26px 40px rgba(0,0,0,.65);transition:transform .45s ease}
+.p-livro .book{display:block;position:relative;width:100%;aspect-ratio:2/3;border-radius:2px 7px 7px 2px;overflow:hidden;background:#e8792b;transform:rotateY(-20deg) rotateX(5deg) rotate(-9deg);transform-style:preserve-3d;box-shadow:-2px 0 0 #2a1408,-5px 3px 0 #120904,18px 26px 40px rgba(0,0,0,.65);transition:transform .45s ease}
 .p-livro .book::before{content:"";position:absolute;left:0;top:0;bottom:0;width:9px;z-index:1;background:linear-gradient(90deg,rgba(0,0,0,.45),rgba(255,255,255,.18) 60%,rgba(0,0,0,.1))}
 .p-livro .book::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(115deg,rgba(255,255,255,.22),transparent 38%,transparent 70%,rgba(0,0,0,.25))}
-.feat:hover .p-livro .book{transform:rotateY(-8deg) rotateX(2deg) rotate(-1deg)}
+.feat:hover .p-livro .book{transform:rotateY(-10deg) rotateX(3deg) rotate(-6deg)}
 .p-livro .sombra{position:absolute;z-index:1;right:30px;top:178px;width:106px;height:14px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.6),transparent);animation:sombra 4.2s ease-in-out infinite;pointer-events:none}
 @keyframes flutua{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
 @keyframes sombra{0%,100%{transform:scaleX(1);opacity:.9}50%{transform:scaleX(.8);opacity:.55}}

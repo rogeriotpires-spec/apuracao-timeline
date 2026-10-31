@@ -41,36 +41,6 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .btn.primary:hover{filter:brightness(1.07)}
 .btn:not(.primary):hover{border-color:var(--cream);color:var(--cream)}
 
-/* Cabeçalho: mesmo do Observatório */
-.sitebar{background:#050403;border-bottom:1px solid var(--line)}
-.masthead{max-width:1380px;margin:auto;min-height:91px;padding:13px 20px;display:flex;align-items:center;justify-content:center;position:relative;border-bottom:1px solid var(--line)}
-.brand{font-family:var(--f-display);font-size:50px;line-height:1;letter-spacing:.025em;color:var(--ink)}
-.tools{position:absolute;right:20px;top:50%;transform:translateY(-50%);display:flex;gap:10px}
-.tools .btn{padding:8px 14px;font-size:13px}
-.tools .icon-btn{width:38px;height:38px;padding:0}
-.icon-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
-/* Assine: mãozinha que "toca" o botão a cada poucos segundos, com um anel que se abre no toque */
-.assine{position:relative;overflow:visible}
-.assine::after{content:"";position:absolute;inset:0;border-radius:7px;pointer-events:none;animation:anel 3.6s ease-out infinite}
-.assine .hand{position:absolute;right:-12px;bottom:-17px;width:26px;height:26px;fill:#fff;stroke:#140a04;stroke-width:1.4;stroke-linejoin:round;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));transform-origin:30% 10%;animation:toque 3.6s ease-in-out infinite;transition:opacity .2s}
-.assine:hover .hand{opacity:0}
-@keyframes toque{0%,55%{transform:translate(7px,7px)}68%{transform:translate(0,0)}73%{transform:translate(0,0) scale(.86)}79%{transform:translate(0,0) scale(1)}100%{transform:translate(7px,7px)}}
-@keyframes anel{0%,72%{box-shadow:0 0 0 0 rgba(244,166,90,.75)}100%{box-shadow:0 0 0 12px rgba(244,166,90,0)}}
-@media(prefers-reduced-motion:reduce){.assine::after,.assine .hand{animation:none}}
-/* Menu: caixa alta condensada, sublinhado laranja que cresce do centro ao passar o mouse */
-.links{display:flex;align-items:center;justify-content:safe center;gap:clamp(14px,1.3vw,22px);max-width:1600px;margin:0 auto;padding:0 18px;min-height:56px;white-space:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.links::-webkit-scrollbar{display:none}
-.links a{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;padding:17px 0 15px;font-family:var(--f-cond);font-size:15px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:#ddd5cf;transition:color .18s}
-.links a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;border-radius:2px 2px 0 0;background:var(--orange);transform:scaleX(0);transition:transform .22s ease}
-.links a:hover,.links a:focus-visible{color:var(--cream)}
-.links a:hover::after,.links a:focus-visible::after,.links a[aria-current="page"]::after{transform:scaleX(1)}
-.links a[aria-current="page"]{color:#fff}
-/* "novo": palavra pequena em sobrescrito, na cor de destaque, sem caixa */
-.novo{align-self:flex-start;margin:-3px 0 0 -3px;font:700 10px/1 var(--f-body);letter-spacing:.02em;text-transform:lowercase;color:var(--orange)}
-@media(max-width:1400px){.links{gap:15px}.links a{font-size:14px;letter-spacing:.03em}}
-@media(max-width:1000px){.masthead{min-height:75px}.brand{font-size:44px}.links{justify-content:flex-start}}
-@media(max-width:600px){.masthead{min-height:62px;padding:10px}.brand{font-size:34px}.tools{right:max(10px,env(safe-area-inset-right,0px));gap:8px}.tools .btn{padding:7px 11px;font-size:12px}.tools .icon-btn{width:34px;height:34px}.links{gap:22px;min-height:50px}.links a{font-size:15px;padding:15px 0 13px}}
-
 /* Destaque principal */
 .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:42px;align-items:center;padding-block:56px 40px}
 .hero-text{display:grid;gap:18px;min-width:0}
@@ -210,26 +180,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 </head>
 <body>
 
-<header class="sitebar">
-  <div class="masthead">
-    <a class="brand" href="./" aria-label="Revista Timeline, página inicial">Timeline</a>
-    <div class="tools"><a class="btn icon-btn" id="lupa" href="#artigos" aria-label="Buscar artigos" title="Buscar artigos"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></a><a class="btn primary assine" href="https://lp.revistatimeline.com/">Assine<svg class="hand" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V4.5a1.5 1.5 0 0 1 3 0V10V9a1.5 1.5 0 0 1 3 0v1.5a1.5 1.5 0 0 1 3 0V12a1.5 1.5 0 0 1 3 0v4.5c0 3.6-2.6 6.5-6.5 6.5h-1.6c-2 0-3.4-.8-4.6-2.3L4.6 16.2a1.6 1.6 0 0 1 2.4-2.1L9 16z"/></svg></a></div>
-  </div>
-  <nav class="links" aria-label="Menu principal da Revista Timeline">
-    <a href="./" aria-current="page">Início</a>
-    <a href="https://lp.revistatimeline.com/">Assine</a>
-    <a href="https://editora.revistatimeline.com/">Editora <span class="novo">Novo</span></a>
-    <a href="https://eventos.revistatimeline.com/">Eventos <span class="novo">Novo</span></a>
-    <a href="https://loja.revistatimeline.com/">Loja</a>
-    <a href="https://observatorio.revistatimeline.com/" title="Observatório Eleitoral">Observatório</a>
-    <a href="https://fiscalize.revistatimeline.com/">Fiscalize seu voto</a>
-    <a href="https://www.youtube.com/@conversatimeline" target="_blank" rel="noopener">YouTube</a>
-    <a href="https://www.instagram.com/_revistatimeline/" target="_blank" rel="noopener">Instagram</a>
-    <a href="https://www.facebook.com/profile.php?id=61572807617119" target="_blank" rel="noopener">Facebook</a>
-    <a href="https://www.revistatimeline.com/s/caderno-de-cultura">Caderno de Cultura</a>
-    <a href="https://www.revistatimeline.com/about">Sobre</a>
-  </nav>
-</header>
+<script src="https://rogeriotpires-spec.github.io/apuracao-timeline/menu/timeline-menu.js"></script>
 
 <main>
   <div class="wrap">
@@ -416,8 +367,8 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
   api(0,"").catch(()=>null)
     .then(d=>{ if(ok(d)){ live = true; offset = d.posts.length; mais.hidden = !d.more; return d; }
       return fetch("data/posts.json",{cache:"no-store"}).then(r=>r.ok?r.json():null); })
-    .then(d=>{ if(ok(d)) render(d); if(!live){ document.getElementById("busca").hidden = true; document.getElementById("lupa").hidden = true; } }).catch(()=>{});
-  document.getElementById("lupa").onclick = (e) => { const q = document.querySelector("#busca input"); if(!q || document.getElementById("busca").hidden) return;
+    .then(d=>{ if(ok(d)) render(d); if(!live){ document.getElementById("busca").hidden = true; const l = document.getElementById("tlm-lupa"); if(l) l.href = "https://www.revistatimeline.com/archive"; } }).catch(()=>{});
+  const lupa = document.getElementById("tlm-lupa"); if(lupa) lupa.onclick = (e) => { const q = document.querySelector("#busca input"); if(!q || document.getElementById("busca").hidden) return;
     e.preventDefault(); document.getElementById("artigos").scrollIntoView({behavior:"smooth"}); setTimeout(()=>q.focus({preventScroll:true}), 450); };
 
   // Faixa de destaques: setas andam um cartão por clique e somem nas pontas; os pontos mostram onde se está
@@ -439,6 +390,9 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
     dots.onclick = (e) => { const i = e.target.dataset && e.target.dataset.i; if(i != null) rail.scrollTo({left: i * step()}); };
     rail.addEventListener("scroll", upd, {passive:true}); addEventListener("resize", build); build();
   })();
+
+  // chegou pela lupa de outro site da Timeline (#busca): leva à busca e põe o cursor no campo
+  if(location.hash === "#busca"){ const go = () => { const q = document.querySelector("#busca input"); document.getElementById("artigos").scrollIntoView(); if(q && !document.getElementById("busca").hidden) q.focus({preventScroll:true}); }; setTimeout(go, 600); }
 
   // Vitrine: livro em destaque da Editora e próximo evento, ao vivo pelo Worker (/api/destaques); sem ele, fica o conteúdo fixo
   const brl = c => new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format((c||0)/100).replace(/\s/," ");

@@ -121,7 +121,10 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .search{display:flex;gap:8px;flex:1 1 320px;max-width:460px}
 .search input{flex:1;min-width:0;background:var(--card);border:1px solid #4a3a30;border-radius:7px;color:var(--ink);font:16px var(--f-body);padding:12px 14px 12px 40px;background:var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f4a65a' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E") 13px 50%/18px no-repeat}
 .search input:focus{outline:none;border-color:var(--orange);box-shadow:0 0 0 3px rgba(224,122,44,.22)}
-.search-info{color:var(--muted);margin:-6px 0 16px}
+.search-info{color:var(--soft-ink);margin:-6px 0 16px;display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap}
+.search-info b{color:var(--ink)}
+.search-info .clear{font:700 13px var(--f-body);color:var(--cream);background:transparent;border:1px solid rgba(244,166,90,.55);border-radius:7px;padding:6px 12px;cursor:pointer;transition:background-color .18s,color .18s}
+.search-info .clear:hover{background:var(--cream);color:#140a04}
 .more{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:26px 0 0}
 
 /* Vitrine: Almanaque e próximo evento, logo abaixo do destaque */
@@ -231,7 +234,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
         <div><span class="section-num">Últimos artigos</span><h2>Reportagem e opinião</h2></div>
         <form class="search" id="busca" role="search"><input type="search" name="q" placeholder="Buscar artigos: Moraes, pesquisa, Senado..." aria-label="Buscar artigos"><button class="btn primary" type="submit">Buscar</button></form>
       </div>
-      <p class="search-info" id="busca-info" hidden></p>
+      <p class="search-info" id="busca-info" aria-live="polite" hidden></p>
       <div class="grid" id="grid"></div>
       <p class="more"><button class="btn" type="button" id="mais" hidden>Carregar mais artigos</button>
         <a class="btn" id="arquivo" href="https://www.revistatimeline.com/archive">Ver o arquivo completo ↗</a></p>
@@ -394,12 +397,27 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
   mais.onclick = () => { mais.disabled = true;
     api(offset, termo).then(d=>{ mais.disabled = false; if(!ok(d)){ mais.hidden = true; return; }
       offset += d.posts.length; grid.insertAdjacentHTML("beforeend", d.posts.map(card).join("")); mais.hidden = !d.more; }).catch(()=>{ mais.disabled = false; }); };
-  document.getElementById("busca").onsubmit = (e) => { e.preventDefault();
-    termo = e.target.q.value.trim(); offset = 0; grid.innerHTML = '<p class="search-info">Buscando...</p>';
-    api(0, termo).then(d=>{ const n = ok(d) ? d.posts.length : 0;
-      info.hidden = !termo; info.textContent = termo ? (n ? 'Resultados para "'+termo+'"' : 'Nenhum artigo encontrado para "'+termo+'".') : "";
+  // Busca: guarda a lista que estava na página para devolvê-la ao limpar
+  const form = document.getElementById("busca"), campo = form.q;
+  let antes = null, pedido = 0;
+  function limpar(){
+    pedido++; termo = ""; campo.value = ""; info.hidden = true; info.innerHTML = "";
+    if(antes){ grid.innerHTML = antes.html; offset = antes.offset; mais.hidden = antes.maisHidden; antes = null; }
+  }
+  form.onsubmit = (e) => { e.preventDefault();
+    const t = campo.value.trim();
+    if(!t){ limpar(); return; }
+    if(!antes) antes = { html: grid.innerHTML, offset, maisHidden: mais.hidden };
+    termo = t; offset = 0; const meu = ++pedido;
+    info.hidden = false; info.textContent = "Buscando...";
+    api(0, termo).then(d=>{ if(meu !== pedido) return; const n = ok(d) ? d.posts.length : 0;
+      info.innerHTML = '<span>'+(n ? 'Resultados para <b>"'+esc(termo)+'"</b>' : 'Nenhum artigo encontrado para <b>"'+esc(termo)+'"</b>.')+'</span>'+
+        ' <button class="clear" type="button">Limpar busca ✕</button>';
+      info.querySelector(".clear").onclick = () => { limpar(); campo.focus(); };
       grid.innerHTML = n ? d.posts.map(card).join("") : ""; offset = n; mais.hidden = !(d && d.more);
-      document.getElementById("artigos").scrollIntoView({behavior:"smooth"}); }).catch(()=>{ grid.innerHTML = ""; }); };
+      document.getElementById("artigos").scrollIntoView({behavior:"smooth"}); }).catch(()=>{ if(meu === pedido) info.textContent = "A busca falhou. Tente de novo."; }); };
+  // apagou o texto (ou apertou Esc no campo): volta para os artigos de antes
+  campo.addEventListener("input", () => { if(!campo.value.trim() && antes) limpar(); });
 })();
 </script>
 </body>

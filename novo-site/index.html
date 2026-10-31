@@ -283,7 +283,7 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:
       '<div class="hero-actions"><a class="btn primary" href="'+esc(lead.url)+'">Ler o artigo</a><a class="btn" href="#artigos">Mais artigos</a></div></div>'+
       '<a class="hero-pic" href="'+esc(lead.url)+'" aria-hidden="true" tabindex="-1"><img alt="" src="'+esc(imgUrl(lead.image,1400))+'" onerror="this.parentNode.remove()"></a>';
 
-    document.getElementById("grid").innerHTML = rest.slice(0,9).map(card).join("");
+    document.getElementById("grid").innerHTML = rest.slice(0,11).map(card).join("");
   }
 
   let seed = {};

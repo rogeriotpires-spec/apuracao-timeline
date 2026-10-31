@@ -128,7 +128,18 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .more{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:26px 0 0}
 
 /* Vitrine: faixa compacta com o Almanaque e o próximo evento, logo abaixo do destaque */
-.vitrine{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding-top:24px}
+.vitrine{position:relative;padding-top:24px}
+/* Faixa rolável: 3 cartões visíveis no computador, 2 no tablet, 1 e um pedaço do próximo no celular; sem rolagem automática */
+.rail{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 28px)/3);gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;overscroll-behavior-x:contain}
+.rail::-webkit-scrollbar{display:none}
+.rail:focus-visible{outline:2px solid var(--cream);outline-offset:4px;border-radius:12px}
+.rail>.feat{scroll-snap-align:start}
+.nav-btn{position:absolute;top:calc(50% + 12px);z-index:2;width:38px;height:38px;margin-top:-19px;display:grid;place-items:center;border-radius:50%;background:#0b0908;border:1px solid #4a3a30;color:var(--ink);cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.5);transition:border-color .18s,color .18s,opacity .18s}
+.nav-btn:hover{border-color:var(--orange);color:var(--cream)}
+.nav-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.nav-btn.prev{left:-19px}.nav-btn.next{right:-19px}
+.nav-btn[hidden]{display:none}
+@media(hover:none){.nav-btn{display:none}}
 .feat{position:relative;overflow:hidden;border-radius:12px;padding:16px 18px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;min-width:0;background:var(--card-2);border:1px solid var(--line);transition:border-color .2s}
 .feat:hover{border-color:var(--orange)}
 .feat .txt{display:grid;gap:4px;min-width:0}
@@ -147,7 +158,12 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .when b{font-size:32px;font-weight:800}
 .when span{font-size:13px;font-weight:700;letter-spacing:.08em;margin-top:2px}
 .when.bu b{font-size:26px}
-@media(max-width:1100px){.vitrine{grid-template-columns:1fr}}
+.when.ico svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.when.ico span{margin-top:6px}
+.when.tl b{font-family:var(--f-display);font-size:40px;text-transform:none}
+.when.tl span{font-size:11px;letter-spacing:.05em}
+@media(max-width:1100px){.rail{grid-auto-columns:calc((100% - 14px)/2)}}
+@media(max-width:700px){.rail{grid-auto-columns:86%}.nav-btn{display:none}}
 
 /* Assinatura */
 .join{margin-top:64px;border-top:1px solid rgba(224,122,44,.42);border-bottom:1px solid var(--line);background:radial-gradient(700px 320px at 20% 0%,rgba(197,59,38,.22),transparent 70%),#050403}
@@ -176,6 +192,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
   </div>
   <nav class="links" aria-label="Menu principal da Revista Timeline">
     <a href="./" aria-current="page">Início</a>
+    <a href="https://lp.revistatimeline.com/">Assine</a>
     <a href="https://editora.revistatimeline.com/">Editora <span class="novo">Novo</span></a>
     <a href="https://eventos.revistatimeline.com/">Eventos <span class="novo">Novo</span></a>
     <a href="https://loja.revistatimeline.com/">Loja</a>
@@ -191,7 +208,10 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 
 <main>
   <div class="wrap">
-    <section class="vitrine" aria-label="Editora, eventos e Fiscalize seu voto">
+    <section class="vitrine" aria-label="Destaques da Timeline">
+      <button class="nav-btn prev" type="button" aria-label="Destaques anteriores" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button class="nav-btn next" type="button" aria-label="Próximos destaques"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+      <div class="rail" id="rail" tabindex="0" role="region" aria-label="Destaques: Editora, eventos, assinatura, Fiscalize e loja">
       <article class="feat" id="v-livro">
         <a class="cover" href="https://editora.revistatimeline.com/livro.html?l=almanaque-timeline&amp;src=site" tabindex="-1" aria-hidden="true"><div class="fake">Almanaque Timeline 2026</div></a>
         <div class="txt">
@@ -210,6 +230,15 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
           <div class="acts"><a class="btn primary" href="https://eventos.revistatimeline.com/?src=site">Ver a agenda</a></div>
         </div>
       </article>
+      <article class="feat" id="v-assine">
+        <div class="when tl" aria-hidden="true"><b>T</b><span>membro</span></div>
+        <div class="txt">
+          <span class="eyebrow">Assine a Timeline</span>
+          <h3>Faça parte da Timeline</h3>
+          <p class="info">Publicações diárias, lives, dossiês, documentários e e-books</p>
+          <div class="acts"><a class="btn primary" href="https://lp.revistatimeline.com/">Quero assinar</a><a class="lnk" href="https://www.revistatimeline.com/subscribe">Newsletter grátis</a></div>
+        </div>
+      </article>
       <article class="feat" id="v-boletim">
         <div class="when bu" aria-hidden="true"><b>BU</b><span>urna</span></div>
         <div class="txt">
@@ -219,6 +248,16 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
           <div class="acts"><a class="btn primary" href="https://fiscalize.revistatimeline.com/enviar/">Enviar boletim</a><a class="lnk" href="https://fiscalize.revistatimeline.com/resultado/">Ver a conferência</a></div>
         </div>
       </article>
+      <article class="feat" id="v-loja">
+        <div class="when ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span>loja</span></div>
+        <div class="txt">
+          <span class="eyebrow">Loja Timeline</span>
+          <h3>Produtos oficiais da revista</h3>
+          <p class="info">Vista a Timeline e apoie o jornalismo independente</p>
+          <div class="acts"><a class="btn primary" href="https://loja.revistatimeline.com/">Ver a loja</a></div>
+        </div>
+      </article>
+      </div>
     </section>
 
     <section class="hero" id="hero" aria-label="Destaque"></section>
@@ -354,6 +393,15 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
     .then(d=>{ if(ok(d)) render(d); if(!live){ document.getElementById("busca").hidden = true; document.getElementById("lupa").hidden = true; } }).catch(()=>{});
   document.getElementById("lupa").onclick = (e) => { const q = document.querySelector("#busca input"); if(!q || document.getElementById("busca").hidden) return;
     e.preventDefault(); document.getElementById("artigos").scrollIntoView({behavior:"smooth"}); setTimeout(()=>q.focus({preventScroll:true}), 450); };
+
+  // Setas da faixa de destaques: andam um cartão por clique e somem nas pontas
+  (function(){
+    const rail = document.getElementById("rail"), prev = document.querySelector(".nav-btn.prev"), next = document.querySelector(".nav-btn.next");
+    const step = () => { const c = rail.querySelector(".feat"); return c ? c.getBoundingClientRect().width + 14 : rail.clientWidth; };
+    const upd = () => { prev.hidden = rail.scrollLeft < 8; next.hidden = rail.scrollLeft + rail.clientWidth > rail.scrollWidth - 8; };
+    prev.onclick = () => rail.scrollBy({left:-step()}); next.onclick = () => rail.scrollBy({left:step()});
+    rail.addEventListener("scroll", upd, {passive:true}); addEventListener("resize", upd); upd();
+  })();
 
   // Vitrine: livro em destaque da Editora e próximo evento, ao vivo pelo Worker (/api/destaques); sem ele, fica o conteúdo fixo
   const brl = c => new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format((c||0)/100).replace(/\s/," ");

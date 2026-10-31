@@ -55,7 +55,7 @@
     '.tlm-assine::after{content:"";position:absolute;inset:0;border-radius:7px;pointer-events:none;animation:tlm-anel 3.6s ease-out infinite}' +
     '.tlm-hand{position:absolute;right:-17px;bottom:-24px;width:36px;height:36px;fill:#fff;stroke:#140a04;stroke-width:1.4;stroke-linejoin:round;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));transform-origin:30% 10%;animation:tlm-toque 3.6s ease-in-out infinite;transition:opacity .2s}' +
     '.tlm-assine:hover .tlm-hand,.tlm-links a.tlm-m-assine:hover .tlm-hand{opacity:0}' +
-    '.tlm-links a.tlm-m-assine{overflow:visible;animation:tlm-pisca 3.6s ease-in-out infinite}' +
+    '.tlm-links a.tlm-m-assine{overflow:visible;margin-right:14px;animation:tlm-pisca 3.6s ease-in-out infinite}' +
     '.tlm-links a.tlm-m-assine .tlm-hand{right:-27px;bottom:4px;width:30px;height:30px;animation-delay:1.8s}' +
     '.tlm-links a.tlm-m-assine{animation-delay:1.8s}' +
     '@keyframes tlm-pisca{0%,70%,100%{color:var(--tlm-soft)}74%,86%{color:var(--tlm-cream)}}' +

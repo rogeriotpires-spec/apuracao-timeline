@@ -17,12 +17,12 @@
 
   var ITENS = [
     { t: 'Início', u: HOME, h: ['revistatimeline.com', 'novo.revistatimeline.com'] },
-    { t: 'Assine', aba: true, u: ASSINE, h: ['lp.revistatimeline.com'] },
-    { t: 'Editora', aba: true, u: 'https://editora.revistatimeline.com/', h: ['editora.revistatimeline.com'], novo: true },
-    { t: 'Eventos', aba: true, u: 'https://eventos.revistatimeline.com/', h: ['eventos.revistatimeline.com'], novo: true },
-    { t: 'Loja', aba: true, u: 'https://loja.revistatimeline.com/', h: ['loja.revistatimeline.com'] },
-    { t: 'Observatório', aba: true, u: 'https://observatorio.revistatimeline.com/', h: ['observatorio.revistatimeline.com'], title: 'Observatório Eleitoral' },
-    { t: 'Fiscalize seu voto', aba: true, u: 'https://fiscalize.revistatimeline.com/', h: ['fiscalize.revistatimeline.com'] },
+    { t: 'Assine', u: ASSINE, h: ['lp.revistatimeline.com'] },
+    { t: 'Editora', u: 'https://editora.revistatimeline.com/', h: ['editora.revistatimeline.com'], novo: true },
+    { t: 'Eventos', u: 'https://eventos.revistatimeline.com/', h: ['eventos.revistatimeline.com'], novo: true },
+    { t: 'Loja', u: 'https://loja.revistatimeline.com/', h: ['loja.revistatimeline.com'] },
+    { t: 'Observatório', u: 'https://observatorio.revistatimeline.com/', h: ['observatorio.revistatimeline.com'], title: 'Observatório Eleitoral' },
+    { t: 'Fiscalize seu voto', u: 'https://fiscalize.revistatimeline.com/', h: ['fiscalize.revistatimeline.com'] },
     { t: 'YouTube', u: 'https://www.youtube.com/@conversatimeline', ext: true },
     { t: 'Instagram', u: 'https://www.instagram.com/_revistatimeline/', ext: true },
     { t: 'Facebook', u: 'https://www.facebook.com/profile.php?id=61572807617119', ext: true },
@@ -85,7 +85,7 @@
   var html = '<header class="tlm" id="tlm">' +
     '<div class="tlm-mast"><a class="tlm-brand" href="' + esc(HOME) + '" aria-label="Revista Timeline, página inicial">Timeline</a>' +
     '<div class="tlm-tools"><a class="tlm-btn tlm-lupa" id="tlm-lupa" href="' + esc(BUSCA) + '" aria-label="Buscar artigos" title="Buscar artigos"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></a>' +
-    '<a class="tlm-btn tlm-assine" href="' + ASSINE + '"' + (host === 'lp.revistatimeline.com' ? '' : ' target="_blank" rel="noopener"') + '>Assine<svg class="tlm-hand" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V4.5a1.5 1.5 0 0 1 3 0V10V9a1.5 1.5 0 0 1 3 0v1.5a1.5 1.5 0 0 1 3 0V12a1.5 1.5 0 0 1 3 0v4.5c0 3.6-2.6 6.5-6.5 6.5h-1.6c-2 0-3.4-.8-4.6-2.3L4.6 16.2a1.6 1.6 0 0 1 2.4-2.1L9 16z"/></svg></a></div></div>' +
+    '<a class="tlm-btn tlm-assine" href="' + ASSINE + '">Assine<svg class="tlm-hand" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V4.5a1.5 1.5 0 0 1 3 0V10V9a1.5 1.5 0 0 1 3 0v1.5a1.5 1.5 0 0 1 3 0V12a1.5 1.5 0 0 1 3 0v4.5c0 3.6-2.6 6.5-6.5 6.5h-1.6c-2 0-3.4-.8-4.6-2.3L4.6 16.2a1.6 1.6 0 0 1 2.4-2.1L9 16z"/></svg></a></div></div>' +
     '<nav class="tlm-links" aria-label="Menu principal da Revista Timeline">' + links + '</nav></header>';
 
   if (!document.getElementById('tlm-fonts')) {

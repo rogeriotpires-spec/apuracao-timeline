@@ -106,13 +106,13 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .more{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:26px 0 0}
 
 /* Vitrine: faixa de cartões com imagem própria para cada produto, rolada pela pessoa (sem giro automático) */
-.vitrine{position:relative;padding-top:24px}
-.rail{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 32px)/3);gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;overscroll-behavior-x:contain;padding:4px 0}
+.vitrine{position:relative;padding-top:8px}
+.rail{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 32px)/3);gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;overscroll-behavior-x:contain;padding:26px 0 4px}
 .rail::-webkit-scrollbar{display:none}
 .rail:focus-visible{outline:2px solid var(--cream);outline-offset:4px;border-radius:14px}
-.feat{scroll-snap-align:start;display:flex;flex-direction:column;min-width:0;border-radius:14px;overflow:hidden;background:var(--card-2);border:1px solid var(--line);transition:border-color .2s,transform .2s}
+.feat{position:relative;scroll-snap-align:start;display:flex;flex-direction:column;min-width:0;border-radius:14px;background:var(--card-2);border:1px solid var(--line);transition:border-color .2s,transform .2s}
 .feat:hover{border-color:var(--orange);transform:translateY(-3px)}
-.pic{position:relative;display:block;height:136px;overflow:hidden;background:#1a120d}
+.pic{position:relative;display:block;height:136px;overflow:hidden;background:#1a120d;border-radius:13px 13px 0 0}
 .pic>img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s ease}
 .feat:hover .pic>img{transform:scale(1.04)}
 .chip{position:absolute;left:12px;top:12px;z-index:1;font:700 11px/1 var(--f-cond);letter-spacing:.08em;text-transform:uppercase;color:#fff;background:rgba(6,5,4,.72);padding:5px 7px;border-radius:4px}
@@ -125,9 +125,15 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .feat .acts .btn{padding:8px 13px;font-size:13px}
 .feat .lnk{color:var(--cream);font-weight:700;font-size:13px}
 .feat .lnk:hover{text-decoration:underline;text-underline-offset:3px}
+/* Placa 3D "Lançamento": inclinada, saindo por cima do cartão, com espessura e um brilho que passa de vez em quando */
+.placa{position:absolute;left:14px;top:-12px;z-index:3;overflow:hidden;padding:9px 16px 8px;border-radius:5px;background:linear-gradient(180deg,#d8452b,#a3211e);border:1.5px solid #f4a65a;color:#fff3e6;font:800 16px/1 var(--f-cond);letter-spacing:.14em;text-transform:uppercase;text-shadow:0 1px 0 rgba(0,0,0,.35);transform:perspective(400px) rotateY(-16deg) rotate(-7deg);box-shadow:0 4px 0 #5e120d,0 14px 22px rgba(0,0,0,.5);pointer-events:none;transition:transform .35s ease}
+.placa::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-20deg);animation:brilho 5s ease-in-out infinite}
+@keyframes brilho{0%,70%{left:-60%}100%{left:130%}}
+.feat:hover .placa{transform:perspective(400px) rotateY(-10deg) rotate(-4deg) translateY(-2px)}
+@media(prefers-reduced-motion:reduce){.placa::after{animation:none;display:none}}
 /* imagens de cada cartão */
 .p-livro{background:radial-gradient(circle at 70% 30%,#f39a4f,#d9661f 70%)}
-.p-livro .book{position:absolute;left:50%;top:12px;width:74px;aspect-ratio:2/3;margin-left:-37px;border-radius:2px 5px 5px 2px;overflow:hidden;background:#e8792b;box-shadow:0 14px 28px rgba(60,20,0,.55),inset 4px 0 0 rgba(0,0,0,.18);transform:rotate(-5deg);transition:transform .4s ease}
+.p-livro .book{position:absolute;left:60%;top:12px;width:74px;aspect-ratio:2/3;margin-left:-37px;border-radius:2px 5px 5px 2px;overflow:hidden;background:#e8792b;box-shadow:0 14px 28px rgba(60,20,0,.55),inset 4px 0 0 rgba(0,0,0,.18);transform:rotate(-5deg);transition:transform .4s ease}
 .feat:hover .p-livro .book{transform:rotate(0) translateY(-3px)}
 .p-livro .book img{width:100%;height:100%;object-fit:cover;display:block}
 .p-livro .book .fake{height:100%;display:grid;align-content:end;padding:6px;background:#1a0f08;color:#f4a65a;font-family:var(--f-display);font-weight:800;font-size:9px;line-height:1.05}
@@ -148,7 +154,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .p-loja svg{width:118px;height:118px;transition:transform .4s ease}
 .feat:hover .p-loja svg{transform:rotate(-4deg) scale(1.05)}
 /* setas e pontos de navegação */
-.nav-btn{position:absolute;top:calc(24px + 68px);z-index:2;width:40px;height:40px;margin-top:-20px;display:grid;place-items:center;border-radius:50%;background:#0b0908;border:1px solid #4a3a30;color:var(--ink);cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.55);transition:border-color .18s,color .18s}
+.nav-btn{position:absolute;top:calc(8px + 26px + 68px);z-index:2;width:40px;height:40px;margin-top:-20px;display:grid;place-items:center;border-radius:50%;background:#0b0908;border:1px solid #4a3a30;color:var(--ink);cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.55);transition:border-color .18s,color .18s}
 .nav-btn:hover{border-color:var(--orange);color:var(--cream)}
 .nav-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .nav-btn.prev{left:-20px}.nav-btn.next{right:-20px}
@@ -189,7 +195,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
       <button class="nav-btn next" type="button" aria-label="Próximos destaques"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
       <div class="rail" id="rail" tabindex="0" role="region" aria-label="Destaques: Editora, eventos, assinatura, Fiscalize e loja">
       <article class="feat" id="v-livro">
-        <a class="pic p-livro" href="https://editora.revistatimeline.com/livro.html?l=almanaque-timeline&amp;src=site" tabindex="-1" aria-hidden="true"><span class="chip">Lançamento</span><span class="book"><span class="fake">Almanaque Timeline 2026</span></span></a>
+        <span class="placa" aria-hidden="true">Lançamento</span><a class="pic p-livro" href="https://editora.revistatimeline.com/livro.html?l=almanaque-timeline&amp;src=site" tabindex="-1" aria-hidden="true"><span class="book"><span class="fake">Almanaque Timeline 2026</span></span></a>
         <div class="txt">
           <span class="eyebrow">Editora Timeline</span>
           <h3>Almanaque Timeline 2026: o ano do Brasil</h3>
@@ -405,7 +411,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
       const pre = b.price_digital_old ? '<s>'+brl(b.price_digital_old)+'</s>' : '';
       const alt = b.price_rental ? ' · ou '+brl(b.price_rental)+' por '+(b.rental_days||30)+' dias' : '';
       document.getElementById("v-livro").innerHTML =
-        '<a class="pic p-livro" href="'+esc(href)+'" tabindex="-1" aria-hidden="true"><span class="chip">'+(b.price_digital_old?'Promoção':'Lançamento')+'</span><span class="book">'+(b.cover_url?'<img alt="" src="'+esc(b.cover_url)+'">':'<span class="fake">'+esc(b.title)+'</span>')+'</span></a>'+
+        '<span class="placa" aria-hidden="true">'+(b.price_digital_old?'Promoção':'Lançamento')+'</span><a class="pic p-livro" href="'+esc(href)+'" tabindex="-1" aria-hidden="true"><span class="book">'+(b.cover_url?'<img alt="" src="'+esc(b.cover_url)+'">':'<span class="fake">'+esc(b.title)+'</span>')+'</span></a>'+
         '<div class="txt"><span class="eyebrow">Editora Timeline</span><h3>'+esc(b.title)+'</h3>'+
         (b.price_digital?'<p class="info">'+(b.price_digital_old?'<s>'+brl(b.price_digital_old)+'</s> ':'')+'<b>'+brl(b.price_digital)+'</b> para sempre'+(b.price_rental?' ou '+brl(b.price_rental)+' por '+(b.rental_days||30)+' dias':'')+'</p>':'')+
         '<div class="acts"><a class="btn primary" href="'+esc(href)+'">Comprar</a>'+

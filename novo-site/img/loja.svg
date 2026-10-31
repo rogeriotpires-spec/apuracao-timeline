@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 136">
+  <defs>
+    <radialGradient id="g" cx="50%" cy="55%" r="60%"><stop offset="0" stop-color="#5a2a12"/><stop offset="1" stop-color="#100b08"/></radialGradient>
+    <linearGradient id="tee" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a2420"/><stop offset="1" stop-color="#0d0b0a"/></linearGradient>
+    <linearGradient id="mug" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#d9d2cc"/><stop offset=".45" stop-color="#ffffff"/><stop offset="1" stop-color="#bfb6ae"/></linearGradient>
+    <linearGradient id="cap" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a2f28"/><stop offset="1" stop-color="#120e0b"/></linearGradient>
+    <filter id="s" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#000" flood-opacity=".55"/></filter>
+  </defs>
+  <rect width="360" height="136" fill="url(#g)"/>
+  <g opacity=".07" stroke="#f4a65a" stroke-width="10"><path d="M-20 160L120-20M40 160L200-20M100 160L260-20M160 160L320-20M220 160L380-20M280 160L440-20"/></g>
+  <!-- caneca branca -->
+  <g filter="url(#s)" transform="translate(52 52) rotate(-8)">
+    <path d="M44 14c14 0 18 10 18 18s-6 18-18 18" fill="none" stroke="#d9d2cc" stroke-width="7"/>
+    <rect x="0" y="4" width="48" height="58" rx="5" fill="url(#mug)"/>
+    <ellipse cx="24" cy="4" rx="24" ry="5" fill="#efe8e2"/><ellipse cx="24" cy="4" rx="20" ry="3.4" fill="#1a120d"/>
+    <text x="24" y="44" text-anchor="middle" font-family="Georgia,'Playfair Display',serif" font-weight="700" font-size="28" fill="#e07a2c">T</text>
+  </g>
+  <!-- boné -->
+  <g filter="url(#s)" transform="translate(236 66) rotate(9)">
+    <path d="M6 34C6 12 22 2 40 2s34 10 34 32z" fill="url(#cap)"/>
+    <path d="M60 34c14 0 32 2 36 8-8 4-28 4-42 0z" fill="#0e0a08"/>
+    <circle cx="40" cy="3" r="3.5" fill="#e07a2c"/>
+    <text x="38" y="28" text-anchor="middle" font-family="Georgia,'Playfair Display',serif" font-weight="700" font-size="20" fill="#f4a65a">T</text>
+  </g>
+  <!-- camiseta preta no centro -->
+  <g filter="url(#s)" transform="translate(130 14) rotate(-2)">
+    <path d="M30 4L4 18l11 25 12-6v74h66V37l12 6 11-25L90 4c-4 10-15 16-30 16S34 14 30 4z" fill="url(#tee)" stroke="#3b302a" stroke-width="1.5"/>
+    <path d="M30 4c4 10 15 16 30 16s26-6 30-16" fill="none" stroke="#e07a2c" stroke-width="4"/>
+    <text x="60" y="80" text-anchor="middle" font-family="Georgia,'Playfair Display',serif" font-weight="700" font-size="40" fill="#f6f2ee">T</text>
+    <circle cx="76" cy="50" r="3.5" fill="#d43e27"/>
+  </g>
+  <!-- adesivo -->
+  <g transform="translate(300 26) rotate(14)">
+    <circle r="17" fill="#e07a2c" stroke="#fff3e6" stroke-width="3"/>
+    <text y="7" text-anchor="middle" font-family="Georgia,'Playfair Display',serif" font-weight="700" font-size="20" fill="#140a04">T</text>
+  </g>
+  <!-- etiqueta de preço -->
+  <g transform="translate(12 12) rotate(-6)">
+    <path d="M0 0h84l10 13-10 13H0z" fill="#d43e27"/>
+    <circle cx="84" cy="13" r="2.6" fill="#fff3e6"/>
+    <text x="8" y="11" font-family="'Barlow Condensed','Arial Narrow',sans-serif" font-weight="700" font-size="9" letter-spacing=".5" fill="#ffe1cf">A PARTIR DE</text>
+    <text x="8" y="22" font-family="'Barlow Condensed','Arial Narrow',sans-serif" font-weight="800" font-size="12" fill="#fff">R$ 29,90</text>
+  </g>
+</svg>

@@ -109,6 +109,9 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .more{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:26px 0 0}
 
 /* Vitrine: faixa de cartões com imagem própria para cada produto, rolada pela pessoa (sem giro automático) */
+.aviso-site{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;margin:12px 0 4px;padding:11px 16px;border-radius:8px;background:linear-gradient(90deg,rgba(224,122,44,.18),rgba(197,59,38,.14));border:1px solid rgba(244,166,90,.45);color:#fff3e6;font-size:15px;line-height:1.35;text-align:center}
+.aviso-site.vermelho{background:linear-gradient(90deg,#a3211e,#c53b26);border-color:#f4a65a}
+.aviso-site a{color:#fff;font-weight:700;white-space:nowrap;text-decoration:underline;text-underline-offset:3px}
 .vitrine{position:relative;padding-top:8px}
 .rail{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 32px)/3);gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;overscroll-behavior-x:contain;padding:26px 0 4px}
 .rail::-webkit-scrollbar{display:none}
@@ -363,7 +366,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
   }
 
   function render(data){
-    const posts = (data.posts||[]).slice().sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const posts = (data.posts||[]).slice().sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0) || new Date(b.date)-new Date(a.date));
     if(!posts.length) return;
     const [lead, ...rest] = posts;
     if(data.subscribers) document.getElementById("subs").textContent = "Mais de "+data.subscribers+" inscritos na newsletter";
@@ -419,8 +422,38 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
   // Vitrine: livro em destaque da Editora e próximo evento, ao vivo pelo Worker (/api/destaques); sem ele, fica o conteúdo fixo
   const brl = c => new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format((c||0)/100).replace(/\s/," ");
   const ED = "https://editora.revistatimeline.com", EV = "https://eventos.revistatimeline.com";
-  fetch("api/destaques",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(d=>{
-    if(!d) return;
+  // Configuração do Painel de Controle (/api/config): aviso no topo, ordem e visibilidade dos cartões, etiquetas
+  const getj = u => fetch(u,{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null);
+  const cfgP = getj("api/config");
+  cfgP.then(c=>{
+    if(!c) return;
+    const a = c.aviso||{};
+    if(a.ativo && a.texto){
+      const bar = document.createElement("div");
+      bar.className = "aviso-site"+(a.tom==="vermelho"?" vermelho":"");
+      bar.setAttribute("role","status");
+      bar.innerHTML = '<span>'+esc(a.texto)+'</span>'+(a.link?'<a href="'+esc(a.link)+'">'+esc(a.botao||"Saiba mais")+'</a>':'');
+      const v = document.querySelector(".vitrine"); v.parentNode.insertBefore(bar, v);
+    }
+    const rail = document.getElementById("rail");
+    (c.cartoes||[]).forEach(x=>{ const el = document.getElementById("v-"+x.id); if(!el) return; if(x.mostrar===false) el.remove(); else rail.appendChild(el); });
+    const loja = document.querySelector("#v-loja .info b");
+    if(loja && c.loja && c.loja.preco_min) loja.innerHTML = "R$&nbsp;"+esc(c.loja.preco_min);
+    rail.scrollLeft = 0; dispatchEvent(new Event("resize"));
+  });
+  // etiqueta do cartão: "auto" escolhe Promoção ou Lançamento; vazio esconde
+  const placa = (id, txt) => cfgP.then(c=>{
+    const el = document.getElementById(id); if(!el) return;
+    const conf = c && (id==="v-livro" ? c.livro : c.evento);
+    const want = conf && conf.etiqueta !== undefined && conf.etiqueta !== "auto" ? conf.etiqueta : txt;
+    let p = el.querySelector(".placa");
+    if(!want){ if(p) p.remove(); return; }
+    if(!p){ p = document.createElement("span"); p.className = "placa"; p.setAttribute("aria-hidden","true"); el.prepend(p); }
+    p.textContent = want;
+  });
+  placa("v-evento", "");
+  Promise.all([getj("api/destaques"), cfgP]).then(([d])=>{
+    if(!d){ placa("v-livro","Lançamento"); return; }
     const b = d.book;
     if(b){
       const href = ED+"/livro.html?l="+encodeURIComponent(b.slug)+"&src=site";
@@ -432,7 +465,8 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
         (b.price_digital?'<p class="info">'+(b.price_digital_old?'<s>'+brl(b.price_digital_old)+'</s> ':'')+'<b>'+brl(b.price_digital)+'</b> para sempre'+(b.price_rental?' ou '+brl(b.price_rental)+' por '+(b.rental_days||30)+' dias':'')+'</p>':'')+
         '<div class="acts"><a class="btn primary" href="'+esc(href)+'">Comprar</a>'+
         (b.has_sample?'<a class="lnk" href="'+esc(ED+"/ler.html?l="+encodeURIComponent(b.slug)+"&amostra=1")+'">Ler amostra grátis</a>':'')+'</div></div>';
-    }
+      placa("v-livro", b.price_digital_old?'Promoção':'Lançamento');
+    } else placa("v-livro","Lançamento");
     const e = d.event;
     if(e){
       const tz = e.timezone || TZ, dt = new Date(e.starts_at);
@@ -448,6 +482,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
         '<div class="txt"><span class="eyebrow">Próximo evento · '+esc(part({weekday:"short"}))+', '+esc(part({hour:"2-digit",minute:"2-digit"}))+'</span><h3>'+esc(e.title)+'</h3>'+
         '<p class="info">'+esc(where)+preco+'</p>'+
         '<div class="acts"><a class="btn primary" href="'+esc(href)+'">Garantir ingresso</a><a class="lnk" href="'+EV+'/?src=site">Agenda completa</a></div></div>';
+      placa("v-evento", "");
     }
   }).catch(()=>{});
   mais.onclick = () => { mais.disabled = true;

@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Painel Timeline</title>
+<link rel="icon" href="https://rogeriotpires-spec.github.io/apuracao-timeline/novo-site/img/favicon-32.png">
+<link rel="apple-touch-icon" href="https://rogeriotpires-spec.github.io/apuracao-timeline/novo-site/img/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:dark; accent-color:#e07a2c;
+  --black:#060504; --ink:#f6f2ee; --muted:#a89c92; --soft:#c5bbb5;
+  --card:#100d0b; --card2:#171210; --line:#2c221c; --line2:#3a2d25;
+  --red:#c53b26; --orange:#e07a2c; --cream:#f4a65a; --ok:#6fbf73; --warn:#f0b54a;
+  --grad:linear-gradient(90deg,#b5361f,#e07a2c 55%,#f4a65a);
+  --f-display:"Playfair Display",Georgia,serif;
+  --f-body:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-cond:"Barlow Condensed","Arial Narrow",Inter,sans-serif;
+  --f-mono:"DM Mono",ui-monospace,Menlo,monospace;
+  --side:232px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--black);color:var(--ink);font:15px/1.45 var(--f-body)}
+a{color:var(--cream)}
+button,input,select,textarea{font:inherit;color:inherit}
+.app{display:grid;grid-template-columns:var(--side) 1fr;height:100vh;height:100dvh}
+/* lateral */
+.side{border-right:1px solid var(--line);background:#0a0807;display:flex;flex-direction:column;padding:18px 12px;gap:4px;overflow:auto}
+.brand{display:flex;align-items:center;gap:10px;padding:2px 8px 18px}
+.brand img{width:34px;height:34px;border-radius:7px}
+.brand b{font:700 21px/1 var(--f-display)}
+.brand small{display:block;font:600 11px/1.2 var(--f-cond);letter-spacing:.16em;text-transform:uppercase;color:var(--cream);margin-top:3px}
+.nav{display:flex;align-items:center;gap:11px;width:100%;padding:10px 12px;border:0;border-radius:8px;background:none;text-align:left;cursor:pointer;color:var(--soft);font-weight:500}
+.nav svg{width:19px;height:19px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav:hover{background:var(--card2);color:var(--ink)}
+.nav[aria-current="page"]{background:var(--card2);color:var(--ink);box-shadow:inset 3px 0 0 var(--orange)}
+.nav .badge{margin-left:auto;background:var(--red);color:#fff;font:600 11px/1 var(--f-mono);padding:3px 6px;border-radius:9px}
+.grp{font:600 11px/1 var(--f-cond);letter-spacing:.16em;text-transform:uppercase;color:var(--muted);padding:16px 12px 6px}
+.ext{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-radius:7px;color:var(--soft);text-decoration:none;font-size:14px}
+.ext:hover{background:var(--card2);color:var(--ink)}
+.ext::after{content:"↗";color:var(--muted);font-size:12px}
+.me{margin-top:auto;padding:14px 12px 2px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);word-break:break-all}
+.me a{display:inline-block;margin-top:6px}
+/* área principal */
+.main{position:relative;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.view{display:none;flex:1;min-height:0;overflow:auto}
+.view.on{display:flex;flex-direction:column}
+.frame-bar{display:flex;align-items:center;gap:10px;padding:10px 18px;border-bottom:1px solid var(--line);background:#0a0807;flex:none}
+.frame-bar h2{margin:0;font:700 19px/1 var(--f-cond);letter-spacing:.04em;text-transform:uppercase}
+.frame-bar .sp{flex:1}
+.frame-bar .tabs{display:flex;gap:6px}
+.chip{border:1px solid var(--line2);background:var(--card);padding:6px 11px;border-radius:999px;font-size:13px;cursor:pointer;text-decoration:none;color:var(--soft);white-space:nowrap}
+.chip:hover{color:var(--ink);border-color:var(--orange)}
+.chip[aria-pressed="true"]{border-color:var(--orange);color:var(--ink);background:var(--card2)}
+iframe{flex:1;width:100%;border:0;background:#fff;min-height:0}
+.frame-wrap{flex:1;display:flex;min-height:0;position:relative}
+.frame-wrap iframe{position:absolute;inset:0;height:100%}
+.pad{padding:24px 28px 40px;max-width:1240px;width:100%}
+h1{font:700 30px/1.1 var(--f-display);margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 22px;font-size:14px}
+.sub button{background:none;border:0;color:var(--cream);cursor:pointer;padding:0;text-decoration:underline}
+/* cartões de número */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px 16px 14px;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:var(--grad);opacity:.8}
+.kpi .l{font:600 12px/1.2 var(--f-cond);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.kpi .v{font:600 27px/1.15 var(--f-body);margin:7px 0 3px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.kpi .d{font-size:13px;color:var(--soft)}
+.kpi .d b{color:var(--ink);font-weight:600}
+.grid2{display:grid;grid-template-columns:1.25fr 1fr;gap:14px;margin-bottom:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;min-width:0}
+.box h3{margin:0 0 12px;font:700 15px/1.2 var(--f-cond);letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.box h3 .sp{flex:1}
+.box h3 a,.box h3 button{font:500 13px var(--f-body);letter-spacing:0;text-transform:none;color:var(--cream);background:none;border:0;cursor:pointer;padding:0}
+.rows{list-style:none;margin:0;padding:0}
+.rows li{display:flex;gap:10px;align-items:baseline;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.rows li:first-child{border-top:0}
+.rows .who{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rows .who small{display:block;color:var(--muted);font-size:12.5px;overflow:hidden;text-overflow:ellipsis}
+.rows .amt{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.rows .when{color:var(--muted);font:12px var(--f-mono);white-space:nowrap}
+.empty{color:var(--muted);font-size:14px;padding:6px 0}
+.alert{display:flex;gap:10px;align-items:center;background:rgba(197,59,38,.12);border:1px solid rgba(197,59,38,.45);border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:14px}
+.alert button{margin-left:auto}
+.err{color:#ffb4a4;font-size:13.5px}
+/* evento */
+.ev{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.ev:first-of-type{border-top:0}
+.ev .date{width:54px;text-align:center;background:var(--card2);border:1px solid var(--line2);border-radius:9px;padding:6px 0}
+.ev .date b{display:block;font:700 22px/1 var(--f-body)}
+.ev .date span{font:600 11px/1 var(--f-cond);letter-spacing:.12em;text-transform:uppercase;color:var(--cream)}
+.ev h4{margin:0 0 4px;font-size:15px}
+.ev p{margin:0;color:var(--soft);font-size:13px}
+.bar{height:6px;border-radius:4px;background:var(--line);overflow:hidden;margin-top:7px}
+.bar i{display:block;height:100%;background:var(--grad)}
+/* gráfico */
+.spark{display:flex;align-items:flex-end;gap:4px;height:92px;padding-top:6px}
+.spark div{flex:1;background:linear-gradient(180deg,#e07a2c,#a3211e);border-radius:3px 3px 0 0;min-height:2px;position:relative}
+.spark div:hover::after{content:attr(data-t);position:absolute;bottom:100%;left:50%;transform:translate(-50%,-6px);background:#000;border:1px solid var(--line2);padding:3px 7px;border-radius:5px;font:12px var(--f-mono);white-space:nowrap;z-index:2}
+.spark-x{display:flex;justify-content:space-between;color:var(--muted);font:11px var(--f-mono);margin-top:6px}
+/* status do fiscalize */
+.st{display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid var(--line);font-size:14px}
+.st:first-child{border-top:0}
+.st b{font-variant-numeric:tabular-nums}
+/* formulário do site */
+.form{display:grid;grid-template-columns:minmax(0,520px) 1fr;gap:18px;align-items:start}
+fieldset{border:1px solid var(--line);border-radius:12px;padding:14px 16px 16px;margin:0 0 14px;background:var(--card)}
+legend{font:700 14px/1 var(--f-cond);letter-spacing:.12em;text-transform:uppercase;padding:0 6px;color:var(--cream)}
+label{display:block;font-size:13px;color:var(--soft);margin:10px 0 5px}
+input[type=text],input[type=url],input[type=date],select,textarea{width:100%;background:#0b0908;border:1px solid var(--line2);border-radius:8px;padding:9px 11px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--orange)}
+.check{display:flex;align-items:center;gap:9px;font-size:14px;color:var(--ink);margin:6px 0}
+.check input{width:17px;height:17px;accent-color:var(--orange)}
+.cards-order{list-style:none;margin:6px 0 0;padding:0}
+.cards-order li{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line2);border-radius:8px;margin-bottom:6px;background:#0b0908}
+.cards-order li span{flex:1}
+.cards-order button{background:var(--card2);border:1px solid var(--line2);border-radius:6px;width:30px;height:28px;cursor:pointer}
+.cards-order button:disabled{opacity:.3;cursor:default}
+.hint{font-size:12.5px;color:var(--muted);margin-top:5px}
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:8px;padding:10px 18px;font-weight:600;cursor:pointer;background:var(--grad);color:#170a04}
+.btn.ghost{background:var(--card2);color:var(--ink);border:1px solid var(--line2)}
+.btn:disabled{opacity:.55;cursor:default}
+.actions{display:flex;gap:10px;align-items:center;position:sticky;bottom:0;padding:12px 0;background:linear-gradient(180deg,transparent,var(--black) 30%)}
+.saved{font-size:13px;color:var(--ok)}
+.preview{position:sticky;top:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;height:calc(100dvh - 140px);display:flex;flex-direction:column;background:var(--card)}
+.preview .pv-bar{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted)}
+.preview .pv-bar .sp{flex:1}
+.preview iframe{background:#060504}
+.skel{color:var(--muted)}
+/* celular */
+.mobile-nav{display:none}
+@media (max-width:1100px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.grid2,.grid3,.form{grid-template-columns:1fr}.preview{position:relative;height:620px}}
+@media (max-width:760px){
+  .app{grid-template-columns:1fr;grid-template-rows:1fr auto}
+  .side{display:none}
+  .pad{padding:18px 16px 28px}
+  h1{font-size:25px}
+  .kpi .v{font-size:23px}
+  .mobile-nav{display:flex;border-top:1px solid var(--line);background:#0a0807;padding:4px 4px calc(4px + env(safe-area-inset-bottom))}
+  .mobile-nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;padding:7px 0;font-size:11px;color:var(--muted);cursor:pointer}
+  .mobile-nav button svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .mobile-nav button[aria-current="page"]{color:var(--cream)}
+  .frame-bar{padding:9px 12px;flex-wrap:wrap}
+  .frame-bar h2{font-size:16px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side" aria-label="Menu do painel">
+    <div class="brand"><img src="https://rogeriotpires-spec.github.io/apuracao-timeline/novo-site/img/t.png" alt=""><div><b>Timeline</b><small>Painel de controle</small></div></div>
+    <button class="nav" data-v="inicio"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Início</button>
+    <button class="nav" data-v="eventos"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Eventos<span class="badge" id="b-eventos" hidden></span></button>
+    <button class="nav" data-v="editora"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M9 7h6"/></svg>Editora<span class="badge" id="b-editora" hidden></span></button>
+    <button class="nav" data-v="fiscalize"><svg viewBox="0 0 24 24"><path d="M9 11l2 2 4-4"/><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>Fiscalize</button>
+    <button class="nav" data-v="site"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>Site principal</button>
+    <div class="grp">Serviços</div>
+    <a class="ext" href="https://dashboard.stripe.com/" target="_blank" rel="noopener">Stripe</a>
+    <a class="ext" href="https://resend.com/emails" target="_blank" rel="noopener">Resend</a>
+    <a class="ext" href="https://supabase.com/dashboard/projects" target="_blank" rel="noopener">Supabase</a>
+    <a class="ext" href="https://app.netlify.com/" target="_blank" rel="noopener">Netlify</a>
+    <a class="ext" href="https://dash.cloudflare.com/b9d52da87ec2cae325568ac96acaacdf" target="_blank" rel="noopener">Cloudflare</a>
+    <a class="ext" href="https://github.com/rogeriotpires-spec" target="_blank" rel="noopener">GitHub</a>
+    <a class="ext" href="https://www.revistatimeline.com/publish/home" target="_blank" rel="noopener">Substack</a>
+    <div class="me"><span id="me">Conectando...</span><br><a href="/cdn-cgi/access/logout">Sair</a></div>
+  </aside>
+
+  <main class="main">
+    <!-- INÍCIO -->
+    <section class="view" id="v-inicio">
+      <div class="pad">
+        <h1 id="ola">Bom dia</h1>
+        <p class="sub" id="upd">Carregando os números...</p>
+        <div id="alerts"></div>
+        <div class="kpis">
+          <div class="kpi"><div class="l">Editora hoje</div><div class="v" id="k-ed-hoje">–</div><div class="d" id="k-ed-hoje-d">&nbsp;</div></div>
+          <div class="kpi"><div class="l">Editora, 7 dias</div><div class="v" id="k-ed-sem">–</div><div class="d" id="k-ed-sem-d">&nbsp;</div></div>
+          <div class="kpi"><div class="l">Inscrições hoje</div><div class="v" id="k-ev-hoje">–</div><div class="d" id="k-ev-hoje-d">&nbsp;</div></div>
+          <div class="kpi"><div class="l">Inscrições, 7 dias</div><div class="v" id="k-ev-sem">–</div><div class="d" id="k-ev-sem-d">&nbsp;</div></div>
+        </div>
+        <div class="grid2">
+          <div class="box"><h3>Próximos eventos<span class="sp"></span><button data-go="eventos">Abrir Eventos</button></h3><div id="eventos-list" class="skel">Carregando...</div></div>
+          <div class="box"><h3>Vendas da Editora, 14 dias<span class="sp"></span><button data-go="editora">Abrir Editora</button></h3><div id="ed-spark" class="skel">Carregando...</div></div>
+        </div>
+        <div class="grid3">
+          <div class="box"><h3>Últimas vendas</h3><ul class="rows" id="ed-ult"><li class="empty">Carregando...</li></ul></div>
+          <div class="box"><h3>Últimas inscrições</h3><ul class="rows" id="ev-ult"><li class="empty">Carregando...</li></ul></div>
+          <div class="box"><h3>Fiscalize<span class="sp"></span><button data-go="fiscalize">Detalhes</button></h3><div id="fz-mini" class="skel">Carregando...</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EVENTOS -->
+    <section class="view" id="v-eventos">
+      <div class="frame-bar"><h2>Eventos</h2>
+        <div class="tabs"><button class="chip" data-frame="eventos" data-src="https://eventos.revistatimeline.com/admin/" aria-pressed="true">Administração</button><button class="chip" data-frame="eventos" data-src="https://eventos.revistatimeline.com/staff/checkin.html" aria-pressed="false">Portaria</button><button class="chip" data-frame="eventos" data-src="https://eventos.revistatimeline.com/" aria-pressed="false">Site público</button></div>
+        <span class="sp"></span><a class="chip" id="open-eventos" href="https://eventos.revistatimeline.com/admin/" target="_blank" rel="noopener">Nova aba ↗</a></div>
+      <div class="frame-wrap"><iframe id="f-eventos" title="Administração dos Eventos" data-src="https://eventos.revistatimeline.com/admin/" allow="camera; clipboard-write"></iframe></div>
+    </section>
+
+    <!-- EDITORA -->
+    <section class="view" id="v-editora">
+      <div class="frame-bar"><h2>Editora</h2>
+        <div class="tabs"><button class="chip" data-frame="editora" data-src="https://editora.revistatimeline.com/painel/" aria-pressed="true">Painel</button><button class="chip" data-frame="editora" data-src="https://editora.revistatimeline.com/" aria-pressed="false">Livraria</button></div>
+        <span class="sp"></span><a class="chip" id="open-editora" href="https://editora.revistatimeline.com/painel/" target="_blank" rel="noopener">Nova aba ↗</a></div>
+      <div class="frame-wrap"><iframe id="f-editora" title="Painel da Editora" data-src="https://editora.revistatimeline.com/painel/" allow="clipboard-write"></iframe></div>
+    </section>
+
+    <!-- FISCALIZE -->
+    <section class="view" id="v-fiscalize">
+      <div class="pad">
+        <h1>Fiscalize seu voto</h1>
+        <p class="sub" id="fz-upd">Carregando...</p>
+        <div class="kpis">
+          <div class="kpi"><div class="l">Boletins enviados</div><div class="v" id="fz-env">–</div><div class="d">fotos recebidas pelo site</div></div>
+          <div class="kpi"><div class="l">Seções conferidas</div><div class="v" id="fz-conf">–</div><div class="d" id="fz-conf-d">&nbsp;</div></div>
+          <div class="kpi"><div class="l">Votos conferidos</div><div class="v" id="fz-votos">–</div><div class="d">somados nos boletins</div></div>
+          <div class="kpi"><div class="l">Na fila do robô</div><div class="v" id="fz-fila">–</div><div class="d">em análise agora</div></div>
+        </div>
+        <div class="grid2">
+          <div class="box"><h3>Situação dos envios</h3><div id="fz-status"></div></div>
+          <div class="box"><h3>Atalhos</h3>
+            <ul class="rows">
+              <li><span class="who">Resultado público da conferência</span><a href="https://fiscalize.revistatimeline.com/resultado/" target="_blank" rel="noopener">Abrir ↗</a></li>
+              <li><span class="who">Boletins recebidos</span><a href="https://fiscalize.revistatimeline.com/boletins/" target="_blank" rel="noopener">Abrir ↗</a></li>
+              <li><span class="who">Execuções do Robô Fiscalize<small>GitHub Actions</small></span><a href="https://github.com/rogeriotpires-spec/guia-fiscalize-seu-voto-2026/actions" target="_blank" rel="noopener">Abrir ↗</a></li>
+              <li><span class="who">Página de envio</span><a href="https://fiscalize.revistatimeline.com/enviar/" target="_blank" rel="noopener">Abrir ↗</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SITE -->
+    <section class="view" id="v-site">
+      <div class="pad" style="max-width:none">
+        <h1>Site principal</h1>
+        <p class="sub">O que você salvar aqui aparece em novo.revistatimeline.com em até 1 minuto.</p>
+        <form class="form" id="cfg" autocomplete="off">
+          <div>
+            <fieldset><legend>Aviso no topo</legend>
+              <label class="check"><input type="checkbox" name="aviso.ativo"> Mostrar um aviso acima dos destaques</label>
+              <label for="a-t">Texto</label><input type="text" id="a-t" name="aviso.texto" maxlength="160" placeholder="Ex.: Black Friday: Almanaque com 40% de desconto até domingo">
+              <label for="a-l">Link (opcional)</label><input type="url" id="a-l" name="aviso.link" placeholder="https://editora.revistatimeline.com/...">
+              <label for="a-b">Texto do botão</label><input type="text" id="a-b" name="aviso.botao" maxlength="30" placeholder="Saiba mais">
+              <label for="a-c">Cor</label><select id="a-c" name="aviso.tom"><option value="ambar">Âmbar, discreto</option><option value="vermelho">Vermelho, urgente</option></select>
+            </fieldset>
+            <fieldset><legend>Cartões de destaque</legend>
+              <div class="hint" style="margin-top:0">Ordem em que aparecem na faixa. Desmarque para esconder.</div>
+              <ul class="cards-order" id="cards"></ul>
+            </fieldset>
+            <fieldset><legend>Livro em destaque</legend>
+              <label for="l-s">Endereço curto do livro na Editora</label><input type="text" id="l-s" name="livro.slug" placeholder="almanaque-timeline">
+              <div class="hint">É o que vem depois de <b>?l=</b> no link do livro.</div>
+              <label for="l-e">Etiqueta</label><select id="l-e" name="livro.etiqueta"><option value="auto">Automática (Promoção ou Lançamento)</option><option>Lançamento</option><option>Promoção</option><option>Pré-venda</option><option>Black Friday</option><option value="">Sem etiqueta</option></select>
+            </fieldset>
+            <fieldset><legend>Evento e Loja</legend>
+              <label for="e-e">Etiqueta do próximo evento</label><select id="e-e" name="evento.etiqueta"><option value="">Sem etiqueta</option><option>Últimas vagas</option><option>Ao vivo hoje</option><option>Novo</option><option>Esgotado</option></select>
+              <label for="lj">Preço mínimo da Loja (R$)</label><input type="text" id="lj" name="loja.preco_min" maxlength="10" placeholder="29,90">
+            </fieldset>
+            <fieldset><legend>Artigo fixado no topo</legend>
+              <label for="af">Link do artigo no Substack</label><input type="url" id="af" name="artigo_fixado.url" placeholder="https://www.revistatimeline.com/p/...">
+              <label for="ad">Fixado até (opcional)</label><input type="date" id="ad" name="artigo_fixado.ate">
+              <div class="hint">Vazio: o destaque é sempre o artigo mais recente.</div>
+            </fieldset>
+            <div class="actions"><button class="btn" type="submit" id="save">Salvar e publicar</button><button class="btn ghost" type="button" id="reset">Desfazer</button><span class="saved" id="saved"></span></div>
+          </div>
+          <div class="preview"><div class="pv-bar">Pré-visualização<span class="sp"></span><button type="button" class="chip" id="pv-reload">Recarregar</button><a class="chip" href="https://novo.revistatimeline.com/" target="_blank" rel="noopener">Abrir ↗</a></div><iframe id="pv" title="Pré-visualização do site" data-src="https://novo.revistatimeline.com/"></iframe></div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <nav class="mobile-nav" aria-label="Menu do painel">
+    <button data-v="inicio"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Início</button>
+    <button data-v="eventos"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Eventos</button>
+    <button data-v="editora"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M9 7h6"/></svg>Editora</button>
+    <button data-v="fiscalize"><svg viewBox="0 0 24 24"><path d="M9 11l2 2 4-4"/><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>Fiscalize</button>
+    <button data-v="site"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>Site</button>
+  </nav>
+</div>
+
+<script>
+(function(){
+  const $ = (s, r) => (r||document).querySelector(s);
+  const $$ = (s, r) => [...(r||document).querySelectorAll(s)];
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const money = (c, cur) => new Intl.NumberFormat("pt-BR",{style:"currency",currency:(cur||"brl").toUpperCase()}).format((c||0)/100).replace(/\s/," ");
+  const moneyMap = m => { const k = Object.keys(m||{}).filter(x => m[x]); return k.length ? k.map(x => money(m[x], x)).join(" + ") : money(0); };
+  const num = n => new Intl.NumberFormat("pt-BR").format(n||0);
+  const TZ = "America/Sao_Paulo";
+  const when = iso => { if(!iso) return ""; const d = new Date(iso), diff = (Date.now()-d)/6e4;
+    if(diff < 60) return Math.max(1, Math.round(diff))+" min";
+    if(diff < 1440) return Math.round(diff/60)+" h";
+    return new Intl.DateTimeFormat("pt-BR",{timeZone:TZ,day:"2-digit",month:"2-digit"}).format(d); };
+  const api = (p, o) => fetch(p, Object.assign({credentials:"same-origin",cache:"no-store"}, o||{})).then(async r => {
+    if(r.status === 401 || r.status === 403){ location.reload(); throw new Error("auth"); }
+    const j = await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error || ("HTTP "+r.status)); return j; });
+
+  // ---------- navegação: as telas ficam carregadas, trocar de seção não perde o que estava aberto ----------
+  const VIEWS = ["inicio","eventos","editora","fiscalize","site"];
+  function go(v){
+    if(!VIEWS.includes(v)) v = "inicio";
+    VIEWS.forEach(x => $("#v-"+x).classList.toggle("on", x === v));
+    $$("[data-v]").forEach(b => b.setAttribute("aria-current", b.dataset.v === v ? "page" : "false"));
+    $$("#v-"+v+" iframe").forEach(f => { if(!f.src && f.dataset.src) f.src = f.dataset.src; });
+    if(location.hash !== "#"+v) history.replaceState(null, "", "#"+v);
+    document.title = (v === "inicio" ? "" : ({eventos:"Eventos",editora:"Editora",fiscalize:"Fiscalize",site:"Site"}[v]+" · ")) + "Painel Timeline";
+  }
+  $$("[data-v]").forEach(b => b.onclick = () => go(b.dataset.v));
+  document.addEventListener("click", e => { const g = e.target.closest("[data-go]"); if(g) go(g.dataset.go); });
+  addEventListener("hashchange", () => go(location.hash.slice(1)));
+  // abas internas dos painéis (Administração, Portaria, Site público...)
+  $$("[data-frame]").forEach(b => b.onclick = () => {
+    const f = $("#f-"+b.dataset.frame);
+    $$('[data-frame="'+b.dataset.frame+'"]').forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+    f.src = b.dataset.src; $("#open-"+b.dataset.frame).href = b.dataset.src;
+  });
+  go(location.hash.slice(1) || "inicio");
+
+  // ---------- quem está conectado ----------
+  const hora = Number(new Intl.DateTimeFormat("pt-BR",{timeZone:TZ,hour:"numeric",hourCycle:"h23"}).format(new Date()));
+  const saud = hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite";
+  api("/api/me").then(m => {
+    $("#me").textContent = m.email || "";
+    const nome = m.nome ? ", "+m.nome : "";
+    $("#ola").textContent = saud + nome;
+  }).catch(() => { $("#ola").textContent = saud; });
+
+  // ---------- números ----------
+  function setK(id, v, d){ $("#"+id).innerHTML = v; if(d !== undefined) $("#"+id+"-d").innerHTML = d; }
+  function badge(id, n){ const b = $("#"+id); b.hidden = !n; b.textContent = n; }
+  function spark(serie, key, fmt){
+    const max = Math.max(1, ...serie.map(x => x[key]||0));
+    const lab = d => d.slice(8,10)+"/"+d.slice(5,7);
+    return '<div class="spark">'+serie.map(x => '<div style="height:'+Math.round(((x[key]||0)/max)*100)+'%" data-t="'+esc(lab(x.dia)+": "+fmt(x[key]||0))+'"></div>').join("")+'</div>'+
+      '<div class="spark-x"><span>'+lab(serie[0].dia)+'</span><span>hoje</span></div>';
+  }
+  const PROD = {vitalicio:"para sempre", aluguel:"aluguel", combo:"impresso + digital"};
+  const fmtDate = (iso, o) => new Intl.DateTimeFormat("pt-BR", Object.assign({timeZone:TZ}, o)).format(new Date(iso)).replace(".","");
+
+  function renderEditora(ed){
+    if(!ed || ed.erro){ const m = '<span class="err">'+esc(ed && ed.erro || "Sem resposta da Editora")+'</span>';
+      setK("k-ed-hoje","–",m); setK("k-ed-sem","–",""); $("#ed-spark").innerHTML = m; $("#ed-ult").innerHTML = '<li class="empty">'+m+'</li>'; return; }
+    const t = ed.totais;
+    setK("k-ed-hoje", money(t.receita_hoje), "<b>"+num(t.hoje)+"</b> "+(t.hoje===1?"pedido":"pedidos"));
+    setK("k-ed-sem", money(t.receita_semana), "<b>"+num(t.semana)+"</b> pedidos · "+money(t.receita_mes)+" em 30 dias");
+    $("#ed-spark").classList.remove("skel");
+    $("#ed-spark").innerHTML = spark(ed.serie, "receita", v => money(v)) +
+      (ed.livros && ed.livros.length ? '<ul class="rows" style="margin-top:12px">'+ed.livros.slice(0,3).map(b => '<li><span class="who">'+esc(b.titulo)+'<small>'+num(b.pedidos)+' pedidos</small></span><span class="amt">'+money(b.receita)+'</span></li>').join("")+'</ul>' : "");
+    $("#ed-ult").innerHTML = ed.ultimos.length ? ed.ultimos.map(o => '<li><span class="who">'+esc(o.nome)+'<small>'+esc(o.livro)+' · '+esc(PROD[o.produto]||o.produto)+'</small></span><span class="amt">'+money(o.valor)+'</span><span class="when">'+when(o.quando)+'</span></li>').join("") : '<li class="empty">Nenhuma venda ainda.</li>';
+    badge("b-editora", (t.reembolsos_pedidos||0) + (t.a_enviar||0));
+    return t;
+  }
+  function renderEventos(ev){
+    if(!ev || ev.erro){ const m = '<span class="err">'+esc(ev && ev.erro || "Sem resposta dos Eventos")+'</span>';
+      setK("k-ev-hoje","–",m); setK("k-ev-sem","–",""); $("#eventos-list").innerHTML = m; $("#ev-ult").innerHTML = '<li class="empty">'+m+'</li>'; return; }
+    const t = ev.totais;
+    setK("k-ev-hoje", num(t.hoje), moneyMap(t.receita_hoje)+" em ingressos");
+    setK("k-ev-sem", num(t.semana), moneyMap(t.receita_semana)+" · "+num(t.cortesias)+" cortesias no total");
+    const L = $("#eventos-list"); L.classList.remove("skel");
+    L.innerHTML = ev.proximos.length ? ev.proximos.slice(0,4).map(e => {
+      const cap = e.capacity_in_person || 0, pct = cap ? Math.min(100, Math.round(e.presencial/cap*100)) : 0;
+      const status = {draft:"Rascunho", published:"Publicado", closed:"Encerrado"}[e.status] || e.status;
+      return '<div class="ev"><div class="date"><b>'+fmtDate(e.starts_at,{day:"2-digit"})+'</b><span>'+fmtDate(e.starts_at,{month:"short"})+'</span></div><div>'+
+        '<h4>'+esc(e.title)+'</h4><p><b>'+num(e.confirmados)+'</b> inscritos ('+num(e.presencial)+' presenciais, '+num(e.online_count)+' on-line) · '+num(e.cortesias)+' cortesias · '+moneyMap(e.receita)+' · '+status+
+        (e.hoje ? ' · <b style="color:var(--ok)">+'+num(e.hoje)+' hoje</b>' : '')+'</p>'+
+        (cap ? '<div class="bar" title="'+pct+'% das vagas presenciais"><i style="width:'+pct+'%"></i></div>' : '')+'</div></div>';
+    }).join("") : '<p class="empty">Nenhum evento futuro cadastrado.</p>';
+    $("#ev-ult").innerHTML = ev.ultimas.length ? ev.ultimas.map(r => '<li><span class="who">'+esc(r.nome)+'<small>'+esc(r.evento)+' · '+(r.modalidade==="online"?"on-line":"presencial")+(r.tipo==="comp"?" · cortesia":"")+'</small></span><span class="amt">'+(r.tipo==="comp"?"–":money(r.valor, r.moeda))+'</span><span class="when">'+when(r.quando)+'</span></li>').join("") : '<li class="empty">Nenhuma inscrição ainda.</li>';
+    badge("b-eventos", t.reembolsos_pedidos||0);
+    return t;
+  }
+  const ROT = {confere:"Confere com o TSE", confere_numeros:"Confere (pelos números)", diverge:"Divergência em análise", em_analise:"Em análise", ilegivel:"Ilegível", nao_e_bu:"Descartado: não é boletim", via_digital:"Descartado: via digital", primeiro_turno:"Primeiro turno", repetida:"Repetida", nao_encontrada:"Seção não encontrada"};
+  function renderFiscalize(fz){
+    if(!fz || fz.erro || !fz.placar){ const m = '<span class="err">'+esc(fz && fz.erro || "Sem resposta do Fiscalize")+'</span>'; $("#fz-mini").innerHTML = m; $("#fz-upd").innerHTML = m; return; }
+    const p = fz.placar, s = p.por_status || {}, rot = Object.assign({}, ROT, fz.rotulos || {});
+    const div = s.diverge || 0;
+    $("#fz-mini").classList.remove("skel");
+    $("#fz-mini").innerHTML = '<div class="st"><span>Boletins enviados</span><b>'+num(p.envios)+'</b></div><div class="st"><span>Seções conferidas</span><b>'+num(p.secoes_conferidas)+'</b></div><div class="st"><span>Conferem com o TSE</span><b style="color:var(--ok)">'+num(p.secoes_conferem)+'</b></div><div class="st"><span>Divergências</span><b style="color:'+(div?'var(--red)':'inherit')+'">'+num(div)+'</b></div>';
+    $("#fz-upd").textContent = "Atualizado pelo robô em "+fmtDate(fz.atualizado,{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+    $("#fz-env").textContent = num(p.envios); $("#fz-conf").textContent = num(p.secoes_conferidas);
+    $("#fz-conf-d").innerHTML = "<b>"+num(p.secoes_conferem)+"</b> conferem com o TSE";
+    $("#fz-votos").textContent = num(p.votos_conferidos); $("#fz-fila").textContent = num(s.em_analise||0);
+    $("#fz-status").innerHTML = Object.keys(s).sort((a,b) => s[b]-s[a]).map(k => '<div class="st"><span>'+esc(rot[k]||k)+'</span><b>'+num(s[k])+'</b></div>').join("");
+  }
+  function load(){
+    $("#upd").textContent = "Atualizando...";
+    api("/api/resumo").then(d => {
+      const ed = renderEditora(d.editora), ev = renderEventos(d.eventos); renderFiscalize(d.fiscalize);
+      const al = [];
+      if(ed && ed.reembolsos_pedidos) al.push(['editora', ed.reembolsos_pedidos+(ed.reembolsos_pedidos===1?" pedido de reembolso":" pedidos de reembolso")+" na Editora"]);
+      if(ed && ed.a_enviar) al.push(['editora', ed.a_enviar+" livro(s) impresso(s) aguardando envio"]);
+      if(ev && ev.reembolsos_pedidos) al.push(['eventos', ev.reembolsos_pedidos+" pedido(s) de reembolso nos Eventos"]);
+      $("#alerts").innerHTML = al.map(a => '<div class="alert"><span>'+esc(a[1])+'</span><button class="chip" data-go="'+a[0]+'">Resolver</button></div>').join("");
+      $("#upd").innerHTML = "Atualizado às "+fmtDate(new Date().toISOString(),{hour:"2-digit",minute:"2-digit"})+'. <button type="button" id="reload">Atualizar agora</button>';
+      $("#reload").onclick = load;
+    }).catch(e => { $("#upd").innerHTML = '<span class="err">Não consegui carregar os números ('+esc(e.message)+').</span> <button type="button" id="reload">Tentar de novo</button>'; $("#reload").onclick = load; });
+  }
+  load(); setInterval(() => { if(!document.hidden && $("#v-inicio").classList.contains("on")) load(); }, 120000);
+
+  // ---------- configuração do site ----------
+  const NOMES = {livro:"Livro da Editora", evento:"Próximo evento", assine:"Assine a Timeline", boletim:"Fiscalize seu voto", loja:"Loja Timeline"};
+  const form = $("#cfg"); let atual = null;
+  const get = (o, p) => p.split(".").reduce((a, k) => a == null ? a : a[k], o);
+  const set = (o, p, v) => { const ks = p.split("."), last = ks.pop(); ks.reduce((a, k) => (a[k] = a[k] || {}), o)[last] = v; };
+  function drawCards(list){
+    const ul = $("#cards");
+    ul.innerHTML = list.map((c, i) => '<li data-id="'+c.id+'"><input type="checkbox" '+(c.mostrar?"checked":"")+' aria-label="Mostrar '+esc(NOMES[c.id])+'"><span>'+esc(NOMES[c.id]||c.id)+'</span>'+
+      '<button type="button" data-mv="-1" '+(i===0?"disabled":"")+' aria-label="Subir">↑</button><button type="button" data-mv="1" '+(i===list.length-1?"disabled":"")+' aria-label="Descer">↓</button></li>').join("");
+  }
+  const readCards = () => $$("#cards li").map(li => ({id:li.dataset.id, mostrar:$("input",li).checked}));
+  $("#cards").onclick = e => { const b = e.target.closest("[data-mv]"); if(!b) return;
+    const list = readCards(), i = list.findIndex(x => x.id === b.closest("li").dataset.id), j = i + Number(b.dataset.mv);
+    [list[i], list[j]] = [list[j], list[i]]; drawCards(list); };
+  function fill(c){
+    atual = c;
+    $$("[name]", form).forEach(el => { const v = get(c, el.name); if(el.type === "checkbox") el.checked = !!v; else el.value = v ?? ""; });
+    drawCards(c.cartoes);
+  }
+  function read(){
+    const c = JSON.parse(JSON.stringify(atual || {}));
+    $$("[name]", form).forEach(el => set(c, el.name, el.type === "checkbox" ? el.checked : el.value.trim()));
+    c.cartoes = readCards();
+    return c;
+  }
+  api("/api/config").then(fill).catch(e => { $("#saved").innerHTML = '<span class="err">Não consegui ler a configuração: '+esc(e.message)+'</span>'; });
+  $("#reset").onclick = () => { if(atual) fill(atual); $("#saved").textContent = ""; };
+  $("#pv-reload").onclick = () => { const f = $("#pv"); f.src = f.dataset.src + "?v=" + Date.now(); };
+  form.onsubmit = e => { e.preventDefault();
+    const c = read();
+    if(c.aviso.ativo && !c.aviso.texto){ $("#saved").innerHTML = '<span class="err">Escreva o texto do aviso ou desmarque a opção.</span>'; return; }
+    const btn = $("#save"); btn.disabled = true; $("#saved").textContent = "Salvando...";
+    api("/api/config", {method:"PUT", headers:{"content-type":"application/json"}, body:JSON.stringify(c)}).then(r => {
+      fill(r.config); $("#saved").textContent = "Publicado. O site atualiza em até 1 minuto.";
+      setTimeout(() => $("#pv-reload").click(), 35000);
+    }).catch(err => { $("#saved").innerHTML = '<span class="err">Não salvou: '+esc(err.message)+'</span>'; })
+      .finally(() => { btn.disabled = false; });
+  };
+})();
+</script>
+</body>
+</html>

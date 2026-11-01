@@ -3,12 +3,63 @@
 const PAGES = 'https://rogeriotpires-spec.github.io/apuracao-timeline/novo-site';
 const SUBSTACK = 'https://www.revistatimeline.com';
 
+// Configuração editável pelo Painel de Controle (painel.revistatimeline.com), guardada no KV ligado como SITE.
+// Sem o KV, o site segue com estes padrões.
+const DEFAULTS = {
+  aviso: { ativo: false, texto: '', link: '', botao: '', tom: 'ambar' },
+  cartoes: [
+    { id: 'livro', mostrar: true }, { id: 'evento', mostrar: true }, { id: 'assine', mostrar: true },
+    { id: 'boletim', mostrar: true }, { id: 'loja', mostrar: true },
+  ],
+  livro: { slug: 'almanaque-timeline', etiqueta: 'auto' },
+  evento: { etiqueta: '' },
+  loja: { preco_min: '29,90' },
+  artigo_fixado: { url: '', ate: '' },
+};
+function mergeConfig(c) {
+  const v = c && typeof c === 'object' ? c : {};
+  const ids = DEFAULTS.cartoes.map((x) => x.id);
+  const cards = Array.isArray(v.cartoes) ? v.cartoes.filter((x) => x && ids.includes(x.id)) : [];
+  for (const d of DEFAULTS.cartoes) if (!cards.find((x) => x.id === d.id)) cards.push({ ...d });
+  return {
+    aviso: { ...DEFAULTS.aviso, ...(v.aviso || {}) },
+    cartoes: cards.map((x) => ({ id: x.id, mostrar: x.mostrar !== false })),
+    livro: { ...DEFAULTS.livro, ...(v.livro || {}) },
+    evento: { ...DEFAULTS.evento, ...(v.evento || {}) },
+    loja: { ...DEFAULTS.loja, ...(v.loja || {}) },
+    artigo_fixado: { ...DEFAULTS.artigo_fixado, ...(v.artigo_fixado || {}) },
+  };
+}
+async function getConfig(env) {
+  try { return mergeConfig(env.SITE ? await env.SITE.get('config', 'json') : null); } catch { return mergeConfig(null); }
+}
+// artigo fixado vale até a data "ate" (inclusive), se houver
+function pinnedSlug(cfg) {
+  const a = cfg.artigo_fixado;
+  if (!a.url) return '';
+  if (a.ate && new Date(a.ate + 'T23:59:59-03:00') < new Date()) return '';
+  const m = String(a.url).match(/\/p\/([a-z0-9-]+)/i);
+  return m ? m[1] : '';
+}
+const mapPost = (p) => ({
+  title: p.title,
+  subtitle: p.subtitle || p.description || '',
+  author: p.publishedBylines?.[0]?.name || 'Redação Timeline',
+  date: p.post_date,
+  url: p.canonical_url,
+  image: p.cover_image || '',
+  likes: p.reaction_count ?? (p.reactions ? Object.values(p.reactions).reduce((a, b) => a + b, 0) : null),
+  comments: p.comment_count ?? null,
+  restacks: p.restacks ?? null,
+});
+
 // /api/posts?offset=0&search=termo : página de 12 artigos (busca e "carregar mais" usam o mesmo caminho)
-async function posts(url, ctx) {
+async function posts(url, ctx, cfg) {
   const offset = Math.max(0, Math.min(5000, parseInt(url.searchParams.get('offset') || '0', 10) || 0));
   const search = (url.searchParams.get('search') || '').trim().slice(0, 80);
   const cache = caches.default;
-  const key = new Request(`https://cache.local/api/posts?o=${offset}&s=${encodeURIComponent(search)}`);
+  const pin = offset === 0 && !search ? pinnedSlug(cfg) : '';
+  const key = new Request(`https://cache.local/api/posts?o=${offset}&s=${encodeURIComponent(search)}&pin=${pin}`);
   const hit = await cache.match(key);
   if (hit) return hit;
   const q = new URLSearchParams({ sort: 'new', offset: String(offset), limit: '12' });
@@ -19,18 +70,15 @@ async function posts(url, ctx) {
   const out = {
     updated: new Date().toISOString(),
     more: list.length === 12,
-    posts: list.filter((p) => p.type !== 'podcast' || p.title).map((p) => ({
-      title: p.title,
-      subtitle: p.subtitle || p.description || '',
-      author: p.publishedBylines?.[0]?.name || 'Redação Timeline',
-      date: p.post_date,
-      url: p.canonical_url,
-      image: p.cover_image || '',
-      likes: p.reaction_count ?? (p.reactions ? Object.values(p.reactions).reduce((a, b) => a + b, 0) : null),
-      comments: p.comment_count ?? null,
-      restacks: p.restacks ?? null,
-    })),
+    posts: list.filter((p) => p.type !== 'podcast' || p.title).map(mapPost),
   };
+  if (pin) {
+    const pr = await fetch(`${SUBSTACK}/api/v1/posts/${pin}`, { headers: { 'user-agent': 'site-timeline/1.0' } }).catch(() => null);
+    const p = pr && pr.ok ? await pr.json().catch(() => null) : null;
+    if (p && p.title) {
+      out.posts = [{ ...mapPost(p), pinned: true }, ...out.posts.filter((x) => x.url !== p.canonical_url)];
+    }
+  }
   const resp = new Response(JSON.stringify(out), { headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'public, max-age=300' } });
   ctx.waitUntil(cache.put(key, resp.clone()));
   return resp;
@@ -42,14 +90,15 @@ const EVENTOS = 'https://timeline-eventos.netlify.app';
 const getJson = (u) => fetch(u, { headers: { 'user-agent': 'site-timeline/1.0' }, signal: AbortSignal.timeout(6000) })
   .then((r) => (r.ok ? r.json() : null)).catch(() => null);
 
-async function destaques(ctx) {
+async function destaques(ctx, cfg) {
   const cache = caches.default;
-  const key = new Request('https://cache.local/api/destaques');
+  const slug = cfg.livro.slug || 'almanaque-timeline';
+  const key = new Request(`https://cache.local/api/destaques?l=${encodeURIComponent(slug)}`);
   const hit = await cache.match(key);
   if (hit) return hit;
   const [cat, evs] = await Promise.all([getJson(`${EDITORA}/api/public?action=catalog`), getJson(`${EVENTOS}/api/public?action=events`)]);
   const books = cat?.books || [];
-  const b = books.find((x) => x.slug === 'almanaque-timeline') || books.find((x) => x.featured) || books[0] || null;
+  const b = books.find((x) => x.slug === slug) || books.find((x) => x.featured) || books[0] || null;
   const e = (evs?.events || []).find((x) => new Date(x.ends_at || x.starts_at) > new Date()) || null;
   const out = {
     book: b && { slug: b.slug, title: b.title, subtitle: b.subtitle, author: b.author, cover_url: b.cover_url,
@@ -68,8 +117,11 @@ async function destaques(ctx) {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    if (url.pathname === '/api/posts') return posts(url, ctx);
-    if (url.pathname === '/api/destaques') return destaques(ctx);
+    if (url.pathname === '/api/config') {
+      return new Response(JSON.stringify(await getConfig(env)), { headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'public, max-age=30' } });
+    }
+    if (url.pathname === '/api/posts') return posts(url, ctx, await getConfig(env));
+    if (url.pathname === '/api/destaques') return destaques(ctx, await getConfig(env));
     const path = url.pathname === '/' ? '/index.html' : url.pathname;
     const r = await fetch(PAGES + path, { cf: { cacheTtl: 120 } });
     const out = new Response(r.body, r);

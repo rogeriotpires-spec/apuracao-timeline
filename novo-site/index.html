@@ -370,7 +370,7 @@ html.lt-travado{overflow:hidden}
     <p class="lt-msg" data-lt-msg></p>
     <small>Se você já é inscrito ou membro, use o mesmo e-mail: o Substack reconhece e você entra normalmente.</small>
     <div class="alt">
-      <a href="https://lp.revistatimeline.com/">Conhecer os planos de membro</a>
+      <a href="https://timelinemedia.substack.com/subscribe?utm_source=site-timeline&amp;next=https%3A%2F%2Fwww.revistatimeline.com%2F">Conhecer os planos de membro</a>
       <button type="button" id="lt-depois">Agora não, quero só ler</button>
     </div>
   </div>
@@ -580,7 +580,7 @@ html.lt-travado{overflow:hidden}
 // então guarda neste aparelho o e-mail que a pessoa usou e mostra "você está inscrito".
 (function(){
   const SUB = "https://timelinemedia.substack.com";
-  const MEMBRO = "https://lp.revistatimeline.com/";
+  const MEMBRO = SUB + "/subscribe?utm_source=site-timeline&next=" + encodeURIComponent("https://www.revistatimeline.com/");
   const K_LEITOR = "tl_leitor", K_DEPOIS = "tl_boasvindas_depois", ADIA_DIAS = 7;
   const ls = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
                set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }, del(k){ try{ localStorage.removeItem(k); }catch(e){} } };

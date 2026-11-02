@@ -892,12 +892,14 @@ html[data-tema="claro"] .tl-tema{border-color:rgba(29,23,19,.22);background:rgba
     // live: alterna miniatura / médio / tela inteira sem recarregar o vídeo
     sec.querySelectorAll("[data-live]").forEach(card => {
       const th = card.querySelector(".th"), bts = card.querySelectorAll("[data-tam]");
-      const tocar = () => { const b = card.querySelector(".tv-play"); if(!b) return;
+      const tocar = (mudo) => { const b = card.querySelector(".tv-play"); if(!b) return;
         const f = document.createElement("iframe");
-        f.src = "https://www.youtube.com/embed/"+encodeURIComponent(b.dataset.id)+"?autoplay=1&playsinline=1";
+        f.src = "https://www.youtube.com/embed/"+encodeURIComponent(b.dataset.id)+"?autoplay=1&playsinline=1"+(mudo===true?"&mute=1":"");
         f.title = b.dataset.titulo; f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen"; f.allowFullscreen = true;
         b.replaceWith(f); };
       const play = card.querySelector(".tv-play"); if(play) play.onclick = tocar;
+      // já começa tocando sem som; o leitor liga o som no próprio player (esse clique conta a visualização)
+      tocar(true);
       const marca = t => bts.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.tam === t)));
       bts.forEach(b => b.onclick = () => {
         const t = b.dataset.tam;

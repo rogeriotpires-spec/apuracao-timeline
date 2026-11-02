@@ -231,6 +231,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .tv-item .selo.vivo{background:#e5321c;box-shadow:0 0 10px rgba(229,50,28,.7)}
 .tv-item .th.logo{display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,rgba(224,122,44,.35),transparent 65%),#0d0907}
 .tv-item .th.logo img{width:42%;height:auto;object-fit:contain;border-radius:8px}
+.tv-item .th.logo.pf img{width:100%;height:100%;object-fit:cover;border-radius:0}
 .tv-item .quando{color:var(--cream);font-size:12px;font-weight:700}
 @media(max-width:1000px){.tv-paineis{grid-template-columns:1fr}}
 @media(max-width:760px){.tv-painel .tv-lista,.tv-painel.pf .tv-lista{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px}.tv-painel .tv-item{flex:0 0 62%;scroll-snap-align:start}}
@@ -830,7 +831,8 @@ html.lt-travado{overflow:hidden}
       return '<a class="tv-item prox" href="'+yt(p.id)+'" target="_blank" rel="noopener"><div class="th"><span class="selo'+(p.ao_vivo?' vivo':'')+'">'+(p.ao_vivo?'Ao vivo agora':'Próximo')+'</span><img src="'+esc(p.thumb)+'" alt="" loading="lazy"></div>'+
         '<div class="tt"><span class="quando">'+(p.ao_vivo?(p.assistindo?esc(nf(p.assistindo))+' assistindo agora':'No ar'):esc(quando(p.inicio)))+'</span><h4>'+esc(p.titulo)+'</h4></div></a>';
     }
-    return '<div class="tv-item prox"><div class="th logo"><span class="selo">Próximo</span><img src="img/t.png" alt=""></div>'+
+    const logo = nome === "Ponto Final" ? '<div class="th logo pf"><span class="selo">Próximo</span><img src="img/ponto-final.jpg" alt="Ponto Final"></div>' : '<div class="th logo"><span class="selo">Próximo</span><img src="img/t.png" alt=""></div>';
+    return '<div class="tv-item prox">'+logo+
       '<div class="tt"><span class="quando">'+esc(quando(padrao))+'</span><h4>'+esc(nome)+'</h4></div></div>';
   }
   const card = v => '<a class="tv-item" href="'+yt(v.id)+'" target="_blank" rel="noopener"><div class="th"><img src="'+esc(v.thumb)+'" alt="" loading="lazy">'+(v.seg?'<b>'+dur(v.seg)+'</b>':'')+'</div>'+

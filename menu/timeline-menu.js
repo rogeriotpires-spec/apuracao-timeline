@@ -7,9 +7,9 @@
 (function () {
   if (document.getElementById('tlm')) return;
   var host = location.hostname.replace(/^www\./, '');
-  // A página inicial nova vive em novo.revistatimeline.com até o domínio principal sair do Substack.
-  // Na troca, basta mudar SITE para 'https://www.revistatimeline.com/'.
-  var SITE = 'https://novo.revistatimeline.com/';
+  // A página inicial nova assumiu o domínio principal em 01/nov/2026; o Substack foi para antigo.revistatimeline.com.
+  var SITE = 'https://www.revistatimeline.com/';
+  var SUBSTACK = 'https://timelinemedia.substack.com';
   var naHomeNova = host === SITE.replace(/^https:\/\/(www\.)?/, '').replace(/\/$/, '');
   var HOME = naHomeNova ? '/' : SITE;
   var BUSCA = HOME + '#busca';
@@ -26,8 +26,8 @@
     { t: 'YouTube', u: 'https://www.youtube.com/@conversatimeline', ext: true },
     { t: 'Instagram', u: 'https://www.instagram.com/_revistatimeline/', ext: true },
     { t: 'Facebook', u: 'https://www.facebook.com/profile.php?id=61572807617119', ext: true },
-    { t: 'Caderno de Cultura', u: 'https://www.revistatimeline.com/s/caderno-de-cultura', path: '/s/caderno-de-cultura' },
-    { t: 'Sobre', u: 'https://www.revistatimeline.com/about', path: '/about' },
+    { t: 'Caderno de Cultura', u: SUBSTACK + '/s/caderno-de-cultura', path: '/s/caderno-de-cultura' },
+    { t: 'Sobre', u: SUBSTACK + '/about', path: '/about' },
   ];
 
   function atual(i) {

@@ -136,6 +136,39 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .placa::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-20deg);animation:brilho 5s ease-in-out infinite}
 @keyframes brilho{0%,70%{left:-60%}100%{left:130%}}
 .feat:hover .placa{transform:perspective(400px) rotateY(-10deg) rotate(-4deg) translateY(-2px)}
+
+/* Leitor: boas-vindas no primeiro acesso, faixa de status e assinatura (o cadastro fica no Substack) */
+.lt-form{display:flex;gap:8px;flex-wrap:wrap;width:100%;max-width:460px}
+.lt-form input{flex:1 1 220px;min-width:0;height:46px;padding:0 14px;border-radius:8px;border:1px solid #4a3a30;background:#0b0907;color:var(--ink);font:15px var(--f-body)}
+.lt-form input:focus{outline:2px solid var(--cream);outline-offset:1px;border-color:transparent}
+.lt-form .btn{height:46px}
+.lt-msg{font-size:13px;color:var(--coral);min-height:1em;margin:0}
+.lt-bar{border-bottom:1px solid var(--line);background:#0a0806}
+.lt-bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:10px 18px;flex-wrap:wrap;padding-block:10px;font-size:14px;color:var(--soft-ink)}
+.lt-bar b{color:var(--ink);font-weight:600}
+.lt-bar .ok{color:#7fd38a;margin-right:4px}
+.lt-bar .lt-form{max-width:420px}
+.lt-bar .lt-form input,.lt-bar .lt-form .btn{height:38px;font-size:14px}
+.lt-bar .lt-abrir{display:none}
+@media(max-width:600px){.lt-bar .lt-form,.lt-bar .lt-msg{display:none}.lt-bar .lt-abrir{display:inline-flex;height:36px;font-size:14px}}
+.lt-bar .acts{display:flex;gap:6px 16px;flex-wrap:wrap;align-items:center}
+.lt-bar a,.lt-bar button.lnk{color:var(--coral);font:inherit;background:none;border:0;padding:0;cursor:pointer}
+.lt-bar a.btn{color:inherit}
+.lt-gate{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px;overflow:auto;
+  background:radial-gradient(700px 420px at 15% 0%,rgba(197,59,38,.30),transparent 65%),radial-gradient(700px 420px at 95% 100%,rgba(224,122,44,.18),transparent 60%),rgba(6,5,4,.97)}
+.lt-gate[hidden]{display:none}
+.lt-card{width:100%;max-width:520px;text-align:center;display:grid;justify-items:center;gap:14px;padding:36px 28px 28px;border:1px solid var(--line);border-radius:16px;background:rgba(16,13,11,.9);box-shadow:var(--shadow);position:relative}
+.lt-card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;border-radius:16px 16px 0 0;background:var(--grad)}
+.lt-card img{width:64px;height:64px;border-radius:12px}
+.lt-card h2{font-size:clamp(28px,5vw,38px);line-height:1.08}
+.lt-card p{margin:0;color:#d4cbc5;max-width:42ch}
+.lt-card .lt-form{justify-content:center}
+.lt-card small{color:var(--muted);font-size:12.5px;max-width:44ch}
+.lt-card .alt{display:flex;gap:8px 20px;flex-wrap:wrap;justify-content:center;font-size:14px}
+.lt-card .alt a,.lt-card .alt button{color:var(--coral);background:none;border:0;padding:0;font:inherit;cursor:pointer}
+.lt-card .alt button{color:var(--muted)}
+html.lt-travado{overflow:hidden}
+
 @media(prefers-reduced-motion:reduce){.placa::after{animation:none;display:none}}
 /* imagens de cada cartão */
 .p-livro{background:radial-gradient(circle at 68% 45%,rgba(224,122,44,.45),transparent 52%),linear-gradient(180deg,#1c120c,#0f0a08)}
@@ -208,6 +241,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 <script src="https://rogeriotpires-spec.github.io/apuracao-timeline/menu/timeline-menu.js"></script>
 
 <main>
+  <div class="lt-bar" id="lt-bar" aria-live="polite"><div class="wrap" id="lt-bar-in"></div></div>
   <div class="wrap">
     <section class="vitrine" aria-label="Destaques da Timeline">
       <button class="nav-btn prev" type="button" aria-label="Destaques anteriores" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
@@ -237,7 +271,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
           <span class="eyebrow">Assine a Timeline</span>
           <h3>Faça parte da Timeline</h3>
           <p class="info">Publicações diárias, lives, dossiês, documentários e e-books</p>
-          <div class="acts"><a class="btn primary" href="https://lp.revistatimeline.com/">Quero assinar</a><a class="lnk" href="https://www.revistatimeline.com/subscribe">Newsletter grátis</a></div>
+          <div class="acts"><a class="btn primary" href="https://lp.revistatimeline.com/">Quero assinar</a><a class="lnk" href="https://timelinemedia.substack.com/subscribe">Newsletter grátis</a></div>
         </div>
       </article>
       <article class="feat" id="v-boletim">
@@ -273,7 +307,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
       <p class="search-info" id="busca-info" aria-live="polite" hidden></p>
       <div class="grid" id="grid"></div>
       <p class="more"><button class="btn" type="button" id="mais" hidden>Carregar mais artigos</button>
-        <a class="btn" id="arquivo" href="https://www.revistatimeline.com/archive">Ver o arquivo completo ↗</a></p>
+        <a class="btn" id="arquivo" href="https://timelinemedia.substack.com/archive">Ver o arquivo completo ↗</a></p>
     </section>
 
     <section class="section" aria-label="Timeline em outros formatos">
@@ -304,32 +338,50 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
         <p>Membros da Timeline recebem publicações diárias, resumo semanal, lives, dossiês, documentários, entrevistas e e-books, além do acesso à comunidade.</p>
       </div>
       <div class="join-actions">
-        <a class="btn primary" href="https://lp.revistatimeline.com/">Quero fazer parte</a>
-        <a class="btn" href="https://www.revistatimeline.com/subscribe">Receber a newsletter</a>
+        <div id="lt-join" style="display:grid;gap:12px;justify-items:start;width:100%"></div>
         <small id="subs">Mais de 46 mil inscritos na newsletter</small>
       </div>
     </div>
   </section>
 </main>
 
+<div class="lt-gate" id="lt-gate" role="dialog" aria-modal="true" aria-labelledby="lt-gate-t" hidden>
+  <div class="lt-card">
+    <img src="img/t.png" alt="" width="64" height="64">
+    <span class="eyebrow">Revista Timeline</span>
+    <h2 id="lt-gate-t">Informação para leitores exigentes</h2>
+    <p>Deixe seu e-mail para receber os artigos da Timeline. A inscrição é grátis, e você pode virar membro quando quiser.</p>
+    <form class="lt-form" data-lt="gate" novalidate>
+      <input type="email" name="email" placeholder="Seu e-mail" autocomplete="email" required aria-label="Seu e-mail">
+      <button class="btn primary" type="submit">Continuar</button>
+    </form>
+    <p class="lt-msg" data-lt-msg></p>
+    <small>Se você já é inscrito ou membro, use o mesmo e-mail: o Substack reconhece e você entra normalmente.</small>
+    <div class="alt">
+      <a href="https://lp.revistatimeline.com/">Conhecer os planos de membro</a>
+      <button type="button" id="lt-depois">Agora não, quero só ler</button>
+    </div>
+  </div>
+</div>
+
 <footer class="footer">
   <div class="wrap">
     <span>© 2026 Revista Timeline</span>
     <nav aria-label="Rodapé">
-      <a href="https://www.revistatimeline.com/archive">Arquivo</a>
+      <a href="https://timelinemedia.substack.com/archive">Arquivo</a>
       <a href="https://editora.revistatimeline.com/">Editora</a>
       <a href="https://eventos.revistatimeline.com/">Eventos</a>
       <a href="https://observatorio.revistatimeline.com/">Observatório Eleitoral</a>
       <a href="https://fiscalize.revistatimeline.com/">Fiscalize seu voto</a>
-      <a href="https://www.revistatimeline.com/about">Sobre</a>
-      <a href="https://www.revistatimeline.com/tos">Termos</a>
-      <a href="https://www.revistatimeline.com/privacy">Privacidade</a>
+      <a href="https://timelinemedia.substack.com/about">Sobre</a>
+      <a href="https://timelinemedia.substack.com/tos">Termos</a>
+      <a href="https://timelinemedia.substack.com/privacy">Privacidade</a>
     </nav>
   </div>
 </footer>
 
 <script type="application/json" id="seed">
-{"updated": "2026-10-16T02:10:00Z", "subscribers": "46 mil", "posts": [{"title": "Moraes fora do STF: o que a eleição de domingo realmente decide", "subtitle": "Eduardo diz em Washington que não volta para cumprir pena, e o caminho para mexer no Supremo passa por onde pouca gente olha", "author": "Rogerio Pires", "date": "2026-10-15T15:57:26Z", "url": "https://www.revistatimeline.com/p/moraes-fora-do-stf-o-que-a-eleicao", "image": "https://substack-post-media.s3.amazonaws.com/public/images/81f84d14-ba42-4e3c-be35-806490ca7a89_1730x909.png", "likes": 34, "comments": 7, "restacks": 4}, {"title": "Por tempo demais o Brasil aceitou o inaceitável", "subtitle": "Por que a esquerda trata a cadeia como ameaça e o assaltante como vítima", "author": "Rogerio Pires", "date": "2026-10-14T21:11:04Z", "url": "https://www.revistatimeline.com/p/o-brasil-aceitou-o-inaceitavel", "image": "https://substack-post-media.s3.amazonaws.com/public/images/309bf4b3-6ced-473a-8392-c06556769f74_1730x909.png", "likes": 38, "comments": 7, "restacks": 5}, {"title": "A pergunta era sobre estupro. A resposta deixou o Brasil perplexo", "subtitle": "A resposta de Jones Manoel a denúncias de violência sexual atribuídas ao Hamas provoca revolta e reacende uma questão fundamental sobre nossos valores", "author": "Rogerio Pires", "date": "2026-10-13T17:30:25Z", "url": "https://www.revistatimeline.com/p/a-pergunta-era-sobre-estupro-a-resposta", "image": "https://substack-post-media.s3.amazonaws.com/public/images/aabfa7eb-fe67-44e4-9448-1b7e72c01f34_1734x907.png", "likes": 54, "comments": 7, "restacks": 9}, {"title": "O fogo voltou à Amazônia. Mas onde estão as vozes que prometiam defendê-la?", "subtitle": "Com Manaus sufocada pela fumaça e 36 municípios em emergência, a tragédia expõe cobranças ao governo e reacende o debate sobre a mobilização de artistas", "author": "Rogerio Pires", "date": "2026-10-13T09:30:20Z", "url": "https://www.revistatimeline.com/p/o-fogo-voltou-a-amazonia-mas-onde", "image": "https://substack-post-media.s3.amazonaws.com/public/images/22ae8f26-c5b2-4c97-880e-2bf016642e51_1729x910.png", "likes": 31, "comments": 2, "restacks": 6}, {"title": "A conta da gasolina chega depois da eleição", "subtitle": "Quem vai pagar e o que acontece com o preço quando o benefício acabar", "author": "Rogerio Pires", "date": "2026-10-11T23:01:46Z", "url": "https://www.revistatimeline.com/p/a-conta-da-gasolina-chega-depois", "image": "https://substack-post-media.s3.amazonaws.com/public/images/3a2e5047-2ff4-4ff3-a737-f2071c1dc782_1730x909.png", "likes": 40, "comments": 11, "restacks": 6}, {"title": "A porta fechada do Supremo e o relógio da eleição", "subtitle": "Fux pediu os autos em 48 horas e Fachin respondeu que antes vêm 104 procedimentos. A pergunta que ficou sem resposta muda o peso das provas", "author": "Rogerio Pires", "date": "2026-10-11T09:01:22Z", "url": "https://www.revistatimeline.com/p/a-porta-fechada-do-supremo-e-o-relogio", "image": "https://substack-post-media.s3.amazonaws.com/public/images/908db9e6-769e-4403-a249-51db87d58b5d_1730x909.png", "likes": 31, "comments": 5, "restacks": 4}, {"title": "Luiz Philippe pede a Fux apuração sobre atuação de Moraes em ações de Allan dos Santos", "subtitle": "Ofício questiona uso de inquéritos, sigilo e cassação de decisões favoráveis ao jornalista", "author": "Redação Timeline", "date": "2026-10-10T21:32:45Z", "url": "https://www.revistatimeline.com/p/luiz-philippe-pede-a-fux-apuracao", "image": "https://substack-post-media.s3.amazonaws.com/public/images/a6bff57e-29c8-4f57-8645-29084def68e9_3936x2624.jpeg", "likes": 63, "comments": 4, "restacks": 11}, {"title": "A régua que errou sempre para o mesmo lado", "subtitle": "Pesquisa vira manchete e manchete vira voto. E se o número já vier torto?", "author": "Rogerio Pires", "date": "2026-10-10T09:30:52Z", "url": "https://www.revistatimeline.com/p/o-que-o-eleitor-leva-para-a-urna", "image": "https://substack-post-media.s3.amazonaws.com/public/images/3e193152-c5ed-41c8-95d4-deada50c152d_1734x907.png", "likes": 27, "comments": 3, "restacks": 5}, {"title": "Imparável: Allan dos Santos agora está nos Canais do WhatsApp; veja como participar", "subtitle": "Jornalista exilado já conta com milhares de seguidores", "author": "Redação Timeline", "date": "2026-10-09T17:17:55Z", "url": "https://www.revistatimeline.com/p/imparavel-allan-dos-santos-agora", "image": "https://substack-post-media.s3.amazonaws.com/public/images/045818c1-5ecf-4e31-95e0-c9c46cc925ff_1008x675.jpeg", "likes": 25, "comments": 1, "restacks": 5}, {"title": "A caneta que escolheu o dia", "subtitle": "A ordem contra Eduardo Bolsonaro saiu a 17 dias do segundo turno, e o motivo oficial não explica a data", "author": "Rogerio Pires", "date": "2026-10-09T13:04:32Z", "url": "https://www.revistatimeline.com/p/a-caneta-que-escolheu-o-dia", "image": "https://substack-post-media.s3.amazonaws.com/public/images/5ed49ae8-c0e8-4f51-969a-f6986dd0a36f_1733x907.png", "likes": 31, "comments": 4, "restacks": 3}, {"title": "16 dias para consertar 1989", "subtitle": "Lula culpa quem votou, e os 2,2 milhões de votos a mais de Flávio respondem", "author": "Rogerio Pires", "date": "2026-10-09T09:30:29Z", "url": "https://www.revistatimeline.com/p/16-dias-para-consertar-1989", "image": "https://substack-post-media.s3.amazonaws.com/public/images/cc2481b3-8701-4016-a301-e07fc0a2f89f_1729x910.png", "likes": 25, "comments": 1, "restacks": 1}, {"title": "A Justiça que olha o calendário eleitoral", "subtitle": "Se a data influencia o voto, o silêncio e a omissão também influenciam", "author": "Rogerio Pires", "date": "2026-10-08T22:01:37Z", "url": "https://www.revistatimeline.com/p/a-justica-que-olha-o-calendario-eleitoral", "image": "https://substack-post-media.s3.amazonaws.com/public/images/82851d53-51d1-4b72-85f8-60460205b1a2_1733x908.png", "likes": 31, "comments": 2, "restacks": 8}]}
+{"updated": "2026-10-16T02:10:00Z", "subscribers": "46 mil", "posts": [{"title": "Moraes fora do STF: o que a eleição de domingo realmente decide", "subtitle": "Eduardo diz em Washington que não volta para cumprir pena, e o caminho para mexer no Supremo passa por onde pouca gente olha", "author": "Rogerio Pires", "date": "2026-10-15T15:57:26Z", "url": "https://timelinemedia.substack.com/p/moraes-fora-do-stf-o-que-a-eleicao", "image": "https://substack-post-media.s3.amazonaws.com/public/images/81f84d14-ba42-4e3c-be35-806490ca7a89_1730x909.png", "likes": 34, "comments": 7, "restacks": 4}, {"title": "Por tempo demais o Brasil aceitou o inaceitável", "subtitle": "Por que a esquerda trata a cadeia como ameaça e o assaltante como vítima", "author": "Rogerio Pires", "date": "2026-10-14T21:11:04Z", "url": "https://timelinemedia.substack.com/p/o-brasil-aceitou-o-inaceitavel", "image": "https://substack-post-media.s3.amazonaws.com/public/images/309bf4b3-6ced-473a-8392-c06556769f74_1730x909.png", "likes": 38, "comments": 7, "restacks": 5}, {"title": "A pergunta era sobre estupro. A resposta deixou o Brasil perplexo", "subtitle": "A resposta de Jones Manoel a denúncias de violência sexual atribuídas ao Hamas provoca revolta e reacende uma questão fundamental sobre nossos valores", "author": "Rogerio Pires", "date": "2026-10-13T17:30:25Z", "url": "https://timelinemedia.substack.com/p/a-pergunta-era-sobre-estupro-a-resposta", "image": "https://substack-post-media.s3.amazonaws.com/public/images/aabfa7eb-fe67-44e4-9448-1b7e72c01f34_1734x907.png", "likes": 54, "comments": 7, "restacks": 9}, {"title": "O fogo voltou à Amazônia. Mas onde estão as vozes que prometiam defendê-la?", "subtitle": "Com Manaus sufocada pela fumaça e 36 municípios em emergência, a tragédia expõe cobranças ao governo e reacende o debate sobre a mobilização de artistas", "author": "Rogerio Pires", "date": "2026-10-13T09:30:20Z", "url": "https://timelinemedia.substack.com/p/o-fogo-voltou-a-amazonia-mas-onde", "image": "https://substack-post-media.s3.amazonaws.com/public/images/22ae8f26-c5b2-4c97-880e-2bf016642e51_1729x910.png", "likes": 31, "comments": 2, "restacks": 6}, {"title": "A conta da gasolina chega depois da eleição", "subtitle": "Quem vai pagar e o que acontece com o preço quando o benefício acabar", "author": "Rogerio Pires", "date": "2026-10-11T23:01:46Z", "url": "https://timelinemedia.substack.com/p/a-conta-da-gasolina-chega-depois", "image": "https://substack-post-media.s3.amazonaws.com/public/images/3a2e5047-2ff4-4ff3-a737-f2071c1dc782_1730x909.png", "likes": 40, "comments": 11, "restacks": 6}, {"title": "A porta fechada do Supremo e o relógio da eleição", "subtitle": "Fux pediu os autos em 48 horas e Fachin respondeu que antes vêm 104 procedimentos. A pergunta que ficou sem resposta muda o peso das provas", "author": "Rogerio Pires", "date": "2026-10-11T09:01:22Z", "url": "https://timelinemedia.substack.com/p/a-porta-fechada-do-supremo-e-o-relogio", "image": "https://substack-post-media.s3.amazonaws.com/public/images/908db9e6-769e-4403-a249-51db87d58b5d_1730x909.png", "likes": 31, "comments": 5, "restacks": 4}, {"title": "Luiz Philippe pede a Fux apuração sobre atuação de Moraes em ações de Allan dos Santos", "subtitle": "Ofício questiona uso de inquéritos, sigilo e cassação de decisões favoráveis ao jornalista", "author": "Redação Timeline", "date": "2026-10-10T21:32:45Z", "url": "https://timelinemedia.substack.com/p/luiz-philippe-pede-a-fux-apuracao", "image": "https://substack-post-media.s3.amazonaws.com/public/images/a6bff57e-29c8-4f57-8645-29084def68e9_3936x2624.jpeg", "likes": 63, "comments": 4, "restacks": 11}, {"title": "A régua que errou sempre para o mesmo lado", "subtitle": "Pesquisa vira manchete e manchete vira voto. E se o número já vier torto?", "author": "Rogerio Pires", "date": "2026-10-10T09:30:52Z", "url": "https://timelinemedia.substack.com/p/o-que-o-eleitor-leva-para-a-urna", "image": "https://substack-post-media.s3.amazonaws.com/public/images/3e193152-c5ed-41c8-95d4-deada50c152d_1734x907.png", "likes": 27, "comments": 3, "restacks": 5}, {"title": "Imparável: Allan dos Santos agora está nos Canais do WhatsApp; veja como participar", "subtitle": "Jornalista exilado já conta com milhares de seguidores", "author": "Redação Timeline", "date": "2026-10-09T17:17:55Z", "url": "https://timelinemedia.substack.com/p/imparavel-allan-dos-santos-agora", "image": "https://substack-post-media.s3.amazonaws.com/public/images/045818c1-5ecf-4e31-95e0-c9c46cc925ff_1008x675.jpeg", "likes": 25, "comments": 1, "restacks": 5}, {"title": "A caneta que escolheu o dia", "subtitle": "A ordem contra Eduardo Bolsonaro saiu a 17 dias do segundo turno, e o motivo oficial não explica a data", "author": "Rogerio Pires", "date": "2026-10-09T13:04:32Z", "url": "https://timelinemedia.substack.com/p/a-caneta-que-escolheu-o-dia", "image": "https://substack-post-media.s3.amazonaws.com/public/images/5ed49ae8-c0e8-4f51-969a-f6986dd0a36f_1733x907.png", "likes": 31, "comments": 4, "restacks": 3}, {"title": "16 dias para consertar 1989", "subtitle": "Lula culpa quem votou, e os 2,2 milhões de votos a mais de Flávio respondem", "author": "Rogerio Pires", "date": "2026-10-09T09:30:29Z", "url": "https://timelinemedia.substack.com/p/16-dias-para-consertar-1989", "image": "https://substack-post-media.s3.amazonaws.com/public/images/cc2481b3-8701-4016-a301-e07fc0a2f89f_1729x910.png", "likes": 25, "comments": 1, "restacks": 1}, {"title": "A Justiça que olha o calendário eleitoral", "subtitle": "Se a data influencia o voto, o silêncio e a omissão também influenciam", "author": "Rogerio Pires", "date": "2026-10-08T22:01:37Z", "url": "https://timelinemedia.substack.com/p/a-justica-que-olha-o-calendario-eleitoral", "image": "https://substack-post-media.s3.amazonaws.com/public/images/82851d53-51d1-4b72-85f8-60460205b1a2_1733x908.png", "likes": 31, "comments": 2, "restacks": 8}]}
 </script>
 <script>
 (function(){
@@ -392,7 +444,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
   api(0,"").catch(()=>null)
     .then(d=>{ if(ok(d)){ live = true; offset = d.posts.length; mais.hidden = !d.more; return d; }
       return fetch("data/posts.json",{cache:"no-store"}).then(r=>r.ok?r.json():null); })
-    .then(d=>{ if(ok(d)) render(d); if(!live){ document.getElementById("busca").hidden = true; const l = document.getElementById("tlm-lupa"); if(l) l.href = "https://www.revistatimeline.com/archive"; } }).catch(()=>{});
+    .then(d=>{ if(ok(d)) render(d); if(!live){ document.getElementById("busca").hidden = true; const l = document.getElementById("tlm-lupa"); if(l) l.href = "https://timelinemedia.substack.com/archive"; } }).catch(()=>{});
   const lupa = document.getElementById("tlm-lupa"); if(lupa) lupa.onclick = (e) => { const q = document.querySelector("#busca input"); if(!q || document.getElementById("busca").hidden) return;
     e.preventDefault(); document.getElementById("artigos").scrollIntoView({behavior:"smooth"}); setTimeout(()=>q.focus({preventScroll:true}), 450); };
 
@@ -509,6 +561,74 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
       document.getElementById("artigos").scrollIntoView({behavior:"smooth"}); }).catch(()=>{ if(meu === pedido) info.textContent = "A busca falhou. Tente de novo."; }); };
   // apagou o texto (ou apertou Esc no campo): volta para os artigos de antes
   campo.addEventListener("input", () => { if(!campo.value.trim() && antes) limpar(); });
+})();
+</script>
+<script>
+// Leitor da Timeline. O cadastro e a assinatura ficam no Substack; este site não consegue ler o login de lá,
+// então guarda neste aparelho o e-mail que a pessoa usou e mostra "você está inscrito".
+(function(){
+  const SUB = "https://timelinemedia.substack.com";
+  const MEMBRO = "https://lp.revistatimeline.com/";
+  const K_LEITOR = "tl_leitor", K_DEPOIS = "tl_boasvindas_depois", ADIA_DIAS = 7;
+  const ls = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
+               set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }, del(k){ try{ localStorage.removeItem(k); }catch(e){} } };
+  const esc = t => String(t||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const leitor = () => { try{ return JSON.parse(ls.get(K_LEITOR)||"null"); }catch(e){ return null; } };
+  const valido = e => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
+
+  // Envia o e-mail para a inscrição gratuita do Substack (mesmo formulário que o Substack usa nos seus botões).
+  // Quem já é inscrito ou membro também passa por aqui: o Substack reconhece o e-mail.
+  function inscrever(email){
+    ls.set(K_LEITOR, JSON.stringify({ email, desde: new Date().toISOString() }));
+    const f = document.createElement("form");
+    f.method = "post"; f.action = SUB + "/api/v1/free?nojs=true";
+    const campos = { email, first_url: location.href, first_referrer: document.referrer, current_url: location.href,
+                     current_referrer: document.referrer, referral_code: "", source: "subscribe_page" };
+    for(const k in campos){ const i = document.createElement("input"); i.type = "hidden"; i.name = k; i.value = campos[k]; f.appendChild(i); }
+    document.body.appendChild(f); f.submit();
+  }
+  function ligar(form){
+    form.addEventListener("submit", ev => {
+      ev.preventDefault();
+      const email = form.email.value.trim().toLowerCase();
+      const msg = form.parentElement.querySelector("[data-lt-msg]");
+      if(!valido(email)){ if(msg) msg.textContent = "Confira o e-mail digitado."; form.email.focus(); return; }
+      form.querySelector("button").disabled = true; form.querySelector("button").textContent = "Enviando...";
+      inscrever(email);
+    });
+  }
+  const formHTML = (rotulo) => '<form class="lt-form" novalidate><input type="email" name="email" placeholder="Seu e-mail" autocomplete="email" required aria-label="Seu e-mail"><button class="btn primary" type="submit">'+rotulo+'</button></form><p class="lt-msg" data-lt-msg></p>';
+
+  function desenhar(){
+    const l = leitor(), bar = document.getElementById("lt-bar-in"), join = document.getElementById("lt-join");
+    if(l && l.email){
+      bar.innerHTML = '<span><span class="ok" aria-hidden="true">✓</span>Você está inscrito como <b>'+esc(l.email)+'</b></span>'+
+        '<span class="acts"><a href="'+MEMBRO+'">Seja membro</a><a href="'+SUB+'/account">Minha conta</a><button class="lnk" type="button" data-lt-sair>Não é você? Sair</button></span>';
+      join.innerHTML = '<p style="margin:0;color:var(--soft-ink)"><span class="ok" style="color:#7fd38a">✓</span> Você já recebe a Timeline em <b style="color:var(--ink)">'+esc(l.email)+'</b>.</p>'+
+        '<a class="btn primary" href="'+MEMBRO+'">Quero ser membro</a><a class="lnk" style="color:var(--coral);font-size:14px" href="'+SUB+'/account">Gerenciar minha conta</a>';
+    } else {
+      bar.innerHTML = '<span>Receba a Timeline no seu e-mail. <b>É grátis.</b></span>'+formHTML("Inscrever-se")+'<button class="btn primary lt-abrir" type="button" data-lt-abrir>Inscrever-se</button>';
+      join.innerHTML = formHTML("Receber grátis")+'<a class="btn" href="'+MEMBRO+'">Quero ser membro</a>';
+    }
+    document.querySelectorAll("#lt-bar-in form, #lt-join form").forEach(ligar);
+    document.querySelectorAll("[data-lt-abrir]").forEach(b => b.onclick = abrirGate);
+    document.querySelectorAll("[data-lt-sair]").forEach(b => b.onclick = () => { ls.del(K_LEITOR); ls.del(K_DEPOIS); desenhar(); });
+  }
+
+  // Boas-vindas: aparece para quem nunca se identificou, salvo se pediu "agora não" nos últimos dias
+  const gate = document.getElementById("lt-gate");
+  ligar(gate.querySelector("form"));
+  function fecharGate(){ gate.hidden = true; document.documentElement.classList.remove("lt-travado"); }
+  document.getElementById("lt-depois").onclick = () => { ls.set(K_DEPOIS, String(Date.now() + ADIA_DIAS*864e5)); fecharGate(); };
+  gate.addEventListener("keydown", e => { if(e.key === "Escape") document.getElementById("lt-depois").click(); });
+  const adiado = Number(ls.get(K_DEPOIS)||0) > Date.now();
+  const veioDeLink = /[?&](sem_boasvindas|utm_source=substack)/.test(location.search);
+  function abrirGate(){
+    gate.hidden = false; document.documentElement.classList.add("lt-travado");
+    setTimeout(() => { const i = gate.querySelector("input"); if(i) i.focus(); }, 50);
+  }
+  if(!leitor() && !adiado && !veioDeLink) abrirGate();
+  desenhar();
 })();
 </script>
 </body>

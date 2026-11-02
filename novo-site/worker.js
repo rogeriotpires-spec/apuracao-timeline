@@ -1,7 +1,9 @@
 // Worker "site-timeline" na Cloudflare da revista.
-// Serve o novo site (publicado no GitHub Pages) e entrega os artigos do Substack ao vivo em /api/posts.
+// Serve o novo site (publicado no GitHub Pages) em revistatimeline.com e entrega os artigos do Substack ao vivo em /api/posts.
+// Desde 01/nov/2026 o Substack responde em antigo.revistatimeline.com; o endereço timelinemedia.substack.com
+// funciona sempre (o Substack o encaminha para o domínio próprio que estiver ativo).
 const PAGES = 'https://rogeriotpires-spec.github.io/apuracao-timeline/novo-site';
-const SUBSTACK = 'https://www.revistatimeline.com';
+const SUBSTACK = 'https://timelinemedia.substack.com';
 
 // Configuração editável pelo Painel de Controle (painel.revistatimeline.com), guardada no KV ligado como SITE.
 // Sem o KV, o site segue com estes padrões.
@@ -124,6 +126,9 @@ export default {
     if (url.pathname === '/api/destaques') return destaques(ctx, await getConfig(env));
     const path = url.pathname === '/' ? '/index.html' : url.pathname;
     const r = await fetch(PAGES + path, { cf: { cacheTtl: 120 } });
+    // O que não existe no site novo é endereço antigo do Substack (/p/artigo, /archive, /subscribe, /about, /s/...):
+    // manda para o Substack no mesmo caminho, para nenhum link já compartilhado quebrar.
+    if (r.status === 404) return Response.redirect(SUBSTACK + url.pathname + url.search, 301);
     const out = new Response(r.body, r);
     out.headers.set('cache-control', 'public, max-age=120');
     return out;

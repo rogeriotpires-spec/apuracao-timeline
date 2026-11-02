@@ -597,7 +597,7 @@ html.lt-travado{overflow:hidden}
   const SUB = "https://timelinemedia.substack.com";
   const VOLTA = "&utm_source=site-timeline&next=" + encodeURIComponent("https://www.revistatimeline.com/");
   // Planos pagos no Substack. Sem login no Substack, ele pede o e-mail antes dos planos; por isso já mandamos o e-mail preenchido.
-  const planos = () => { const l = leitor(); return SUB + "/subscribe?" + (l && l.email ? "email=" + encodeURIComponent(l.email) : "") + VOLTA; };
+  const planos = () => "assinar.html";
   const K_LEITOR = "tl_leitor", K_DEPOIS = "tl_boasvindas_depois", ADIA_DIAS = 7;
   const ls = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
                set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }, del(k){ try{ localStorage.removeItem(k); }catch(e){} } };

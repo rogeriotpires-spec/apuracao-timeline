@@ -615,24 +615,30 @@ html.lt-travado{overflow:hidden}
     const l = leitor(), bar = document.getElementById("lt-bar-in"), join = document.getElementById("lt-join");
     if(l && l.email){
       bar.innerHTML = '<span><span class="ok" aria-hidden="true">✓</span>Você está inscrito como <b>'+esc(l.email)+'</b></span>'+
-        '<span class="acts"><a href="'+MEMBRO+'">Seja membro</a><a href="'+SUB+'/account">Minha conta</a><button class="lnk" type="button" data-lt-sair>Não é você? Sair</button></span>';
+        '<span class="acts">'+(l.membro?'<span style="color:var(--cream)">★ Membro</span>':'<a class="btn primary" style="height:34px;padding:0 12px;font-size:13px;display:inline-flex;align-items:center" href="'+MEMBRO+'">Faça upgrade</a>')+'<a href="'+SUB+'/account">Minha conta</a><button class="lnk" type="button" data-lt-sair>Não é você? Sair</button></span>';
       join.innerHTML = '<p style="margin:0;color:var(--soft-ink)"><span class="ok" style="color:#7fd38a">✓</span> Você já recebe a Timeline em <b style="color:var(--ink)">'+esc(l.email)+'</b>.</p>'+
-        '<a class="btn primary" href="'+MEMBRO+'">Quero ser membro</a><a class="lnk" style="color:var(--coral);font-size:14px" href="'+SUB+'/account">Gerenciar minha conta</a>';
+        (l.membro?'':'<a class="btn primary" href="'+MEMBRO+'">Faça upgrade para membro</a>')+'<a class="lnk" style="color:var(--coral);font-size:14px" href="'+SUB+'/account">Gerenciar minha conta</a>';
     } else {
       bar.innerHTML = '<span>Receba a Timeline no seu e-mail. <b>É grátis.</b></span>'+formHTML("Inscrever-se")+'<button class="btn primary lt-abrir" type="button" data-lt-abrir>Inscrever-se</button>';
       join.innerHTML = formHTML("Receber grátis")+'<a class="btn" href="'+MEMBRO+'">Quero ser membro</a>';
     }
     const cartao = document.getElementById("v-leitor");
     if(cartao) cartao.innerHTML = (l && l.email)
-      ? '<div class="pic p-leitor logado" aria-hidden="true"><span class="ico">✓</span><span class="lema"><i>você está</i><b>Logado</b></span></div>'+
-        '<div class="txt"><span class="eyebrow">Sua conta Timeline</span><h3>Bem-vindo de volta</h3>'+
-        '<p class="info">Inscrito como <b>'+esc(l.email)+'</b></p>'+
-        '<div class="acts"><a class="btn primary" href="'+MEMBRO+'">Seja membro</a><a class="lnk" href="'+SUB+'/account">Minha conta</a><button class="lnk" type="button" data-lt-sair style="background:none;border:0;padding:0;cursor:pointer;font-family:inherit">Sair</button></div></div>'
+      ? (l.membro
+        ? '<div class="pic p-leitor logado" aria-hidden="true"><span class="ico">★</span><span class="lema"><i>você é</i><b>Membro</b></span></div>'+
+          '<div class="txt"><span class="eyebrow">Sua conta Timeline</span><h3>Obrigado por apoiar a Timeline</h3>'+
+          '<p class="info">Logado como <b>'+esc(l.email)+'</b></p>'+
+          '<div class="acts"><a class="btn primary" href="'+SUB+'/account">Minha conta</a><button class="lnk" type="button" data-lt-sair style="background:none;border:0;padding:0;cursor:pointer;font-family:inherit">Sair</button></div></div>'
+        : '<div class="pic p-leitor logado" aria-hidden="true"><span class="ico">✓</span><span class="lema"><i>você está</i><b>Logado</b></span></div>'+
+          '<div class="txt"><span class="eyebrow">Plano gratuito</span><h3>Faça upgrade e tenha uma assinatura paga</h3>'+
+          '<p class="info">Logado como <b>'+esc(l.email)+'</b>. Membros recebem tudo: lives, dossiês, documentários e e-books.</p>'+
+          '<div class="acts"><a class="btn primary" href="'+MEMBRO+'">Fazer upgrade</a><button class="lnk" type="button" data-lt-membro style="background:none;border:0;padding:0;cursor:pointer;font-family:inherit">Já sou membro</button><button class="lnk" type="button" data-lt-sair style="background:none;border:0;padding:0;cursor:pointer;font-family:inherit;color:var(--muted)">Sair</button></div></div>')
       : '<div class="pic p-leitor" aria-hidden="true"><span class="ico">✉</span><span class="lema"><i>receba</i><b>Grátis</b></span></div>'+
         '<div class="txt"><span class="eyebrow">Newsletter Timeline</span><h3>Receba a Timeline no seu e-mail</h3>'+
         '<p class="info">Já é inscrito ou membro? Use o mesmo e-mail para entrar.</p>'+formHTML("Entrar")+'</div>';
     document.querySelectorAll("#lt-bar-in form, #lt-join form, #v-leitor form").forEach(ligar);
     document.querySelectorAll("[data-lt-abrir]").forEach(b => b.onclick = abrirGate);
+    document.querySelectorAll("[data-lt-membro]").forEach(b => b.onclick = () => { const x = leitor(); if(x){ x.membro = true; ls.set(K_LEITOR, JSON.stringify(x)); } desenhar(); });
     document.querySelectorAll("[data-lt-sair]").forEach(b => b.onclick = () => { ls.del(K_LEITOR); ls.del(K_DEPOIS); desenhar(); });
   }
 

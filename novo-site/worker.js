@@ -139,7 +139,7 @@ async function inscrever(request) {
   } catch { return json({ ok: false }); }
 }
 
-// /api/programas : último Ponto Final e os 5 últimos Conversa Timeline completos (mais de 2 horas) do canal no YouTube
+// /api/programas : para o Conversa Timeline e o Ponto Final, o próximo programa (agendado ou ao vivo) e os últimos gravados
 // e a próxima live agendada (ou a que está no ar). Precisa do segredo YT_KEY (chave da API do YouTube)
 // configurado no Worker. Sem a chave, responde vazio e a seção some da página.
 const YT_HANDLE = '@conversatimeline';
@@ -148,9 +148,9 @@ const ytSeg = (d) => { const m = String(d || '').match(/P(?:(\d+)D)?T?(?:(\d+)H)
 const ytThumb = (t) => (t && (t.maxres || t.standard || t.high || t.medium || t.default) || {}).url || '';
 async function programas(env, ctx) {
   const json = (o, ttl) => new Response(JSON.stringify(o), { headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': `public, max-age=${ttl}` } });
-  if (!env.YT_KEY) return json({ videos: [], proximo: null, sem_chave: true }, 60);
+  if (!env.YT_KEY) return json({ sem_chave: true }, 60);
   const cache = caches.default;
-  const key = new Request('https://cache.local/api/programas?v=2');
+  const key = new Request('https://cache.local/api/programas?v=3');
   const hit = await cache.match(key);
   if (hit) return hit;
   const yt = (path, q) => fetch(`https://www.googleapis.com/youtube/v3/${path}?${new URLSearchParams({ ...q, key: env.YT_KEY })}`, { signal: AbortSignal.timeout(8000) })
@@ -177,19 +177,27 @@ async function programas(env, ctx) {
     seg: ytSeg(v.contentDetails?.duration),
   }));
   const agora = Date.now();
-  const aoVivo = itens.find((v) => v.estado === 'live');
-  const agendados = itens.filter((v) => v.estado === 'upcoming' && v.inicio && new Date(v.inicio).getTime() > agora - 2 * 3600e3)
-    .sort((a, b) => new Date(a.inicio) - new Date(b.inicio));
-  const prox = aoVivo || agendados[0] || null;
-  const prontos = itens.filter((v) => v.estado === 'none').sort((a, b) => new Date(b.data) - new Date(a.data));
   const ehPF = (v) => /ponto\s*final/i.test(v.titulo);
-  const enxuto = (programa) => ({ id, titulo, thumb, data, seg }) => ({ id, titulo, thumb, data, seg, programa });
-  // Ponto Final: o mais recente com mais de 30 min (evita cortes); Conversa Timeline: os 5 mais recentes com mais de 2 horas
-  const pf = prontos.filter((v) => ehPF(v) && v.seg > 1800).slice(0, 1).map(enxuto('Ponto Final'));
-  const ct = prontos.filter((v) => !ehPF(v) && v.seg > YT_MIN_SEG).slice(0, 5).map(enxuto('Conversa Timeline'));
-  const videos = [...pf, ...ct];
-  const out = { atualizado: new Date().toISOString(), videos,
-    proximo: prox && { id: prox.id, titulo: prox.titulo, thumb: prox.thumb, inicio: prox.inicio, ao_vivo: prox.estado === 'live' } };
+  // fora da vitrine: a Análise das 22h com o Roveran
+  const fora = (v) => /an[aá]lise\s+das\s+22|roveran/i.test(v.titulo);
+  const enxuto = ({ id, titulo, thumb, data, seg }) => ({ id, titulo, thumb, data, seg });
+  const proxDe = (filtro) => {
+    const lista = itens.filter(filtro);
+    const vivo = lista.find((v) => v.estado === 'live');
+    const ag = lista.filter((v) => v.estado === 'upcoming' && v.inicio && new Date(v.inicio).getTime() > agora - 2 * 3600e3)
+      .sort((a, b) => new Date(a.inicio) - new Date(b.inicio))[0];
+    const p = vivo || ag;
+    return p ? { id: p.id, titulo: p.titulo, thumb: p.thumb, inicio: p.inicio, ao_vivo: p.estado === 'live' } : null;
+  };
+  const prontos = itens.filter((v) => v.estado === 'none').sort((a, b) => new Date(b.data) - new Date(a.data));
+  const isCT = (v) => !ehPF(v) && !fora(v);
+  const out = {
+    atualizado: new Date().toISOString(),
+    conversa: { proximo: proxDe(isCT), videos: prontos.filter(isCT).slice(0, 5).map(enxuto) },
+    ponto_final: { proximo: proxDe(ehPF), videos: prontos.filter((v) => ehPF(v) && v.seg >= 600).slice(0, 1).map(enxuto) },
+  };
+  const prox = out.conversa.proximo || out.ponto_final.proximo;
+  const videos = [...out.conversa.videos, ...out.ponto_final.videos];
   const ttl = prox ? 120 : 600;
   const resp = json(out, ttl);
   if (videos.length || prox) ctx.waitUntil(cache.put(key, resp.clone()));

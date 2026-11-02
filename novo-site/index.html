@@ -213,6 +213,27 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 #programas .section-head h2{margin-top:0;font-size:24px}
 .tv-item .tt{padding:8px 10px 10px;gap:3px}
 .tv-item h4{-webkit-line-clamp:2;font-size:13px}
+
+/* Programas: dois retângulos (Conversa Timeline e Ponto Final) */
+.tv-paineis{display:grid;grid-template-columns:6fr 2fr;gap:16px}
+.tv-painel{border:1px solid var(--line);border-radius:16px;padding:14px 16px 16px;background:linear-gradient(160deg,#1b1411,#0d0a08);box-shadow:var(--shadow);min-width:0;position:relative;overflow:hidden}
+.tv-painel::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:var(--grad)}
+.tv-painel.pf{background:linear-gradient(160deg,#241009,#0d0a08)}
+.tv-cab{display:flex;justify-content:space-between;align-items:end;gap:10px;margin-bottom:12px}
+.tv-cab .eyebrow{font-size:11px}
+.tv-cab h2{font-family:var(--f-display);font-size:26px;line-height:1;margin-top:4px;font-weight:700;letter-spacing:-.01em}
+.tv-cab h2 em{font-style:italic;font-weight:500;color:var(--cream)}
+.tv-cab a{color:var(--coral);font-weight:800;font-size:12.5px;white-space:nowrap}
+.tv-painel .tv-lista{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:0}
+.tv-painel.pf .tv-lista{grid-template-columns:repeat(2,minmax(0,1fr))}
+.tv-item.prox{border-color:rgba(224,122,44,.75)}
+.tv-item .selo{position:absolute;left:6px;top:6px;padding:3px 7px;border-radius:4px;background:#c53b26;color:#fff;font:800 10px/1 var(--f-cond);letter-spacing:.08em;text-transform:uppercase;z-index:1}
+.tv-item .selo.vivo{background:#e5321c;box-shadow:0 0 10px rgba(229,50,28,.7)}
+.tv-item .th.logo{display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,rgba(224,122,44,.35),transparent 65%),#0d0907}
+.tv-item .th.logo img{width:42%;height:auto;object-fit:contain;border-radius:8px}
+.tv-item .quando{color:var(--cream);font-size:12px;font-weight:700}
+@media(max-width:1000px){.tv-paineis{grid-template-columns:1fr}}
+@media(max-width:760px){.tv-painel .tv-lista,.tv-painel.pf .tv-lista{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px}.tv-painel .tv-item{flex:0 0 62%;scroll-snap-align:start}}
 /* Leitor: boas-vindas no primeiro acesso, faixa de status e assinatura (o cadastro fica no Substack) */
 .lt-form{display:flex;gap:8px;flex-wrap:wrap;width:100%;max-width:460px}
 .lt-form input{flex:1 1 220px;min-width:0;height:46px;padding:0 14px;border-radius:8px;border:1px solid #4a3a30;background:#0b0907;color:var(--ink);font:15px var(--f-body)}
@@ -379,13 +400,18 @@ html.lt-travado{overflow:hidden}
       <div class="dots" id="dots" aria-hidden="true"></div>
     </section>
     <section class="feat lt-box" id="v-leitor" aria-live="polite" aria-label="Sua conta Timeline"></section>
-    <section class="section" id="programas" aria-label="Programas no YouTube" hidden>
-      <div class="section-head">
-        <div><span class="eyebrow">TV Timeline · YouTube</span><h2>Os últimos programas</h2></div>
-        <a href="https://www.youtube.com/@conversatimeline" target="_blank" rel="noopener">Ver o canal ↗</a>
+    <section class="section" id="programas" aria-label="Programas da TV Timeline" hidden>
+      <div class="tv-paineis">
+        <article class="tv-painel" id="tv-ct">
+          <header class="tv-cab"><div><span class="eyebrow">Segunda a sexta · 12h</span><h2>Conversa <em>Timeline</em></h2></div>
+            <a href="https://www.youtube.com/@conversatimeline" target="_blank" rel="noopener">Ver todos ↗</a></header>
+          <div class="tv-lista"></div>
+        </article>
+        <article class="tv-painel pf" id="tv-pf">
+          <header class="tv-cab"><div><span class="eyebrow">Sextas · 20h</span><h2>Ponto <em>Final</em></h2></div></header>
+          <div class="tv-lista"></div>
+        </article>
       </div>
-      <div class="tv-lista" id="tv-lista"></div>
-      <div id="tv-prox"></div>
     </section>
 
     <section class="hero" id="hero" aria-label="Destaque"></section>
@@ -750,37 +776,40 @@ html.lt-travado{overflow:hidden}
 })();
 </script>
 <script>
-// Programas do YouTube: próxima live em destaque e os 5 últimos programas completos (via /api/programas no Worker)
+// Programas: Conversa Timeline (próximo + 5 últimos) e Ponto Final (próximo + último), via /api/programas no Worker
 (function(){
   const sec = document.getElementById("programas"); if(!sec) return;
   const esc = t => String(t||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const TZ = "America/Sao_Paulo";
-  const dia = d => new Intl.DateTimeFormat("pt-BR",{timeZone:TZ,day:"2-digit",month:"short"}).format(new Date(d)).replace(".","");
-  const quando = d => { const x = new Date(d), hoje = new Date(), amanha = new Date(Date.now()+864e5);
-    const f = o => new Intl.DateTimeFormat("pt-BR",{timeZone:TZ,...o}).format(x);
-    const mesmo = (a,b) => f.call(null,{dateStyle:"short"}) === new Intl.DateTimeFormat("pt-BR",{timeZone:TZ,dateStyle:"short"}).format(b);
-    const hora = f({hour:"2-digit",minute:"2-digit"}).replace(":", "h");
-    if(mesmo(x,hoje)) return "Hoje, " + hora; if(mesmo(x,amanha)) return "Amanhã, " + hora;
-    return f({weekday:"long",day:"2-digit",month:"short"}).replace(".","") + ", " + hora; };
-  const dur = s => { const h = Math.floor(s/3600), m = Math.floor(s%3600/60); return h + "h" + String(m).padStart(2,"0"); };
-  fetch("api/programas",{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null).then(d=>{
-    if(!d || (!(d.videos||[]).length && !d.proximo)) return;
-    const p = d.proximo;
-    if(p){
-      const url = "https://www.youtube.com/watch?v="+encodeURIComponent(p.id);
-      document.getElementById("tv-prox").innerHTML = '<article class="tv-prox">'+
-        '<div class="midia">'+(p.ao_vivo
-          ? '<iframe src="https://www.youtube.com/embed/'+encodeURIComponent(p.id)+'?autoplay=1&mute=1" title="'+esc(p.titulo)+'" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>'
-          : '<a href="'+url+'" target="_blank" rel="noopener"><img src="'+esc(p.thumb)+'" alt="" loading="lazy"></a>')+'</div>'+
-        '<div class="txt"><span class="eyebrow">'+(p.ao_vivo?'Ao vivo agora':'Próximo programa')+'</span>'+
-        '<div class="tv-quando"><i aria-hidden="true"></i>'+(p.ao_vivo?'No ar':esc(quando(p.inicio)))+'</div>'+
-        '<h3>'+esc(p.titulo)+'</h3>'+
-        '<div class="acts"><a class="btn primary" href="'+url+'" target="_blank" rel="noopener">'+(p.ao_vivo?'Assistir no YouTube':'Ativar lembrete no YouTube')+'</a></div></div></article>';
+  const fmt = (d,o) => new Intl.DateTimeFormat("pt-BR",{timeZone:TZ,...o}).format(new Date(d));
+  const dia = d => fmt(d,{day:"2-digit",month:"short"}).replace(".","");
+  const quando = d => { const w = fmt(d,{weekday:"long"}); return w.charAt(0).toUpperCase()+w.slice(1)+", "+fmt(d,{day:"2-digit",month:"2-digit"})+", "+fmt(d,{hour:"2-digit",minute:"2-digit"}).replace(":","h"); };
+  const dur = s => { if(!s) return ""; const h = Math.floor(s/3600), m = Math.floor(s%3600/60), x = s%60; return h ? h+"h"+String(m).padStart(2,"0") : m+":"+String(x).padStart(2,"0"); };
+  // próximo horário fixo em Brasília (UTC-3): dias da semana aceitos e hora
+  function proximaData(dias, hora){
+    const agoraSP = new Date(Date.now() - 3*3600e3);
+    for(let k=0;k<8;k++){
+      const d = new Date(Date.UTC(agoraSP.getUTCFullYear(), agoraSP.getUTCMonth(), agoraSP.getUTCDate()+k, hora+3, 0));
+      const diaSem = new Date(d.getTime() - 3*3600e3).getUTCDay();
+      if(dias.includes(diaSem) && d.getTime() > Date.now()) return d.toISOString();
     }
-    document.getElementById("tv-lista").innerHTML = (d.videos||[]).map(v =>
-      '<a class="tv-item'+(v.programa==="Ponto Final"?' pf':'')+'" href="https://www.youtube.com/watch?v='+encodeURIComponent(v.id)+'" target="_blank" rel="noopener">'+
-      '<div class="th"><img src="'+esc(v.thumb)+'" alt="" loading="lazy"><b>'+dur(v.seg)+'</b></div>'+
-      '<div class="tt"><span class="prog">'+esc(v.programa||"")+'</span><h4>'+esc(v.titulo)+'</h4><small>'+esc(dia(v.data))+'</small></div></a>').join("");
+  }
+  const yt = id => "https://www.youtube.com/watch?v="+encodeURIComponent(id);
+  function cardProx(p, nome, padrao){
+    if(p){
+      return '<a class="tv-item prox" href="'+yt(p.id)+'" target="_blank" rel="noopener"><div class="th"><span class="selo'+(p.ao_vivo?' vivo':'')+'">'+(p.ao_vivo?'Ao vivo agora':'Próximo')+'</span><img src="'+esc(p.thumb)+'" alt="" loading="lazy"></div>'+
+        '<div class="tt"><span class="quando">'+(p.ao_vivo?'No ar':esc(quando(p.inicio)))+'</span><h4>'+esc(p.titulo)+'</h4></div></a>';
+    }
+    return '<div class="tv-item prox"><div class="th logo"><span class="selo">Próximo</span><img src="img/t.png" alt=""></div>'+
+      '<div class="tt"><span class="quando">'+esc(quando(padrao))+'</span><h4>'+esc(nome)+'</h4></div></div>';
+  }
+  const card = v => '<a class="tv-item" href="'+yt(v.id)+'" target="_blank" rel="noopener"><div class="th"><img src="'+esc(v.thumb)+'" alt="" loading="lazy">'+(v.seg?'<b>'+dur(v.seg)+'</b>':'')+'</div>'+
+    '<div class="tt"><h4>'+esc(v.titulo)+'</h4><small>'+esc(dia(v.data))+'</small></div></a>';
+  fetch("api/programas",{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null).then(d=>{
+    if(!d || d.sem_chave || !d.conversa) return;
+    const ct = d.conversa, pf = d.ponto_final || {};
+    document.querySelector("#tv-ct .tv-lista").innerHTML = cardProx(ct.proximo, "Conversa Timeline", proximaData([1,2,3,4,5],12)) + (ct.videos||[]).map(card).join("");
+    document.querySelector("#tv-pf .tv-lista").innerHTML = cardProx(pf.proximo, "Ponto Final", proximaData([5],20)) + (pf.videos||[]).map(card).join("");
     sec.hidden = false;
   });
 })();

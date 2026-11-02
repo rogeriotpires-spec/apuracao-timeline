@@ -174,9 +174,9 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .lt-bar a,.lt-bar button.lnk{color:var(--coral);font:inherit;background:none;border:0;padding:0;cursor:pointer}
 .lt-bar a.btn{color:inherit}
 .lt-gate{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px;overflow:auto;
-  background:radial-gradient(700px 420px at 15% 0%,rgba(197,59,38,.18),transparent 65%),rgba(6,5,4,.55);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+  background:rgba(6,5,4,.30)}
 .lt-gate[hidden]{display:none}
-.lt-card{width:100%;max-width:520px;background:rgba(16,13,11,.96)!important;text-align:center;display:grid;justify-items:center;gap:14px;padding:36px 28px 28px;border:1px solid var(--line);border-radius:16px;background:rgba(16,13,11,.9);box-shadow:var(--shadow);position:relative}
+.lt-card{width:100%;max-width:520px;background:#100d0b!important;isolation:isolate;text-align:center;display:grid;justify-items:center;gap:14px;padding:36px 28px 28px;border:1px solid var(--line);border-radius:16px;background:rgba(16,13,11,.97);box-shadow:var(--shadow);position:relative}
 .lt-card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;border-radius:16px 16px 0 0;background:var(--grad)}
 .lt-card img{width:64px;height:64px;border-radius:12px}
 .lt-card h2{font-size:clamp(28px,5vw,38px);line-height:1.08}
@@ -376,7 +376,7 @@ html.lt-travado{overflow:hidden}
       <button class="btn primary" type="submit">Continuar</button>
     </form>
     <p class="lt-msg" data-lt-msg></p>
-    <small>Na próxima tela, confirme sua inscrição. Se você já é inscrito ou membro, use o mesmo e-mail.</small>
+    <small>Se você já é inscrito ou membro, use o mesmo e-mail.</small>
     <div class="alt">
       <a href="https://timelinemedia.substack.com/subscribe?utm_source=site-timeline&amp;next=https%3A%2F%2Fwww.revistatimeline.com%2F">Conhecer os planos de membro</a>
       <button type="button" id="lt-depois">Agora não, quero só ler</button>
@@ -598,12 +598,23 @@ html.lt-travado{overflow:hidden}
 
   // Envia o e-mail para a inscrição gratuita do Substack (mesmo formulário que o Substack usa nos seus botões).
   // Quem já é inscrito ou membro também passa por aqui: o Substack reconhece o e-mail.
-  // O Substack não aceita inscrição enviada direto por outro site (proteção anti-robô), então a pessoa
-  // confirma na página de inscrição dele, que já recebe o e-mail e volta para cá depois.
-  function inscrever(email){
+  // Tenta inscrever pelo próprio site (o Worker fala com o Substack). Se o Substack recusar,
+  // leva à página de inscrição dele com o e-mail já preenchido.
+  function inscrever(email, form){
     ls.set(K_LEITOR, JSON.stringify({ email, desde: new Date().toISOString() }));
-    location.href = SUB + "/subscribe?email=" + encodeURIComponent(email) +
-      "&utm_source=site-timeline&next=" + encodeURIComponent("https://www.revistatimeline.com/");
+    const plano = () => { location.href = SUB + "/subscribe?email=" + encodeURIComponent(email) +
+      "&utm_source=site-timeline&next=" + encodeURIComponent("https://www.revistatimeline.com/"); };
+    fetch("api/inscrever", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email }) })
+      .then(r => r.ok ? r.json() : null).catch(() => null)
+      .then(d => {
+        if(!(d && d.ok)) return plano();
+        const caixa = form.closest(".lt-card, .lt-bar .wrap, .txt, #lt-join") || form.parentElement;
+        const msg = document.createElement("p");
+        msg.className = "lt-ok"; msg.style.cssText = "margin:8px 0 0;color:#7fd38a;font-size:14px";
+        msg.innerHTML = "✓ Pronto! Enviamos um e-mail de confirmação para <b>"+esc(email)+"</b>.";
+        form.replaceWith(msg);
+        setTimeout(() => { fecharGate(); desenhar(); }, 2600);
+      });
   }
   function ligar(form){
     form.addEventListener("submit", ev => {
@@ -612,7 +623,7 @@ html.lt-travado{overflow:hidden}
       const msg = form.parentElement.querySelector("[data-lt-msg]");
       if(!valido(email)){ if(msg) msg.textContent = "Confira o e-mail digitado."; form.email.focus(); return; }
       form.querySelector("button").disabled = true; form.querySelector("button").textContent = "Enviando...";
-      inscrever(email);
+      inscrever(email, form);
     });
   }
   const formHTML = (rotulo) => '<form class="lt-form" novalidate><input type="email" name="email" placeholder="Seu e-mail" autocomplete="email" required aria-label="Seu e-mail"><button class="btn primary" type="submit">'+rotulo+'</button></form><p class="lt-msg" data-lt-msg></p>';

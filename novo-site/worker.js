@@ -116,12 +116,36 @@ async function destaques(ctx, cfg) {
   return resp;
 }
 
+// /api/inscrever : inscreve o e-mail no plano grátis do Substack sem tirar o leitor do site.
+// Se o Substack recusar (proteção anti-robô), responde ok:false e a página manda para a inscrição do Substack.
+async function inscrever(request) {
+  const json = (o, st = 200) => new Response(JSON.stringify(o), { status: st, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' } });
+  if (request.method !== 'POST') return json({ ok: false }, 405);
+  let email = '';
+  try { email = String((await request.json()).email || '').trim().toLowerCase(); } catch {}
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || email.length > 200) return json({ ok: false, erro: 'email' }, 400);
+  try {
+    const r = await fetch(`${SUBSTACK}/api/v1/free`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'user-agent': 'Mozilla/5.0 site-timeline/1.0', origin: SUBSTACK, referer: SUBSTACK + '/' },
+      body: JSON.stringify({ email, first_url: 'https://www.revistatimeline.com/', first_referrer: '', current_url: 'https://www.revistatimeline.com/',
+        current_referrer: '', referral_code: '', source: 'embed', referring_pub_id: '', additional_referring_pub_ids: '' }),
+      signal: AbortSignal.timeout(8000),
+    });
+    const txt = await r.text();
+    let d = null; try { d = JSON.parse(txt); } catch {}
+    const ok = r.ok && d && !d.errors && !d.error && !/captcha/i.test(txt);
+    return json({ ok, status: r.status });
+  } catch { return json({ ok: false }); }
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname === '/api/config') {
       return new Response(JSON.stringify(await getConfig(env)), { headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'public, max-age=30' } });
     }
+    if (url.pathname === '/api/inscrever') return inscrever(request);
     if (url.pathname === '/api/posts') return posts(url, ctx, await getConfig(env));
     if (url.pathname === '/api/destaques') return destaques(ctx, await getConfig(env));
     const path = url.pathname === '/' ? '/index.html' : url.pathname;

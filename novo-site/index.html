@@ -376,7 +376,7 @@ html.lt-travado{overflow:hidden}
       <button class="btn primary" type="submit">Continuar</button>
     </form>
     <p class="lt-msg" data-lt-msg></p>
-    <small>Se você já é inscrito ou membro, use o mesmo e-mail: o Substack reconhece e você entra normalmente.</small>
+    <small>Na próxima tela, confirme sua inscrição. Se você já é inscrito ou membro, use o mesmo e-mail.</small>
     <div class="alt">
       <a href="https://timelinemedia.substack.com/subscribe?utm_source=site-timeline&amp;next=https%3A%2F%2Fwww.revistatimeline.com%2F">Conhecer os planos de membro</a>
       <button type="button" id="lt-depois">Agora não, quero só ler</button>
@@ -598,14 +598,12 @@ html.lt-travado{overflow:hidden}
 
   // Envia o e-mail para a inscrição gratuita do Substack (mesmo formulário que o Substack usa nos seus botões).
   // Quem já é inscrito ou membro também passa por aqui: o Substack reconhece o e-mail.
+  // O Substack não aceita inscrição enviada direto por outro site (proteção anti-robô), então a pessoa
+  // confirma na página de inscrição dele, que já recebe o e-mail e volta para cá depois.
   function inscrever(email){
     ls.set(K_LEITOR, JSON.stringify({ email, desde: new Date().toISOString() }));
-    const f = document.createElement("form");
-    f.method = "post"; f.action = SUB + "/api/v1/free?nojs=true";
-    const campos = { email, first_url: location.href, first_referrer: document.referrer, current_url: location.href,
-                     current_referrer: document.referrer, referral_code: "", source: "subscribe_page" };
-    for(const k in campos){ const i = document.createElement("input"); i.type = "hidden"; i.name = k; i.value = campos[k]; f.appendChild(i); }
-    document.body.appendChild(f); f.submit();
+    location.href = SUB + "/subscribe?email=" + encodeURIComponent(email) +
+      "&utm_source=site-timeline&next=" + encodeURIComponent("https://www.revistatimeline.com/");
   }
   function ligar(form){
     form.addEventListener("submit", ev => {

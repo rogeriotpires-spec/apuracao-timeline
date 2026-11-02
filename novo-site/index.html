@@ -795,16 +795,18 @@ html.lt-travado{overflow:hidden}
     }
   }
   const yt = id => "https://www.youtube.com/watch?v="+encodeURIComponent(id);
+  const nf = n => { n = +n||0; if(n>=1e6) return (n/1e6).toFixed(1).replace(".0","").replace(".",",")+" mi"; if(n>=1e3) return (n/1e3).toFixed(n>=1e4?0:1).replace(".0","").replace(".",",")+" mil"; return String(n); };
+  const vis = v => v.views ? " · "+nf(v.views)+" visualizações" : "";
   function cardProx(p, nome, padrao){
     if(p){
       return '<a class="tv-item prox" href="'+yt(p.id)+'" target="_blank" rel="noopener"><div class="th"><span class="selo'+(p.ao_vivo?' vivo':'')+'">'+(p.ao_vivo?'Ao vivo agora':'Próximo')+'</span><img src="'+esc(p.thumb)+'" alt="" loading="lazy"></div>'+
-        '<div class="tt"><span class="quando">'+(p.ao_vivo?'No ar':esc(quando(p.inicio)))+'</span><h4>'+esc(p.titulo)+'</h4></div></a>';
+        '<div class="tt"><span class="quando">'+(p.ao_vivo?(p.assistindo?esc(nf(p.assistindo))+' assistindo agora':'No ar'):esc(quando(p.inicio)))+'</span><h4>'+esc(p.titulo)+'</h4></div></a>';
     }
     return '<div class="tv-item prox"><div class="th logo"><span class="selo">Próximo</span><img src="img/t.png" alt=""></div>'+
       '<div class="tt"><span class="quando">'+esc(quando(padrao))+'</span><h4>'+esc(nome)+'</h4></div></div>';
   }
   const card = v => '<a class="tv-item" href="'+yt(v.id)+'" target="_blank" rel="noopener"><div class="th"><img src="'+esc(v.thumb)+'" alt="" loading="lazy">'+(v.seg?'<b>'+dur(v.seg)+'</b>':'')+'</div>'+
-    '<div class="tt"><h4>'+esc(v.titulo)+'</h4><small>'+esc(dia(v.data))+'</small></div></a>';
+    '<div class="tt"><h4>'+esc(v.titulo)+'</h4><small>'+esc(dia(v.data)+vis(v))+'</small></div></a>';
   fetch("api/programas",{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null).then(d=>{
     if(!d || d.sem_chave || !d.conversa) return;
     const ct = d.conversa, pf = d.ponto_final || {};

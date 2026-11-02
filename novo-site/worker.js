@@ -150,7 +150,7 @@ async function programas(env, ctx) {
   const json = (o, ttl) => new Response(JSON.stringify(o), { headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': `public, max-age=${ttl}` } });
   if (!env.YT_KEY) return json({ sem_chave: true }, 60);
   const cache = caches.default;
-  const key = new Request('https://cache.local/api/programas?v=3');
+  const key = new Request('https://cache.local/api/programas?v=4');
   const hit = await cache.match(key);
   if (hit) return hit;
   const yt = (path, q) => fetch(`https://www.googleapis.com/youtube/v3/${path}?${new URLSearchParams({ ...q, key: env.YT_KEY })}`, { signal: AbortSignal.timeout(8000) })
@@ -178,8 +178,8 @@ async function programas(env, ctx) {
   }));
   const agora = Date.now();
   const ehPF = (v) => /ponto\s*final/i.test(v.titulo);
-  // fora da vitrine: a Análise das 22h com o Roveran
-  const fora = (v) => /an[aá]lise\s+das\s+22|roveran/i.test(v.titulo);
+  // fora da vitrine: a Análise das 22h com o Roveran e o Na Brasa com o Italo Lorenzon
+  const fora = (v) => /an[aá]lise\s+das\s+22|roveran|na\s+brasa|[ií]talo\s+lorenzon/i.test(v.titulo);
   const enxuto = ({ id, titulo, thumb, data, seg }) => ({ id, titulo, thumb, data, seg });
   const proxDe = (filtro) => {
     const lista = itens.filter(filtro);

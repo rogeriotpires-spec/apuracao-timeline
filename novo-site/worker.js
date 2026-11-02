@@ -150,7 +150,7 @@ async function programas(env, ctx) {
   const json = (o, ttl) => new Response(JSON.stringify(o), { headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': `public, max-age=${ttl}` } });
   if (!env.YT_KEY) return json({ sem_chave: true }, 60);
   const cache = caches.default;
-  const key = new Request('https://cache.local/api/programas?v=4');
+  const key = new Request('https://cache.local/api/programas?v=5');
   const hit = await cache.match(key);
   if (hit) return hit;
   const yt = (path, q) => fetch(`https://www.googleapis.com/youtube/v3/${path}?${new URLSearchParams({ ...q, key: env.YT_KEY })}`, { signal: AbortSignal.timeout(8000) })
@@ -190,7 +190,9 @@ async function programas(env, ctx) {
     return p ? { id: p.id, titulo: p.titulo, thumb: p.thumb, inicio: p.inicio, ao_vivo: p.estado === 'live' } : null;
   };
   const prontos = itens.filter((v) => v.estado === 'none').sort((a, b) => new Date(b.data) - new Date(a.data));
-  const isCT = (v) => !ehPF(v) && !fora(v);
+  // só o programa: título com "Conversa Timeline" (ex.: "30/10/2026 - CONVERSA TIMELINE") e mais de 30 min, para deixar de fora cortes e outros vídeos do canal
+  const ehCT = (v) => /conversa\s*timeline/i.test(v.titulo);
+  const isCT = (v) => ehCT(v) && !ehPF(v) && !fora(v) && (v.estado !== 'none' || v.seg >= 1800);
   const out = {
     atualizado: new Date().toISOString(),
     conversa: { proximo: proxDe(isCT), videos: prontos.filter(isCT).slice(0, 5).map(enxuto) },

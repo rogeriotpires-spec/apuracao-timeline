@@ -137,6 +137,17 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 @keyframes brilho{0%,70%{left:-60%}100%{left:130%}}
 .feat:hover .placa{transform:perspective(400px) rotateY(-10deg) rotate(-4deg) translateY(-2px)}
 
+.feat .lt-form{max-width:none;margin-top:auto;padding-top:10px;gap:6px}
+.feat .lt-form input{flex:1 1 140px;height:40px;font-size:14px}
+.feat .lt-form .btn{height:40px;padding:0 14px;font-size:13px}
+.feat .lt-msg{font-size:12px}
+.p-leitor{display:flex;align-items:center;justify-content:center;gap:14px;background:radial-gradient(circle at 25% 25%,rgba(244,166,90,.30),transparent 55%),radial-gradient(circle at 85% 90%,rgba(197,59,38,.25),transparent 50%),#0d0907}
+.p-leitor::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--grad)}
+.p-leitor .ico{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font-size:30px;line-height:1;background:rgba(244,166,90,.12);border:1px solid rgba(244,166,90,.45);color:var(--cream)}
+.p-leitor.logado .ico{background:rgba(127,211,138,.12);border-color:rgba(127,211,138,.5);color:#7fd38a}
+.p-leitor .lema{display:grid;line-height:1}
+.p-leitor .lema i{font-family:var(--f-display);font-style:italic;font-weight:500;font-size:18px;color:var(--cream);margin-bottom:4px}
+.p-leitor .lema b{font-family:var(--f-display);font-weight:700;font-size:30px;color:#fff}
 /* Leitor: boas-vindas no primeiro acesso, faixa de status e assinatura (o cadastro fica no Substack) */
 .lt-form{display:flex;gap:8px;flex-wrap:wrap;width:100%;max-width:460px}
 .lt-form input{flex:1 1 220px;min-width:0;height:46px;padding:0 14px;border-radius:8px;border:1px solid #4a3a30;background:#0b0907;color:var(--ink);font:15px var(--f-body)}
@@ -246,7 +257,8 @@ html.lt-travado{overflow:hidden}
     <section class="vitrine" aria-label="Destaques da Timeline">
       <button class="nav-btn prev" type="button" aria-label="Destaques anteriores" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
       <button class="nav-btn next" type="button" aria-label="Próximos destaques"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
-      <div class="rail" id="rail" tabindex="0" role="region" aria-label="Destaques: Editora, eventos, assinatura, Fiscalize e loja">
+      <div class="rail" id="rail" tabindex="0" role="region" aria-label="Destaques: sua conta, Editora, eventos, assinatura, Fiscalize e loja">
+      <article class="feat" id="v-leitor" aria-live="polite"></article>
       <article class="feat" id="v-livro">
         <span class="placa" aria-hidden="true">Lançamento</span><a class="pic p-livro" href="https://editora.revistatimeline.com/livro.html?l=almanaque-timeline&amp;src=site" tabindex="-1" aria-hidden="true"><span class="sombra"></span><span class="flutua"><span class="book"><span class="fake">Almanaque Timeline 2026</span></span></span></a>
         <div class="txt">
@@ -610,7 +622,16 @@ html.lt-travado{overflow:hidden}
       bar.innerHTML = '<span>Receba a Timeline no seu e-mail. <b>É grátis.</b></span>'+formHTML("Inscrever-se")+'<button class="btn primary lt-abrir" type="button" data-lt-abrir>Inscrever-se</button>';
       join.innerHTML = formHTML("Receber grátis")+'<a class="btn" href="'+MEMBRO+'">Quero ser membro</a>';
     }
-    document.querySelectorAll("#lt-bar-in form, #lt-join form").forEach(ligar);
+    const cartao = document.getElementById("v-leitor");
+    if(cartao) cartao.innerHTML = (l && l.email)
+      ? '<div class="pic p-leitor logado" aria-hidden="true"><span class="ico">✓</span><span class="lema"><i>você está</i><b>Logado</b></span></div>'+
+        '<div class="txt"><span class="eyebrow">Sua conta Timeline</span><h3>Bem-vindo de volta</h3>'+
+        '<p class="info">Inscrito como <b>'+esc(l.email)+'</b></p>'+
+        '<div class="acts"><a class="btn primary" href="'+MEMBRO+'">Seja membro</a><a class="lnk" href="'+SUB+'/account">Minha conta</a><button class="lnk" type="button" data-lt-sair style="background:none;border:0;padding:0;cursor:pointer;font-family:inherit">Sair</button></div></div>'
+      : '<div class="pic p-leitor" aria-hidden="true"><span class="ico">✉</span><span class="lema"><i>receba</i><b>Grátis</b></span></div>'+
+        '<div class="txt"><span class="eyebrow">Newsletter Timeline</span><h3>Receba a Timeline no seu e-mail</h3>'+
+        '<p class="info">Já é inscrito ou membro? Use o mesmo e-mail para entrar.</p>'+formHTML("Entrar")+'</div>';
+    document.querySelectorAll("#lt-bar-in form, #lt-join form, #v-leitor form").forEach(ligar);
     document.querySelectorAll("[data-lt-abrir]").forEach(b => b.onclick = abrirGate);
     document.querySelectorAll("[data-lt-sair]").forEach(b => b.onclick = () => { ls.del(K_LEITOR); ls.del(K_DEPOIS); desenhar(); });
   }

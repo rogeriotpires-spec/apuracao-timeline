@@ -234,6 +234,20 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .tv-item .quando{color:var(--cream);font-size:12px;font-weight:700}
 @media(max-width:1000px){.tv-paineis{grid-template-columns:1fr}}
 @media(max-width:760px){.tv-painel .tv-lista,.tv-painel.pf .tv-lista{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px}.tv-painel .tv-item{flex:0 0 62%;scroll-snap-align:start}}
+
+/* Live no site: miniatura, médio e tela inteira */
+.tv-item.vivo{border-color:#e5321c;box-shadow:0 0 0 1px rgba(229,50,28,.4),0 0 24px rgba(229,50,28,.18)}
+.tv-item.vivo .th iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.tv-item.vivo .th:fullscreen{aspect-ratio:auto;background:#000}
+.tv-item.vivo .th::after{display:none}
+.tv-tam{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.tv-tam button{flex:1 1 auto;padding:5px 6px;border-radius:6px;border:1px solid var(--line);background:#120d0a;color:var(--soft-ink);font:700 10.5px/1 var(--f-body);cursor:pointer;white-space:nowrap}
+.tv-tam button[aria-pressed="true"]{background:var(--grad);color:#140a04;border-color:transparent}
+.tv-tam button:hover{border-color:var(--orange)}
+.tv-painel .tv-lista>.tv-item.vivo.medio{grid-column:span 3;grid-row:span 2}
+.tv-item.vivo.medio .th{aspect-ratio:16/9}
+.tv-item.vivo.medio h4{font-size:15px;-webkit-line-clamp:2}
+@media(max-width:760px){.tv-painel .tv-item.vivo.medio{flex:0 0 100%}}
 /* Leitor: boas-vindas no primeiro acesso, faixa de status e assinatura (o cadastro fica no Substack) */
 .lt-form{display:flex;gap:8px;flex-wrap:wrap;width:100%;max-width:460px}
 .lt-form input{flex:1 1 220px;min-width:0;height:46px;padding:0 14px;border-radius:8px;border:1px solid #4a3a30;background:#0b0907;color:var(--ink);font:15px var(--f-body)}
@@ -798,6 +812,14 @@ html.lt-travado{overflow:hidden}
   const nf = n => { n = +n||0; if(n>=1e6) return (n/1e6).toFixed(1).replace(".0","").replace(".",",")+" mi"; if(n>=1e3) return (n/1e3).toFixed(n>=1e4?0:1).replace(".0","").replace(".",",")+" mil"; return String(n); };
   const vis = v => v.views ? " · "+nf(v.views)+" visualizações" : "";
   function cardProx(p, nome, padrao){
+    if(p && p.ao_vivo){
+      return '<div class="tv-item prox vivo" data-live><div class="th"><span class="selo vivo">Ao vivo agora</span>'+
+        '<iframe src="https://www.youtube.com/embed/'+encodeURIComponent(p.id)+'?autoplay=1&mute=1&playsinline=1" title="'+esc(p.titulo)+'" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>'+
+        '<div class="tt"><span class="quando">'+(p.assistindo?esc(nf(p.assistindo))+' assistindo agora':'No ar')+'</span>'+
+        '<h4><a href="'+yt(p.id)+'" target="_blank" rel="noopener">'+esc(p.titulo)+'</a></h4>'+
+        '<div class="tv-tam" role="group" aria-label="Tamanho do vídeo"><button type="button" data-tam="mini" aria-pressed="true">Miniatura</button>'+
+        '<button type="button" data-tam="medio" aria-pressed="false">Médio</button><button type="button" data-tam="cheia" aria-pressed="false">Tela inteira</button></div></div></div>';
+    }
     if(p){
       return '<a class="tv-item prox" href="'+yt(p.id)+'" target="_blank" rel="noopener"><div class="th"><span class="selo'+(p.ao_vivo?' vivo':'')+'">'+(p.ao_vivo?'Ao vivo agora':'Próximo')+'</span><img src="'+esc(p.thumb)+'" alt="" loading="lazy"></div>'+
         '<div class="tt"><span class="quando">'+(p.ao_vivo?(p.assistindo?esc(nf(p.assistindo))+' assistindo agora':'No ar'):esc(quando(p.inicio)))+'</span><h4>'+esc(p.titulo)+'</h4></div></a>';
@@ -813,6 +835,17 @@ html.lt-travado{overflow:hidden}
     document.querySelector("#tv-ct .tv-lista").innerHTML = cardProx(ct.proximo, "Conversa Timeline", proximaData([1,2,3,4,5],12)) + (ct.videos||[]).map(card).join("");
     document.querySelector("#tv-pf .tv-lista").innerHTML = cardProx(pf.proximo, "Ponto Final", proximaData([5],20)) + (pf.videos||[]).map(card).join("");
     sec.hidden = false;
+    // live: alterna miniatura / médio / tela inteira sem recarregar o vídeo
+    sec.querySelectorAll("[data-live]").forEach(card => {
+      const th = card.querySelector(".th"), bts = card.querySelectorAll("[data-tam]");
+      const marca = t => bts.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.tam === t)));
+      bts.forEach(b => b.onclick = () => {
+        const t = b.dataset.tam;
+        if(t === "cheia"){ const f = th.requestFullscreen || th.webkitRequestFullscreen; if(f) f.call(th); else card.querySelector("iframe").webkitEnterFullscreen?.(); return; }
+        card.classList.toggle("medio", t === "medio"); marca(t);
+        if(t === "medio") card.scrollIntoView({behavior:"smooth", block:"nearest"});
+      });
+    });
   });
 })();
 </script>

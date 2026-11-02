@@ -595,7 +595,9 @@ html.lt-travado{overflow:hidden}
 // então guarda neste aparelho o e-mail que a pessoa usou e mostra "você está inscrito".
 (function(){
   const SUB = "https://timelinemedia.substack.com";
-  const MEMBRO = SUB + "/subscribe?utm_source=site-timeline&next=" + encodeURIComponent("https://www.revistatimeline.com/");
+  const VOLTA = "&utm_source=site-timeline&next=" + encodeURIComponent("https://www.revistatimeline.com/");
+  // Planos pagos no Substack. Sem login no Substack, ele pede o e-mail antes dos planos; por isso já mandamos o e-mail preenchido.
+  const planos = () => { const l = leitor(); return SUB + "/subscribe?" + (l && l.email ? "email=" + encodeURIComponent(l.email) : "") + VOLTA; };
   const K_LEITOR = "tl_leitor", K_DEPOIS = "tl_boasvindas_depois", ADIA_DIAS = 7;
   const ls = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
                set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }, del(k){ try{ localStorage.removeItem(k); }catch(e){} } };
@@ -639,12 +641,12 @@ html.lt-travado{overflow:hidden}
     const l = leitor(), bar = document.getElementById("lt-bar-in"), join = document.getElementById("lt-join");
     if(l && l.email){
       bar.innerHTML = '<span><span class="ok" aria-hidden="true">✓</span>Você está inscrito como <b>'+esc(l.email)+'</b></span>'+
-        '<span class="acts">'+(l.membro?'<span style="color:var(--cream)">★ Membro</span>':'<a class="btn primary" style="height:34px;padding:0 12px;font-size:13px;display:inline-flex;align-items:center" href="'+MEMBRO+'">Faça upgrade</a>')+'<a href="'+SUB+'/account">Minha conta</a><button class="lnk" type="button" data-lt-sair>Não é você? Sair</button></span>';
+        '<span class="acts">'+(l.membro?'<span style="color:var(--cream)">★ Membro</span>':'<a class="btn primary" style="height:34px;padding:0 12px;font-size:13px;display:inline-flex;align-items:center" href="'+planos()+'">Faça upgrade</a>')+'<a href="'+SUB+'/account">Minha conta</a><button class="lnk" type="button" data-lt-sair>Não é você? Sair</button></span>';
       join.innerHTML = '<p style="margin:0;color:var(--soft-ink)"><span class="ok" style="color:#7fd38a">✓</span> Você já recebe a Timeline em <b style="color:var(--ink)">'+esc(l.email)+'</b>.</p>'+
-        (l.membro?'':'<a class="btn primary" href="'+MEMBRO+'">Faça upgrade para membro</a>')+'<a class="lnk" style="color:var(--coral);font-size:14px" href="'+SUB+'/account">Gerenciar minha conta</a>';
+        (l.membro?'':'<a class="btn primary" href="'+planos()+'">Faça upgrade para membro</a>')+'<a class="lnk" style="color:var(--coral);font-size:14px" href="'+SUB+'/account">Gerenciar minha conta</a>';
     } else {
       bar.innerHTML = '<span>Receba a Timeline no seu e-mail. <b>É grátis.</b></span>'+formHTML("Inscrever-se")+'<button class="btn primary lt-abrir" type="button" data-lt-abrir>Inscrever-se</button>';
-      join.innerHTML = formHTML("Receber grátis")+'<a class="btn" href="'+MEMBRO+'">Quero ser membro</a>';
+      join.innerHTML = formHTML("Receber grátis")+'<a class="btn" href="'+planos()+'">Quero ser membro</a>';
     }
     const cartao = document.getElementById("v-leitor");
     if(cartao) cartao.innerHTML = (l && l.email)
@@ -656,7 +658,7 @@ html.lt-travado{overflow:hidden}
         : '<div class="pic p-leitor logado" aria-hidden="true"><span class="ico">✓</span><span class="lema"><i>você está</i><b>Logado</b></span></div>'+
           '<div class="txt"><span class="eyebrow">Plano gratuito</span><h3>Faça upgrade e tenha uma assinatura paga</h3>'+
           '<p class="info">Logado como <b>'+esc(l.email)+'</b>. Membros recebem tudo: lives, dossiês, documentários e e-books.</p>'+
-          '<div class="acts"><a class="btn primary" href="'+MEMBRO+'">Fazer upgrade</a><button class="lnk" type="button" data-lt-membro style="background:none;border:0;padding:0;cursor:pointer;font-family:inherit">Já sou membro</button><button class="lnk" type="button" data-lt-sair style="background:none;border:0;padding:0;cursor:pointer;font-family:inherit;color:var(--muted)">Sair</button></div></div>')
+          '<div class="acts"><a class="btn primary" href="'+planos()+'">Fazer upgrade</a><button class="lnk" type="button" data-lt-membro style="background:none;border:0;padding:0;cursor:pointer;font-family:inherit">Já sou membro</button><button class="lnk" type="button" data-lt-sair style="background:none;border:0;padding:0;cursor:pointer;font-family:inherit;color:var(--muted)">Sair</button></div></div>')
       : '<div class="pic p-leitor" aria-hidden="true"><span class="ico">✉</span><span class="lema"><i>receba</i><b>Grátis</b></span></div>'+
         '<div class="txt"><span class="eyebrow">Newsletter Timeline</span><h3>Receba a Timeline no seu e-mail</h3>'+
         '<p class="info">Já é inscrito ou membro? Use o mesmo e-mail para entrar.</p>'+formHTML("Entrar")+'</div>';

@@ -248,6 +248,12 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .tv-item.vivo.medio .th{aspect-ratio:16/9}
 .tv-item.vivo.medio h4{font-size:15px;-webkit-line-clamp:2}
 @media(max-width:760px){.tv-painel .tv-item.vivo.medio{flex:0 0 100%}}
+
+/* play do ao vivo: o vídeo só carrega quando a pessoa clica (assim a visualização conta no YouTube) */
+.tv-play{position:absolute;inset:0;border:0;padding:0;background:#000;cursor:pointer}
+.tv-play img{width:100%;height:100%;object-fit:cover;display:block;opacity:.85}
+.tv-play span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:#e5321c;color:#fff;font-size:18px;box-shadow:0 0 20px rgba(229,50,28,.6)}
+.tv-play:hover span{filter:brightness(1.1)}
 /* Leitor: boas-vindas no primeiro acesso, faixa de status e assinatura (o cadastro fica no Substack) */
 .lt-form{display:flex;gap:8px;flex-wrap:wrap;width:100%;max-width:460px}
 .lt-form input{flex:1 1 220px;min-width:0;height:46px;padding:0 14px;border-radius:8px;border:1px solid #4a3a30;background:#0b0907;color:var(--ink);font:15px var(--f-body)}
@@ -814,7 +820,7 @@ html.lt-travado{overflow:hidden}
   function cardProx(p, nome, padrao){
     if(p && p.ao_vivo){
       return '<div class="tv-item prox vivo" data-live><div class="th"><span class="selo vivo">Ao vivo agora</span>'+
-        '<iframe src="https://www.youtube.com/embed/'+encodeURIComponent(p.id)+'?autoplay=1&mute=1&playsinline=1" title="'+esc(p.titulo)+'" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>'+
+        '<button type="button" class="tv-play" data-id="'+esc(p.id)+'" data-titulo="'+esc(p.titulo)+'" aria-label="Assistir ao vivo"><img src="'+esc(p.thumb)+'" alt=""><span>▶</span></button></div>'+
         '<div class="tt"><span class="quando">'+(p.assistindo?esc(nf(p.assistindo))+' assistindo agora':'No ar')+'</span>'+
         '<h4><a href="'+yt(p.id)+'" target="_blank" rel="noopener">'+esc(p.titulo)+'</a></h4>'+
         '<div class="tv-tam" role="group" aria-label="Tamanho do vídeo"><button type="button" data-tam="mini" aria-pressed="true">Miniatura</button>'+
@@ -838,9 +844,16 @@ html.lt-travado{overflow:hidden}
     // live: alterna miniatura / médio / tela inteira sem recarregar o vídeo
     sec.querySelectorAll("[data-live]").forEach(card => {
       const th = card.querySelector(".th"), bts = card.querySelectorAll("[data-tam]");
+      const tocar = () => { const b = card.querySelector(".tv-play"); if(!b) return;
+        const f = document.createElement("iframe");
+        f.src = "https://www.youtube.com/embed/"+encodeURIComponent(b.dataset.id)+"?autoplay=1&playsinline=1";
+        f.title = b.dataset.titulo; f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen"; f.allowFullscreen = true;
+        b.replaceWith(f); };
+      const play = card.querySelector(".tv-play"); if(play) play.onclick = tocar;
       const marca = t => bts.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.tam === t)));
       bts.forEach(b => b.onclick = () => {
         const t = b.dataset.tam;
+        tocar();
         if(t === "cheia"){ const f = th.requestFullscreen || th.webkitRequestFullscreen; if(f) f.call(th); else card.querySelector("iframe").webkitEnterFullscreen?.(); return; }
         card.classList.toggle("medio", t === "medio"); marca(t);
         if(t === "medio") card.scrollIntoView({behavior:"smooth", block:"nearest"});

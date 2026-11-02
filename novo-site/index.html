@@ -148,6 +148,14 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .p-leitor .lema{display:grid;line-height:1}
 .p-leitor .lema i{font-family:var(--f-display);font-style:italic;font-weight:500;font-size:18px;color:var(--cream);margin-bottom:4px}
 .p-leitor .lema b{font-family:var(--f-display);font-weight:700;font-size:30px;color:#fff}
+.lt-box{max-width:820px;margin:28px auto 8px;flex-direction:row;align-items:stretch;overflow:hidden}
+.lt-box:hover{transform:none}
+.lt-box .pic{height:auto;flex:0 0 260px;border-radius:14px 0 0 14px}
+.lt-box .pic.p-leitor::after{top:0;bottom:0;left:auto;right:0;width:3px;height:auto}
+.lt-box .txt{padding:22px 26px;justify-content:center}
+.lt-box h3{font-size:22px}
+.lt-box .info{font-size:14px}
+@media(max-width:640px){.lt-box{flex-direction:column}.lt-box .pic{flex-basis:auto;height:120px;border-radius:14px 14px 0 0}.lt-box .pic.p-leitor::after{top:auto;left:0;width:auto;height:3px}.lt-box .txt{padding:16px 18px 20px}}
 /* Leitor: boas-vindas no primeiro acesso, faixa de status e assinatura (o cadastro fica no Substack) */
 .lt-form{display:flex;gap:8px;flex-wrap:wrap;width:100%;max-width:460px}
 .lt-form input{flex:1 1 220px;min-width:0;height:46px;padding:0 14px;border-radius:8px;border:1px solid #4a3a30;background:#0b0907;color:var(--ink);font:15px var(--f-body)}
@@ -257,8 +265,7 @@ html.lt-travado{overflow:hidden}
     <section class="vitrine" aria-label="Destaques da Timeline">
       <button class="nav-btn prev" type="button" aria-label="Destaques anteriores" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
       <button class="nav-btn next" type="button" aria-label="Próximos destaques"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
-      <div class="rail" id="rail" tabindex="0" role="region" aria-label="Destaques: sua conta, Editora, eventos, assinatura, Fiscalize e loja">
-      <article class="feat" id="v-leitor" aria-live="polite"></article>
+      <div class="rail" id="rail" tabindex="0" role="region" aria-label="Destaques: Editora, eventos, assinatura, Fiscalize e loja">
       <article class="feat" id="v-livro">
         <span class="placa" aria-hidden="true">Lançamento</span><a class="pic p-livro" href="https://editora.revistatimeline.com/livro.html?l=almanaque-timeline&amp;src=site" tabindex="-1" aria-hidden="true"><span class="sombra"></span><span class="flutua"><span class="book"><span class="fake">Almanaque Timeline 2026</span></span></span></a>
         <div class="txt">
@@ -307,6 +314,7 @@ html.lt-travado{overflow:hidden}
       </div>
       <div class="dots" id="dots" aria-hidden="true"></div>
     </section>
+    <section class="feat lt-box" id="v-leitor" aria-live="polite" aria-label="Sua conta Timeline"></section>
 
     <section class="hero" id="hero" aria-label="Destaque"></section>
 

@@ -139,7 +139,7 @@ async function inscrever(request) {
   } catch { return json({ ok: false }); }
 }
 
-// /api/programas : últimos 5 programas completos (mais de 2 horas) do canal Conversa Timeline no YouTube
+// /api/programas : último Ponto Final e os 5 últimos Conversa Timeline completos (mais de 2 horas) do canal no YouTube
 // e a próxima live agendada (ou a que está no ar). Precisa do segredo YT_KEY (chave da API do YouTube)
 // configurado no Worker. Sem a chave, responde vazio e a seção some da página.
 const YT_HANDLE = '@conversatimeline';
@@ -150,7 +150,7 @@ async function programas(env, ctx) {
   const json = (o, ttl) => new Response(JSON.stringify(o), { headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': `public, max-age=${ttl}` } });
   if (!env.YT_KEY) return json({ videos: [], proximo: null, sem_chave: true }, 60);
   const cache = caches.default;
-  const key = new Request('https://cache.local/api/programas?v=1');
+  const key = new Request('https://cache.local/api/programas?v=2');
   const hit = await cache.match(key);
   if (hit) return hit;
   const yt = (path, q) => fetch(`https://www.googleapis.com/youtube/v3/${path}?${new URLSearchParams({ ...q, key: env.YT_KEY })}`, { signal: AbortSignal.timeout(8000) })
@@ -158,11 +158,19 @@ async function programas(env, ctx) {
   const ch = await yt('channels', { part: 'contentDetails', forHandle: YT_HANDLE });
   const uploads = ch?.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
   if (!uploads) return json({ videos: [], proximo: null, erro: 'canal' }, 60);
-  const pl = await yt('playlistItems', { part: 'contentDetails', playlistId: uploads, maxResults: '50' });
-  const ids = (pl?.items || []).map((i) => i.contentDetails?.videoId).filter(Boolean);
+  // até 100 envios recentes (2 páginas), para achar o Ponto Final mesmo com muitos cortes na semana
+  const ids = [];
+  let token = '';
+  for (let i = 0; i < 2; i++) {
+    const pl = await yt('playlistItems', { part: 'contentDetails', playlistId: uploads, maxResults: '50', ...(token ? { pageToken: token } : {}) });
+    (pl?.items || []).forEach((it) => it.contentDetails?.videoId && ids.push(it.contentDetails.videoId));
+    token = pl?.nextPageToken || '';
+    if (!token) break;
+  }
   if (!ids.length) return json({ videos: [], proximo: null }, 60);
-  const vs = await yt('videos', { part: 'snippet,contentDetails,liveStreamingDetails', id: ids.join(','), maxResults: '50' });
-  const itens = (vs?.items || []).map((v) => ({
+  const lotes = [ids.slice(0, 50), ids.slice(50, 100)].filter((l) => l.length);
+  const vsAll = await Promise.all(lotes.map((l) => yt('videos', { part: 'snippet,contentDetails,liveStreamingDetails', id: l.join(','), maxResults: '50' })));
+  const itens = vsAll.flatMap((vs) => vs?.items || []).map((v) => ({
     id: v.id, titulo: v.snippet?.title || '', thumb: ytThumb(v.snippet?.thumbnails),
     data: v.liveStreamingDetails?.actualStartTime || v.snippet?.publishedAt || '',
     estado: v.snippet?.liveBroadcastContent || 'none', inicio: v.liveStreamingDetails?.scheduledStartTime || '',
@@ -173,9 +181,13 @@ async function programas(env, ctx) {
   const agendados = itens.filter((v) => v.estado === 'upcoming' && v.inicio && new Date(v.inicio).getTime() > agora - 2 * 3600e3)
     .sort((a, b) => new Date(a.inicio) - new Date(b.inicio));
   const prox = aoVivo || agendados[0] || null;
-  const videos = itens.filter((v) => v.estado === 'none' && v.seg > YT_MIN_SEG)
-    .sort((a, b) => new Date(b.data) - new Date(a.data)).slice(0, 5)
-    .map(({ id, titulo, thumb, data, seg }) => ({ id, titulo, thumb, data, seg }));
+  const prontos = itens.filter((v) => v.estado === 'none').sort((a, b) => new Date(b.data) - new Date(a.data));
+  const ehPF = (v) => /ponto\s*final/i.test(v.titulo);
+  const enxuto = (programa) => ({ id, titulo, thumb, data, seg }) => ({ id, titulo, thumb, data, seg, programa });
+  // Ponto Final: o mais recente com mais de 30 min (evita cortes); Conversa Timeline: os 5 mais recentes com mais de 2 horas
+  const pf = prontos.filter((v) => ehPF(v) && v.seg > 1800).slice(0, 1).map(enxuto('Ponto Final'));
+  const ct = prontos.filter((v) => !ehPF(v) && v.seg > YT_MIN_SEG).slice(0, 5).map(enxuto('Conversa Timeline'));
+  const videos = [...pf, ...ct];
   const out = { atualizado: new Date().toISOString(), videos,
     proximo: prox && { id: prox.id, titulo: prox.titulo, thumb: prox.thumb, inicio: prox.inicio, ao_vivo: prox.estado === 'live' } };
   const ttl = prox ? 120 : 600;

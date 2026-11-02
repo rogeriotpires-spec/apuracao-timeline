@@ -166,7 +166,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .tv-quando{font-family:var(--f-cond);font-size:22px;font-weight:700;color:#fff;display:flex;align-items:center;gap:10px}
 .tv-quando i{width:10px;height:10px;border-radius:50%;background:#e5321c;box-shadow:0 0 10px #e5321c}
 .tv-prox .acts{display:flex;gap:10px 16px;flex-wrap:wrap;align-items:center}
-.tv-lista{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+.tv-lista{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}
 .tv-item{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card-2);transition:transform .2s,border-color .2s;min-width:0}
 .tv-item:hover{transform:translateY(-3px);border-color:var(--orange)}
 .tv-item .th{position:relative;aspect-ratio:16/9;background:#000}
@@ -177,6 +177,9 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .tv-item .tt{padding:10px 12px 12px;display:grid;gap:4px}
 .tv-item h4{margin:0;font:600 13.5px/1.35 var(--f-body);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .tv-item small{color:var(--muted);font-size:12px}
+.tv-item .prog{font:700 10.5px/1 var(--f-cond);letter-spacing:.1em;text-transform:uppercase;color:var(--cream)}
+.tv-item.pf{border-color:rgba(224,122,44,.6)}
+.tv-item.pf .prog{color:#ff9b71}
 @media(max-width:1000px){.tv-lista{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:760px){.tv-prox{grid-template-columns:1fr}.tv-lista{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px}.tv-item{flex:0 0 72%;scroll-snap-align:start}}
 /* Leitor: boas-vindas no primeiro acesso, faixa de status e assinatura (o cadastro fica no Substack) */
@@ -362,7 +365,7 @@ html.lt-travado{overflow:hidden}
 
     <section class="section" id="programas" aria-label="Programas no YouTube" hidden>
       <div class="section-head">
-        <div><span class="eyebrow">Conversa Timeline · YouTube</span><h2>Os últimos programas</h2></div>
+        <div><span class="eyebrow">TV Timeline · YouTube</span><h2>Os últimos programas</h2></div>
         <a href="https://www.youtube.com/@conversatimeline" target="_blank" rel="noopener">Ver o canal ↗</a>
       </div>
       <div id="tv-prox"></div>
@@ -745,9 +748,9 @@ html.lt-travado{overflow:hidden}
         '<div class="acts"><a class="btn primary" href="'+url+'" target="_blank" rel="noopener">'+(p.ao_vivo?'Assistir no YouTube':'Ativar lembrete no YouTube')+'</a></div></div></article>';
     }
     document.getElementById("tv-lista").innerHTML = (d.videos||[]).map(v =>
-      '<a class="tv-item" href="https://www.youtube.com/watch?v='+encodeURIComponent(v.id)+'" target="_blank" rel="noopener">'+
+      '<a class="tv-item'+(v.programa==="Ponto Final"?' pf':'')+'" href="https://www.youtube.com/watch?v='+encodeURIComponent(v.id)+'" target="_blank" rel="noopener">'+
       '<div class="th"><img src="'+esc(v.thumb)+'" alt="" loading="lazy"><b>'+dur(v.seg)+'</b></div>'+
-      '<div class="tt"><h4>'+esc(v.titulo)+'</h4><small>'+esc(dia(v.data))+'</small></div></a>').join("");
+      '<div class="tt"><span class="prog">'+esc(v.programa||"")+'</span><h4>'+esc(v.titulo)+'</h4><small>'+esc(dia(v.data))+'</small></div></a>').join("");
     sec.hidden = false;
   });
 })();

@@ -1,0 +1,13 @@
+name: diag-posts
+on:
+  push:
+    branches: [diag-posts]
+jobs:
+  d:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "== site /api/posts"; curl -sS -m 20 "https://revistatimeline.com/api/posts?offset=0&nc=$RANDOM" | python3 -c "import sys,json;d=json.load(sys.stdin);print(d.get('updated'));[print(p['date'],p['title'],p.get('pinned','')) for p in d['posts'][:5]]" || true
+          echo "== substack archive (timelinemedia)"; curl -sSL -m 20 -A "Mozilla/5.0" -o a.json -w "%{http_code} %{url_effective}\n" "https://timelinemedia.substack.com/api/v1/archive?sort=new&offset=0&limit=5"; python3 -c "import json;[print(p['post_date'],p['title'],p.get('type'),p.get('audience')) for p in json.load(open('a.json'))]" || head -c 400 a.json
+          echo "== redirect"; curl -sSI -m 20 -A "Mozilla/5.0" "https://timelinemedia.substack.com/api/v1/archive?limit=1" | head -5
+          echo "== config"; curl -sS -m 20 "https://revistatimeline.com/api/config"; echo

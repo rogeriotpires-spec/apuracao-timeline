@@ -5,6 +5,22 @@
  * Para mudar o menu em todos os sites, edite só a lista ITENS abaixo.
  */
 (function () {
+  // Aparência escolhida pelo leitor (escuro, claro ou mesclado). Fica num cookie do domínio revistatimeline.com,
+  // para valer em todos os sites da Timeline (revista, Editora, Eventos, Observatório, Fiscalize).
+  var TEMAS = ['escuro', 'claro', 'mesclado'];
+  function lerTema() {
+    var m = document.cookie.match(/(?:^|; )tl_tema=([a-z]+)/), t = m && m[1];
+    if (!t) { try { t = localStorage.getItem('tl_tema'); } catch (e) {} }
+    return TEMAS.indexOf(t) >= 0 ? t : 'escuro';
+  }
+  function gravarTema(t) {
+    var dom = /(^|\.)revistatimeline\.com$/.test(location.hostname) ? '; domain=.revistatimeline.com' : '';
+    document.cookie = 'tl_tema=' + t + '; path=/; max-age=31536000; SameSite=Lax' + dom;
+    try { localStorage.setItem('tl_tema', t); } catch (e) {}
+  }
+  document.documentElement.setAttribute('data-tema', lerTema());
+  window.tlTema = { ler: lerTema, gravar: gravarTema };
+
   if (document.getElementById('tlm')) return;
   var host = location.hostname.replace(/^www\./, '');
   // A página inicial nova assumiu o domínio principal em 01/nov/2026; o Substack foi para antigo.revistatimeline.com.
@@ -94,6 +110,17 @@
     f.href = 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600&family=Inter:wght@600;700;800&family=Playfair+Display:wght@400&display=swap';
     document.head.appendChild(f);
   }
+  css +=
+    '.tl-tema{position:absolute;left:20px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;gap:2px;padding:3px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:rgba(0,0,0,.25)}' +
+    '.tl-tema button{width:30px;height:30px;border:0;border-radius:50%;background:transparent;color:var(--tlm-ink);cursor:pointer;display:grid;place-items:center;opacity:.65;padding:0;transition:background .2s,opacity .2s}' +
+    '.tl-tema button:hover{opacity:1}' +
+    '.tl-tema button[aria-pressed="true"]{background:linear-gradient(90deg,#b5361f,#e07a2c 55%,#f4a65a);color:#140a04;opacity:1}' +
+    '.tl-tema svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}' +
+    '@media(max-width:600px){.tl-tema{left:10px;gap:0;padding:2px}.tl-tema button{width:24px;height:24px}.tl-tema svg{width:13px;height:13px}}' +
+    'html[data-tema="claro"] .tlm{--tlm-ink:#1d1713;--tlm-soft:#4f433b;--tlm-cream:#b4501a;--tlm-line:#e2d4c3;background:#fbf6ee}' +
+    'html[data-tema="claro"] .tlm-lupa{border-color:rgba(29,23,19,.28)}' +
+    'html[data-tema="claro"] .tlm-links a[aria-current="page"]{color:#1d1713}' +
+    'html[data-tema="claro"] .tl-tema{border-color:rgba(29,23,19,.22);background:rgba(255,255,255,.6)}';
   var st = document.createElement('style');
   st.id = 'tlm-style'; st.textContent = css;
   document.head.appendChild(st);
@@ -106,6 +133,33 @@
     var put = function () { document.body.insertAdjacentHTML('afterbegin', html); };
     if (document.body) put(); else document.addEventListener('DOMContentLoaded', put);
   }
+  // chave de aparência no canto esquerdo do topo do menu
+  var ICONES = {
+    escuro: '<svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>',
+    claro: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+    mesclado: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17A8.5 8.5 0 0 0 12 3.5z" fill="currentColor"/></svg>'
+  };
+  var NOMES = { escuro: 'Modo escuro', claro: 'Modo claro', mesclado: 'Modo mesclado' };
+  function poeChave() {
+    var mast = document.querySelector('#tlm .tlm-mast');
+    if (!mast) return false;
+    if (mast.querySelector('.tl-tema')) return true;
+    var atual = lerTema(), g = document.createElement('div');
+    g.className = 'tl-tema'; g.setAttribute('role', 'group'); g.setAttribute('aria-label', 'Aparência do site');
+    g.innerHTML = TEMAS.map(function (t) {
+      return '<button type="button" data-tema="' + t + '" aria-pressed="' + (t === atual) + '" title="' + NOMES[t] + '" aria-label="' + NOMES[t] + '">' + ICONES[t] + '</button>';
+    }).join('');
+    g.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      var t = b.getAttribute('data-tema');
+      document.documentElement.setAttribute('data-tema', t); gravarTema(t);
+      [].forEach.call(g.querySelectorAll('button'), function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+    });
+    mast.insertBefore(g, mast.firstChild);
+    return true;
+  }
+  if (!poeChave()) document.addEventListener('DOMContentLoaded', poeChave);
+
   // o item atual fica visível quando o menu rola de lado (celular)
   setTimeout(function () {
     var a = document.querySelector('.tlm-links a[aria-current="page"]');

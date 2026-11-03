@@ -99,7 +99,7 @@ h1{font-family:var(--f-display);font-size:clamp(32px,5vw,50px);line-height:1.05;
 </main>
 <script>
 (function(){
-  const SUB = "https://timelinemedia.substack.com";
+  const SUB = "https://assine.revistatimeline.com";
   let email = ""; try{ email = (JSON.parse(localStorage.getItem("tl_leitor")||"null")||{}).email || ""; }catch(e){}
   const url = SUB + "/subscribe?" + (email ? "email=" + encodeURIComponent(email) + "&" : "") +
     "utm_source=site-timeline&next=" + encodeURIComponent("https://www.revistatimeline.com/");

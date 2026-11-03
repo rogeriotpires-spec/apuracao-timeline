@@ -1,9 +1,9 @@
 // Worker "site-timeline" na Cloudflare da revista.
 // Serve o novo site (publicado no GitHub Pages) em revistatimeline.com e entrega os artigos do Substack ao vivo em /api/posts.
-// Desde 01/nov/2026 o Substack responde em antigo.revistatimeline.com; o endereço timelinemedia.substack.com
-// funciona sempre (o Substack o encaminha para o domínio próprio que estiver ativo).
+// Desde 02/nov/2026 o Substack responde em assine.revistatimeline.com. O endereço timelinemedia.substack.com
+// passou a bloquear acesso de servidores (tela "Just a moment"), por isso o Worker usa o domínio próprio.
 const PAGES = 'https://rogeriotpires-spec.github.io/apuracao-timeline/novo-site';
-const SUBSTACK = 'https://timelinemedia.substack.com';
+const SUBSTACK = 'https://assine.revistatimeline.com';
 
 // Configuração editável pelo Painel de Controle (painel.revistatimeline.com), guardada no KV ligado como SITE.
 // Sem o KV, o site segue com estes padrões.

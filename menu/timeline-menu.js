@@ -9,7 +9,7 @@
   var host = location.hostname.replace(/^www\./, '');
   // A página inicial nova assumiu o domínio principal em 01/nov/2026; o Substack foi para antigo.revistatimeline.com.
   var SITE = 'https://www.revistatimeline.com/';
-  var SUBSTACK = 'https://timelinemedia.substack.com';
+  var SUBSTACK = 'https://assine.revistatimeline.com';
   var naHomeNova = host === SITE.replace(/^https:\/\/(www\.)?/, '').replace(/\/$/, '');
   var HOME = naHomeNova ? '/' : SITE;
   var BUSCA = HOME + '#busca';

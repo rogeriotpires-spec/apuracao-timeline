@@ -150,7 +150,7 @@ async function programas(env, ctx) {
   const json = (o, ttl) => new Response(JSON.stringify(o), { headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': `public, max-age=${ttl}` } });
   if (!env.YT_KEY) return json({ sem_chave: true }, 60);
   const cache = caches.default;
-  const key = new Request('https://cache.local/api/programas?v=6');
+  const key = new Request('https://cache.local/api/programas?v=7');
   const hit = await cache.match(key);
   if (hit) return hit;
   const yt = (path, q) => fetch(`https://www.googleapis.com/youtube/v3/${path}?${new URLSearchParams({ ...q, key: env.YT_KEY })}`, { signal: AbortSignal.timeout(8000) })
@@ -197,7 +197,7 @@ async function programas(env, ctx) {
   const out = {
     atualizado: new Date().toISOString(),
     conversa: { proximo: proxDe(isCT), videos: prontos.filter(isCT).slice(0, 5).map(enxuto) },
-    ponto_final: { proximo: proxDe(ehPF), videos: prontos.filter((v) => ehPF(v) && v.seg >= 600).slice(0, 1).map(enxuto) },
+    ponto_final: { proximo: proxDe(ehPF), videos: prontos.filter((v) => ehPF(v) && v.seg >= 600).slice(0, 5).map(enxuto) },
   };
   const prox = out.conversa.proximo || out.ponto_final.proximo;
   const videos = [...out.conversa.videos, ...out.ponto_final.videos];

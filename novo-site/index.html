@@ -274,7 +274,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 /* Player flutuante: ao rolar a página, o ao vivo (ou o último programa) desce para o canto da tela */
 .tv-lista:has(.flutua){perspective:none}
 .tv-item.vivo.flutua{transform:none;animation:none}
-.tv-item.vivo.flutua .th,.tl-mini{position:fixed;right:16px;bottom:16px;width:min(360px,calc(100vw - 32px));aspect-ratio:16/9;z-index:950;border-radius:12px;overflow:hidden;background:#000;box-shadow:0 18px 44px rgba(0,0,0,.55),0 0 0 1px rgba(229,50,28,.6);animation:tl-entra .35s ease-out}
+.tv-item.vivo.flutua .th,.tl-mini{position:fixed;right:16px;bottom:16px;width:min(560px,46vw);aspect-ratio:16/9;z-index:950;border-radius:12px;overflow:hidden;background:#000;box-shadow:0 18px 44px rgba(0,0,0,.55),0 0 0 1px rgba(229,50,28,.6);animation:tl-entra .35s ease-out}
 .tl-mini[hidden]{display:none}
 .tl-mini iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 @keyframes tl-entra{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
@@ -283,7 +283,11 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .tl-flt button{width:30px;height:30px;border-radius:50%;border:0;background:rgba(6,5,4,.78);color:#fff;font:700 15px/1 var(--f-body);cursor:pointer;display:grid;place-items:center}
 .tl-flt button:hover{background:#c53b26}
 .tl-mini .rotulo{position:absolute;left:8px;top:8px;z-index:3;padding:4px 8px;border-radius:5px;background:rgba(6,5,4,.78);color:#fff;font:800 10.5px/1 var(--f-cond);letter-spacing:.08em;text-transform:uppercase}
-@media(max-width:600px){.tv-item.vivo.flutua .th,.tl-mini{right:10px;bottom:10px;width:min(240px,62vw)}}
+@media(max-width:900px){.tv-item.vivo.flutua .th,.tl-mini{width:min(420px,60vw)}}
+@media(max-width:600px){.tv-item.vivo.flutua .th,.tl-mini{right:10px;bottom:10px;width:calc(100vw - 20px)}}
+/* último programa no lugar da live: mesmo destaque, sem o vermelho de "ao vivo" */
+.tv-item.vivo.ultimo{animation:none;box-shadow:0 0 0 1px rgba(224,122,44,.6),0 22px 40px -10px rgba(0,0,0,.6)}
+.tv-item.vivo.ultimo .selo{background:rgba(6,5,4,.8)}
 /* Leitor: boas-vindas no primeiro acesso, faixa de status e assinatura (o cadastro fica no Substack) */
 .lt-form{display:flex;gap:8px;flex-wrap:wrap;width:100%;max-width:460px}
 .lt-form input{flex:1 1 220px;min-width:0;height:46px;padding:0 14px;border-radius:8px;border:1px solid #4a3a30;background:#0b0907;color:var(--ink);font:15px var(--f-body)}
@@ -902,7 +906,21 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
     document.querySelector("#tv-ct .tv-lista").innerHTML = cardProx(ct.proximo, "Conversa Timeline", proximaData([1,2,3,4,5],12)) + (ct.videos||[]).map(card).join("");
     document.querySelector("#tv-pf .tv-lista").innerHTML = cardProx(pf.proximo, "Ponto Final", proximaData([5],20)) + (pf.videos||[]).map(card).join("");
     sec.hidden = false;
-    // live: alterna miniatura / médio / tela inteira sem recarregar o vídeo
+    // sem live: o último programa publicado vira o player, no lugar da miniatura dele
+    if(!sec.querySelector("[data-live]")){
+      const ult = [...(ct.videos||[]), ...(pf.videos||[])].sort((a,b) => new Date(b.data) - new Date(a.data))[0];
+      const alvo = ult && sec.querySelector('.tv-item[href$="'+encodeURIComponent(ult.id)+'"]');
+      if(alvo){
+        const tmp = document.createElement("div");
+        tmp.innerHTML = '<div class="tv-item vivo ultimo" data-live><div class="th"><span class="selo">Último programa</span>'+
+          '<button type="button" class="tv-play" data-id="'+esc(ult.id)+'" data-titulo="'+esc(ult.titulo)+'" aria-label="Assistir"><img src="'+esc(ult.thumb)+'" alt=""><span>▶</span></button></div>'+
+          '<div class="tt"><span class="quando">'+esc(dia(ult.data)+vis(ult))+'</span><h4><a href="'+yt(ult.id)+'" target="_blank" rel="noopener">'+esc(ult.titulo)+'</a></h4>'+
+          '<div class="tv-tam" role="group" aria-label="Tamanho do vídeo"><button type="button" data-tam="mini" aria-pressed="false">Miniatura</button>'+
+          '<button type="button" data-tam="medio" aria-pressed="true">Médio</button><button type="button" data-tam="cheia" aria-pressed="false">Tela inteira</button></div></div></div>';
+        const novo = tmp.firstChild; alvo.parentNode.insertBefore(novo, alvo.parentNode.children[1] || null); alvo.remove();
+      }
+    }
+    // player: médio por padrão; alterna miniatura / médio / tela inteira sem recarregar o vídeo
     let vivo = false;
     sec.querySelectorAll("[data-live]").forEach(card => {
       const th = card.querySelector(".th"), bts = card.querySelectorAll("[data-tam]");
@@ -923,12 +941,13 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
       ctrl.children[0].onclick = () => { solta(); card.scrollIntoView({behavior:"smooth", block:"center"}); };
       ctrl.children[1].onclick = () => { fechado = true; solta(); };
       new IntersectionObserver(([e]) => {
-        if(fechado || card.classList.contains("medio") || document.fullscreenElement) return;
-        if(!e.isIntersecting && e.boundingClientRect.top < 0){ card.style.minHeight = card.offsetHeight + "px"; card.classList.add("flutua"); }
+        if(fechado || document.fullscreenElement) return;
+        if(!e.isIntersecting){ if(!card.classList.contains("flutua")){ card.style.minHeight = card.offsetHeight + "px"; card.classList.add("flutua"); } }
         else if(e.isIntersecting) solta();
-      }, { threshold: 0 }).observe(card);
+      }, { threshold: 0.15 }).observe(card);
       vivo = true;
       const marca = t => bts.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.tam === t)));
+      card.classList.add("medio"); marca("medio");
       bts.forEach(b => b.onclick = () => {
         const t = b.dataset.tam;
         tocar();
@@ -937,29 +956,6 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
         if(t === "medio") card.scrollIntoView({behavior:"smooth", block:"nearest"});
       });
     });
-    // sem live: o último programa publicado aparece num mini player no canto quando o leitor passa da seção
-    if(vivo) return;
-    const ult = [...(ct.videos||[]), ...(pf.videos||[])].sort((a,b) => new Date(b.data) - new Date(a.data))[0];
-    let fechouMini = false; try{ fechouMini = sessionStorage.getItem("tl_mini_fechado") === "1"; }catch(e){}
-    if(!ult || fechouMini) return;
-    const mini = document.createElement("div"); mini.className = "tl-mini"; mini.hidden = true;
-    mini.innerHTML = '<span class="rotulo">Último programa</span><div class="tl-flt"><button type="button" title="Voltar aos programas" aria-label="Voltar aos programas">↑</button><button type="button" title="Fechar" aria-label="Fechar">×</button></div>';
-    document.body.appendChild(mini);
-    let ifr = null;
-    const cmd = f => { try{ ifr && ifr.contentWindow.postMessage(JSON.stringify({event:"command", func:f, args:""}), "*"); }catch(e){} };
-    const mostra = () => {
-      if(!ifr){ ifr = document.createElement("iframe");
-        ifr.src = "https://www.youtube.com/embed/"+encodeURIComponent(ult.id)+"?autoplay=1&mute=1&playsinline=1&enablejsapi=1";
-        ifr.title = ult.titulo; ifr.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen"; ifr.allowFullscreen = true;
-        mini.appendChild(ifr); } else cmd("playVideo");
-      mini.hidden = false; };
-    const esconde = () => { if(!mini.hidden){ cmd("pauseVideo"); mini.hidden = true; } };
-    mini.querySelectorAll(".tl-flt button")[0].onclick = () => { esconde(); sec.scrollIntoView({behavior:"smooth"}); };
-    mini.querySelectorAll(".tl-flt button")[1].onclick = () => { esconde(); obs.disconnect(); try{ sessionStorage.setItem("tl_mini_fechado","1"); }catch(e){} };
-    const obs = new IntersectionObserver(([e]) => {
-      if(!e.isIntersecting && e.boundingClientRect.top < 0) mostra(); else esconde();
-    }, { threshold: 0 });
-    obs.observe(sec);
   });
 })();
 </script>

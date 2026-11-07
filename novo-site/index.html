@@ -270,6 +270,20 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .tv-item.vivo.medio{transform:translateY(-6px) scale(1.02)}
 @keyframes tl-vivo{0%,100%{box-shadow:0 0 0 1px rgba(229,50,28,.55),0 22px 40px -10px rgba(0,0,0,.75),0 0 18px rgba(229,50,28,.25)}50%{box-shadow:0 0 0 2px rgba(229,50,28,.9),0 26px 46px -10px rgba(0,0,0,.8),0 0 34px rgba(229,50,28,.55)}}
 @media(prefers-reduced-motion:reduce){.tv-item.vivo{animation:none}}
+
+/* Player flutuante: ao rolar a página, o ao vivo (ou o último programa) desce para o canto da tela */
+.tv-lista:has(.flutua){perspective:none}
+.tv-item.vivo.flutua{transform:none;animation:none}
+.tv-item.vivo.flutua .th,.tl-mini{position:fixed;right:16px;bottom:16px;width:min(360px,calc(100vw - 32px));aspect-ratio:16/9;z-index:950;border-radius:12px;overflow:hidden;background:#000;box-shadow:0 18px 44px rgba(0,0,0,.55),0 0 0 1px rgba(229,50,28,.6);animation:tl-entra .35s ease-out}
+.tl-mini[hidden]{display:none}
+.tl-mini iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+@keyframes tl-entra{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+.tl-flt{position:absolute;top:6px;right:6px;z-index:3;display:none;gap:6px}
+.flutua .tl-flt,.tl-mini .tl-flt{display:flex}
+.tl-flt button{width:30px;height:30px;border-radius:50%;border:0;background:rgba(6,5,4,.78);color:#fff;font:700 15px/1 var(--f-body);cursor:pointer;display:grid;place-items:center}
+.tl-flt button:hover{background:#c53b26}
+.tl-mini .rotulo{position:absolute;left:8px;top:8px;z-index:3;padding:4px 8px;border-radius:5px;background:rgba(6,5,4,.78);color:#fff;font:800 10.5px/1 var(--f-cond);letter-spacing:.08em;text-transform:uppercase}
+@media(max-width:600px){.tv-item.vivo.flutua .th,.tl-mini{right:10px;bottom:10px;width:min(240px,62vw)}}
 /* Leitor: boas-vindas no primeiro acesso, faixa de status e assinatura (o cadastro fica no Substack) */
 .lt-form{display:flex;gap:8px;flex-wrap:wrap;width:100%;max-width:460px}
 .lt-form input{flex:1 1 220px;min-width:0;height:46px;padding:0 14px;border-radius:8px;border:1px solid #4a3a30;background:#0b0907;color:var(--ink);font:15px var(--f-body)}
@@ -889,6 +903,7 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
     document.querySelector("#tv-pf .tv-lista").innerHTML = cardProx(pf.proximo, "Ponto Final", proximaData([5],20)) + (pf.videos||[]).map(card).join("");
     sec.hidden = false;
     // live: alterna miniatura / médio / tela inteira sem recarregar o vídeo
+    let vivo = false;
     sec.querySelectorAll("[data-live]").forEach(card => {
       const th = card.querySelector(".th"), bts = card.querySelectorAll("[data-tam]");
       const tocar = (mudo) => { const b = card.querySelector(".tv-play"); if(!b) return;
@@ -899,6 +914,20 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
       const play = card.querySelector(".tv-play"); if(play) play.onclick = tocar;
       // já começa tocando sem som; o leitor liga o som no próprio player (esse clique conta a visualização)
       tocar(true);
+      // ao rolar para além do cartão, o vídeo desce para o canto da tela sem parar de tocar
+      const ctrl = document.createElement("div"); ctrl.className = "tl-flt";
+      ctrl.innerHTML = '<button type="button" title="Voltar ao programa" aria-label="Voltar ao programa">↑</button><button type="button" title="Fechar" aria-label="Fechar">×</button>';
+      th.appendChild(ctrl);
+      let fechado = false;
+      const solta = () => { card.classList.remove("flutua"); card.style.minHeight = ""; };
+      ctrl.children[0].onclick = () => { solta(); card.scrollIntoView({behavior:"smooth", block:"center"}); };
+      ctrl.children[1].onclick = () => { fechado = true; solta(); };
+      new IntersectionObserver(([e]) => {
+        if(fechado || card.classList.contains("medio") || document.fullscreenElement) return;
+        if(!e.isIntersecting && e.boundingClientRect.top < 0){ card.style.minHeight = card.offsetHeight + "px"; card.classList.add("flutua"); }
+        else if(e.isIntersecting) solta();
+      }, { threshold: 0 }).observe(card);
+      vivo = true;
       const marca = t => bts.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.tam === t)));
       bts.forEach(b => b.onclick = () => {
         const t = b.dataset.tam;
@@ -908,6 +937,29 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
         if(t === "medio") card.scrollIntoView({behavior:"smooth", block:"nearest"});
       });
     });
+    // sem live: o último programa publicado aparece num mini player no canto quando o leitor passa da seção
+    if(vivo) return;
+    const ult = [...(ct.videos||[]), ...(pf.videos||[])].sort((a,b) => new Date(b.data) - new Date(a.data))[0];
+    let fechouMini = false; try{ fechouMini = sessionStorage.getItem("tl_mini_fechado") === "1"; }catch(e){}
+    if(!ult || fechouMini) return;
+    const mini = document.createElement("div"); mini.className = "tl-mini"; mini.hidden = true;
+    mini.innerHTML = '<span class="rotulo">Último programa</span><div class="tl-flt"><button type="button" title="Voltar aos programas" aria-label="Voltar aos programas">↑</button><button type="button" title="Fechar" aria-label="Fechar">×</button></div>';
+    document.body.appendChild(mini);
+    let ifr = null;
+    const cmd = f => { try{ ifr && ifr.contentWindow.postMessage(JSON.stringify({event:"command", func:f, args:""}), "*"); }catch(e){} };
+    const mostra = () => {
+      if(!ifr){ ifr = document.createElement("iframe");
+        ifr.src = "https://www.youtube.com/embed/"+encodeURIComponent(ult.id)+"?autoplay=1&mute=1&playsinline=1&enablejsapi=1";
+        ifr.title = ult.titulo; ifr.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen"; ifr.allowFullscreen = true;
+        mini.appendChild(ifr); } else cmd("playVideo");
+      mini.hidden = false; };
+    const esconde = () => { if(!mini.hidden){ cmd("pauseVideo"); mini.hidden = true; } };
+    mini.querySelectorAll(".tl-flt button")[0].onclick = () => { esconde(); sec.scrollIntoView({behavior:"smooth"}); };
+    mini.querySelectorAll(".tl-flt button")[1].onclick = () => { esconde(); obs.disconnect(); try{ sessionStorage.setItem("tl_mini_fechado","1"); }catch(e){} };
+    const obs = new IntersectionObserver(([e]) => {
+      if(!e.isIntersecting && e.boundingClientRect.top < 0) mostra(); else esconde();
+    }, { threshold: 0 });
+    obs.observe(sec);
   });
 })();
 </script>

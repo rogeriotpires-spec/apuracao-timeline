@@ -6,12 +6,15 @@ def get(u):
     body, _, code = r.stdout.rpartition("\n")
     if code != "200": sys.exit(f"HTTP {code} em {u}: {body[:200]} {r.stderr[:200]}")
     return json.loads(body)
-posts = []
-for off in range(0, 60, 12):
-    d = get(f"{SUB}/api/v1/archive?sort=new&offset={off}&limit=12")
+# O Substack trocou "offset" por "cursor" (nextCursor) na paginação do arquivo
+posts, cur = [], ""
+for _ in range(5):
+    d = get(f"{SUB}/api/v1/archive?sort=new&limit=12" + (f"&cursor={cur}" if cur else ""))
     lst = d if isinstance(d, list) else d.get("posts", [])
     posts += lst
-    if len(lst) < 12: break
+    cur = (d.get("nextCursor") if isinstance(d, dict) else "") or ""
+    print("página", len(lst), "cursor", cur[:40], file=sys.stderr)
+    if len(lst) < 12 or not cur: break
 def m(p):
     reac = p.get("reaction_count")
     if reac is None and p.get("reactions"): reac = sum(p["reactions"].values())

@@ -1,0 +1,19 @@
+name: artigos-do-substack
+on:
+  schedule: [{ cron: "*/15 * * * *" }]
+  workflow_dispatch:
+  push:
+    paths: [scripts/atualiza_posts.py, .github/workflows/posts.yml]
+permissions:
+  contents: write
+concurrency: { group: posts, cancel-in-progress: false }
+jobs:
+  atualiza:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/atualiza_posts.py
+      - run: |
+          git config user.name "Robô Timeline"; git config user.email "rogeriotpires@gmail.com"
+          git add novo-site/data/posts.json
+          git diff --cached --quiet || (git commit -m "Artigos: cópia atualizada do Substack" && git pull --rebase -q && git push)

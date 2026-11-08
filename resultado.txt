@@ -1,0 +1,16 @@
+== site /api/posts
+{"posts":[]}
+HTTP 502
+
+== https://assine.revistatimeline.com/api/v1/archive?sort=new&limit=3
+200
+dict ['posts', 'nextCursor']
+{'title': 'Quarenta ministérios e nenhuma entrega', 'post_date': '2026-11-08T11:33:29.237Z', 'canonical_url': 'https://assine.revistatimeline.com/p/quarenta-ministerios-e-nenhuma-entrega', 'cover_image': 'https://substackcdn.com/image/fetch/$s_!9SUu!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F43f9589c-41ed-4ce2-b908-39bf828d3ca5_1731x909.png', 'reaction_count': 9, 'comment_count': 1, 'restacks': 0, 'subtitle': 'Quarenta pastas na Esplanada e uma pergunta que o Planalto evita responder'}
+Rogerio Pires
+
+== https://assine.revistatimeline.com/feed
+200
+NoneType 
+{'title': None, 'post_date': None, 'canonical_url': None, 'cover_image': None, 'reaction_count': None, 'comment_count': None, 'restacks': None, 'subtitle': None}
+None
+

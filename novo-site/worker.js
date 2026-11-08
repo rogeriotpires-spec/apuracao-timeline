@@ -57,23 +57,28 @@ const mapPost = (p) => ({
 
 // /api/posts?offset=0&search=termo : página de 12 artigos (busca e "carregar mais" usam o mesmo caminho)
 async function posts(url, ctx, cfg) {
-  const offset = Math.max(0, Math.min(5000, parseInt(url.searchParams.get('offset') || '0', 10) || 0));
+  // O Substack trocou "offset" por "cursor": a página manda de volta o "next" que recebeu (vazio ou 0 = primeira página)
+  const rawOff = (url.searchParams.get('offset') || '').trim();
+  const cursor = /^[A-Za-z0-9+/=_-]{8,400}$/.test(rawOff) && !/^\d+$/.test(rawOff) ? rawOff : '';
+  const offset = cursor ? 1 : 0;
   const search = (url.searchParams.get('search') || '').trim().slice(0, 80);
   const cache = caches.default;
   const pin = offset === 0 && !search ? pinnedSlug(cfg) : '';
-  const key = new Request(`https://cache.local/api/posts?v=2&o=${offset}&s=${encodeURIComponent(search)}&pin=${pin}`);
+  const key = new Request(`https://cache.local/api/posts?v=3&c=${encodeURIComponent(cursor)}&s=${encodeURIComponent(search)}&pin=${pin}`);
   const hit = await cache.match(key);
   if (hit) return hit;
-  const q = new URLSearchParams({ sort: 'new', offset: String(offset), limit: '12' });
+  const q = new URLSearchParams({ sort: 'new', limit: '12' });
   if (search) q.set('search', search);
-  const r = await fetch(`${SUBSTACK}/api/v1/archive?${q}`, { headers: { 'user-agent': 'site-timeline/1.0' } });
+  if (cursor) q.set('cursor', cursor);
+  const r = await fetch(`${SUBSTACK}/api/v1/archive?${q}`, { headers: { 'user-agent': 'site-timeline/1.0', accept: 'application/json' } });
   if (!r.ok) return new Response(JSON.stringify({ posts: [] }), { status: 502, headers: { 'content-type': 'application/json' } });
   // O Substack passou a responder { posts: [...], nextCursor } em vez de uma lista simples; aceitamos os dois formatos
   const raw = await r.json().catch(() => null);
   const list = Array.isArray(raw) ? raw : (raw && Array.isArray(raw.posts) ? raw.posts : []);
   const out = {
     updated: new Date().toISOString(),
-    more: list.length === 12,
+    more: list.length === 12 && !!(raw && raw.nextCursor),
+    next: (raw && raw.nextCursor) || '',
     posts: list.filter((p) => p.type !== 'podcast' || p.title).map(mapPost),
   };
   if (pin) {

@@ -642,9 +642,9 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
   const ok = d => d && d.posts && d.posts.length;
   const grid = document.getElementById("grid"), mais = document.getElementById("mais"), info = document.getElementById("busca-info");
   let live = false, offset = 0, termo = "";
-  const api = (o, s) => fetch("api/posts?offset="+o+(s?"&search="+encodeURIComponent(s):""),{cache:"no-store"}).then(r=>r.ok?r.json():null);
+  const api = (o, s) => fetch("api/posts?offset="+encodeURIComponent(o)+(s?"&search="+encodeURIComponent(s):""),{cache:"no-store"}).then(r=>r.ok?r.json():null);
   api(0,"").catch(()=>null)
-    .then(d=>{ if(ok(d)){ live = true; offset = d.posts.length; mais.hidden = !d.more; return d; }
+    .then(d=>{ if(ok(d)){ live = true; offset = d.next || d.posts.length; mais.hidden = !d.more; return d; }
       return fetch("data/posts.json",{cache:"no-store"}).then(r=>r.ok?r.json():null); })
     .then(d=>{ if(ok(d)) render(d); if(!live){ document.getElementById("busca").hidden = true; const l = document.getElementById("tlm-lupa"); if(l) l.href = "https://assine.revistatimeline.com/archive"; } }).catch(()=>{});
   const lupa = document.getElementById("tlm-lupa"); if(lupa) lupa.onclick = (e) => { const q = document.querySelector("#busca input"); if(!q || document.getElementById("busca").hidden) return;
@@ -741,7 +741,7 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
   }).catch(()=>{});
   mais.onclick = () => { mais.disabled = true;
     api(offset, termo).then(d=>{ mais.disabled = false; if(!ok(d)){ mais.hidden = true; return; }
-      offset += d.posts.length; grid.insertAdjacentHTML("beforeend", d.posts.map(card).join("")); mais.hidden = !d.more; }).catch(()=>{ mais.disabled = false; }); };
+      offset = d.next || (offset + d.posts.length); grid.insertAdjacentHTML("beforeend", d.posts.map(card).join("")); mais.hidden = !d.more; }).catch(()=>{ mais.disabled = false; }); };
   // Busca: guarda a lista que estava na página para devolvê-la ao limpar
   const form = document.getElementById("busca"), campo = form.q;
   let antes = null, pedido = 0;
@@ -759,7 +759,7 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
       info.innerHTML = '<span>'+(n ? 'Resultados para <b>"'+esc(termo)+'"</b>' : 'Nenhum artigo encontrado para <b>"'+esc(termo)+'"</b>.')+'</span>'+
         ' <button class="clear" type="button">Limpar busca ✕</button>';
       info.querySelector(".clear").onclick = () => { limpar(); campo.focus(); };
-      grid.innerHTML = n ? d.posts.map(card).join("") : ""; offset = n; mais.hidden = !(d && d.more);
+      grid.innerHTML = n ? d.posts.map(card).join("") : ""; offset = (d && d.next) || n; mais.hidden = !(d && d.more);
       document.getElementById("artigos").scrollIntoView({behavior:"smooth"}); }).catch(()=>{ if(meu === pedido) info.textContent = "A busca falhou. Tente de novo."; }); };
   // apagou o texto (ou apertou Esc no campo): volta para os artigos de antes
   campo.addEventListener("input", () => { if(!campo.value.trim() && antes) limpar(); });

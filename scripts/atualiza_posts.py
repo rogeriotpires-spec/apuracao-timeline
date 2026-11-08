@@ -2,7 +2,7 @@
 import json, urllib.request, datetime, os
 SUB = "https://assine.revistatimeline.com"
 def get(u):
-    req = urllib.request.Request(u, headers={"user-agent": "Mozilla/5.0 (site-timeline)"})
+    req = urllib.request.Request(u, headers={"user-agent": "site-timeline/1.0", "accept": "application/json"})
     with urllib.request.urlopen(req, timeout=30) as r: return json.load(r)
 posts = []
 for off in range(0, 60, 12):

@@ -61,14 +61,16 @@ async function posts(url, ctx, cfg) {
   const search = (url.searchParams.get('search') || '').trim().slice(0, 80);
   const cache = caches.default;
   const pin = offset === 0 && !search ? pinnedSlug(cfg) : '';
-  const key = new Request(`https://cache.local/api/posts?o=${offset}&s=${encodeURIComponent(search)}&pin=${pin}`);
+  const key = new Request(`https://cache.local/api/posts?v=2&o=${offset}&s=${encodeURIComponent(search)}&pin=${pin}`);
   const hit = await cache.match(key);
   if (hit) return hit;
   const q = new URLSearchParams({ sort: 'new', offset: String(offset), limit: '12' });
   if (search) q.set('search', search);
   const r = await fetch(`${SUBSTACK}/api/v1/archive?${q}`, { headers: { 'user-agent': 'site-timeline/1.0' } });
   if (!r.ok) return new Response(JSON.stringify({ posts: [] }), { status: 502, headers: { 'content-type': 'application/json' } });
-  const list = await r.json();
+  // O Substack passou a responder { posts: [...], nextCursor } em vez de uma lista simples; aceitamos os dois formatos
+  const raw = await r.json().catch(() => null);
+  const list = Array.isArray(raw) ? raw : (raw && Array.isArray(raw.posts) ? raw.posts : []);
   const out = {
     updated: new Date().toISOString(),
     more: list.length === 12,

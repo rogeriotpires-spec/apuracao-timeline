@@ -2,12 +2,18 @@ name: diag-posts
 on:
   push:
     branches: [diag-posts]
+permissions:
+  contents: write
 jobs:
   d:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with: { ref: diag-posts }
       - run: |
-          echo "== site /api/posts raw"; curl -sS -m 20 -w "\nHTTP %{http_code}\n" "https://revistatimeline.com/api/posts?offset=0&nc=$RANDOM" | head -c 600; echo
-          for u in "https://assine.revistatimeline.com/api/v1/archive?sort=new&limit=3" "https://assine.revistatimeline.com/feed" "https://timelinemedia.substack.com/feed" "https://substack.com/api/v1/publication/search?query=timelinemedia"; do
-            echo "== $u"; curl -sSL -m 20 -A "site-timeline/1.0" -o r.txt -w "%{http_code} %{url_effective}\n" "$u"; head -c 300 r.txt | tr '\n' ' '; echo; done
-          echo "== dns assine"; getent hosts assine.revistatimeline.com
+          {
+          echo "== site /api/posts"; curl -sS -m 20 -w "\nHTTP %{http_code}\n" "https://www.revistatimeline.com/api/posts?offset=0&nc=$RANDOM" | head -c 900; echo
+          for u in "https://assine.revistatimeline.com/api/v1/archive?sort=new&limit=3" "https://assine.revistatimeline.com/feed"; do
+            echo "== $u"; curl -sSL -m 20 -A "site-timeline/1.0" -o r.txt -w "%{http_code}\n" "$u"; head -c 500 r.txt | tr '\n' ' '; echo; done
+          } > resultado.txt 2>&1
+          git config user.name diag; git config user.email diag@x; git add resultado.txt; git commit -m resultado; git push

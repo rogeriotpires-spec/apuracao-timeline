@@ -21,6 +21,9 @@
   document.documentElement.setAttribute('data-tema', lerTema());
   window.tlTema = { ler: lerTema, gravar: gravarTema };
 
+  // Pixel da Meta em todos os sites da Timeline (ver pixel.js)
+  if (!window.__tlPixel) { var px = document.createElement('script'); px.async = true; px.src = 'https://rogeriotpires-spec.github.io/apuracao-timeline/menu/pixel.js'; document.head.appendChild(px); }
+
   if (document.getElementById('tlm')) return;
   var host = location.hostname.replace(/^www\./, '');
   // A página inicial nova assumiu o domínio principal em 01/nov/2026; o Substack foi para antigo.revistatimeline.com.

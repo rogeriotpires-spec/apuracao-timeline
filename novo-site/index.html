@@ -795,6 +795,7 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
   // leva à página de inscrição dele com o e-mail já preenchido.
   function inscrever(email, form){
     ls.set(K_LEITOR, JSON.stringify({ email, desde: new Date().toISOString() }));
+    if(window.tlPixel) tlPixel("Lead", { content_name: "newsletter" });
     const plano = () => { location.href = SUB + "/subscribe?email=" + encodeURIComponent(email) +
       "&utm_source=site-timeline&next=" + encodeURIComponent("https://www.revistatimeline.com/"); };
     fetch("api/inscrever", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email }) })
@@ -809,6 +810,9 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
         setTimeout(() => { fecharGate(); desenhar(); }, 2600);
       });
   }
+  // Pixel: clique para virar membro (vai para os planos no Substack)
+  document.addEventListener("click", e => { const a = e.target.closest && e.target.closest('a[href*="/subscribe"], a[href*="lp.revistatimeline.com"]');
+    if(a && window.tlPixel) tlPixel("InitiateCheckout", { content_name: "membro" }); });
   function ligar(form){
     form.addEventListener("submit", ev => {
       ev.preventDefault();

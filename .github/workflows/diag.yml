@@ -12,8 +12,6 @@ jobs:
         with: { ref: diag-posts }
       - run: |
           {
-          for u in "archive?sort=new&limit=12&search=moraes" "archive?sort=new&limit=2" ; do echo "== $u"; curl -sS -A site-timeline/1.0 -w "\n%{http_code}\n" "https://assine.revistatimeline.com/api/v1/$u" | python3 -c "import sys,json;t=sys.stdin.read();b,c=t.rstrip().rsplit('\n',1);print(c);d=json.loads(b);print([p['title'] for p in d['posts']][:5]);print('next',d.get('nextCursor'))" ; done
-          C=$(curl -sS -A site-timeline/1.0 "https://assine.revistatimeline.com/api/v1/archive?sort=new&limit=2" | python3 -c "import sys,json;print(json.load(sys.stdin)['nextCursor'])")
-          echo "== cursor"; curl -sS -A site-timeline/1.0 -G --data-urlencode "cursor=$C" "https://assine.revistatimeline.com/api/v1/archive?sort=new&limit=2" | head -c 300
+          for q in "offset=0" "offset=0&search=moraes"; do echo "== $q"; curl -sS -w "\n%{http_code}\n" "https://site-timeline.marketing-b9d.workers.dev/api/posts?$q&nc=$RANDOM" | python3 -c "import sys,json;t=sys.stdin.read().rstrip();b,c=t.rsplit('\n',1);print(c);d=json.loads(b);print(d.get('more'),d.get('next'),[p['title'] for p in d['posts']][:3])"; done
           } > resultado.txt 2>&1
           git config user.name diag; git config user.email diag@x; git add resultado.txt; git commit -m resultado; git push

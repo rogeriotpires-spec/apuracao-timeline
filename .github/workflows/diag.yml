@@ -10,6 +10,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { ref: diag-posts }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
       - run: |
-          for f in mobile desktop; do curl -sS -m 170 "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Frevistatimeline.com%2F&strategy=$f&category=performance&category=best-practices&category=accessibility&locale=pt_BR" -o psi-$f.json; ls -la psi-$f.json; done
-          git config user.name diag; git config user.email diag@x; git add psi-*.json; git commit -m resultado; git push
+          npm i -g lighthouse@12 >/dev/null 2>&1
+          U="https://site-timeline.marketing-b9d.workers.dev/"
+          lighthouse "$U" --quiet --chrome-flags="--headless=new --no-sandbox" --output=json --output-path=lh-mobile.json --only-categories=performance,best-practices,accessibility,seo || true
+          lighthouse "$U" --quiet --preset=desktop --chrome-flags="--headless=new --no-sandbox" --output=json --output-path=lh-desktop.json --only-categories=performance,best-practices,accessibility,seo || true
+          git config user.name diag; git config user.email diag@x; git add lh-*.json; git commit -m resultado; git push

@@ -19,6 +19,9 @@
   fbq('track', 'PageView');
   // Atalho para as páginas registrarem ações: tlPixel('Lead'), tlPixel('Purchase', {value: 30, currency: 'BRL'})
   window.tlPixel = function (ev, dados) { try { fbq('track', ev, dados || {}); } catch (e) {} };
+  // Fila para páginas que registram ações antes deste arquivo carregar: (window.tlPx = window.tlPx || []).push(['Purchase', {...}])
+  var fila = window.tlPx || []; window.tlPx = { push: function (a) { window.tlPixel(a[0], a[1]); } };
+  for (var i = 0; i < fila.length; i++) window.tlPixel(fila[i][0], fila[i][1]);
 
   // Aviso discreto de cookies (LGPD), mostrado uma vez por aparelho
   var K = 'tl_cookies_ok';

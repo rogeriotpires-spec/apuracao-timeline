@@ -11,7 +11,5 @@ jobs:
       - uses: actions/checkout@v4
         with: { ref: diag-posts }
       - run: |
-          {
-          for q in "offset=0" "offset=0&search=moraes"; do echo "== $q"; curl -sS -w "\n%{http_code}\n" "https://site-timeline.marketing-b9d.workers.dev/api/posts?$q&nc=$RANDOM" | python3 -c "import sys,json;t=sys.stdin.read().rstrip();b,c=t.rsplit('\n',1);print(c);d=json.loads(b);print(d.get('more'),d.get('next'),[p['title'] for p in d['posts']][:3])"; done
-          } > resultado.txt 2>&1
-          git config user.name diag; git config user.email diag@x; git add resultado.txt; git commit -m resultado; git push
+          for f in mobile desktop; do curl -sS -m 170 "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Frevistatimeline.com%2F&strategy=$f&category=performance&category=best-practices&category=accessibility&locale=pt_BR" -o psi-$f.json; ls -la psi-$f.json; done
+          git config user.name diag; git config user.email diag@x; git add psi-*.json; git commit -m resultado; git push

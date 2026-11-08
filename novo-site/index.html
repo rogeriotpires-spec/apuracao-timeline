@@ -864,7 +864,9 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
     gate.hidden = false; document.documentElement.classList.add("lt-travado");
     setTimeout(() => { const i = gate.querySelector("input"); if(i) i.focus(); }, 50);
   }
-  if(!leitor() && !adiado && !veioDeLink) abrirGate();
+  // Tela de boas-vindas desligada em 08/11/2026; para religar, troque false por true
+  const BOAS_VINDAS = false;
+  if(BOAS_VINDAS && !leitor() && !adiado && !veioDeLink) abrirGate();
   desenhar();
 })();
 </script>

@@ -642,11 +642,20 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
   const ok = d => d && d.posts && d.posts.length;
   const grid = document.getElementById("grid"), mais = document.getElementById("mais"), info = document.getElementById("busca-info");
   let live = false, offset = 0, termo = "";
-  const api = (o, s) => fetch("api/posts?offset="+encodeURIComponent(o)+(s?"&search="+encodeURIComponent(s):""),{cache:"no-store"}).then(r=>r.ok?r.json():null);
-  api(0,"").catch(()=>null)
-    .then(d=>{ if(ok(d)){ live = true; offset = d.next || d.posts.length; mais.hidden = !d.more; return d; }
-      return fetch("data/posts.json",{cache:"no-store"}).then(r=>r.ok?r.json():null); })
-    .then(d=>{ if(ok(d)) render(d); if(!live){ document.getElementById("busca").hidden = true; const l = document.getElementById("tlm-lupa"); if(l) l.href = "https://assine.revistatimeline.com/archive"; } }).catch(()=>{});
+  // Se o Worker não alcançar o Substack, a busca e o "carregar mais" usam a cópia data/posts.json (o robô a renova a cada 15 min)
+  let copia = null;
+  const local = (o, s) => (copia = copia || fetch("data/posts.json",{cache:"no-store"}).then(r=>r.ok?r.json():{posts:[]}).catch(()=>({posts:[]}))).then(c=>{
+    const sem = t => String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+    const q = sem(s), lista = q ? c.posts.filter(p=>sem(p.title+" "+p.subtitle).includes(q)) : c.posts;
+    const i = parseInt(o,10) || 0, pag = lista.slice(i, i+12);
+    return { posts: pag, more: i+12 < lista.length, next: String(i+12) }; });
+  const api = (o, s) => (live ? fetch("api/posts?offset="+encodeURIComponent(o)+(s?"&search="+encodeURIComponent(s):""),{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null) : Promise.resolve(null))
+    .then(d => ok(d) || (live && d) ? d : local(o, s));
+  live = true;
+  fetch("api/posts?offset=0",{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null)
+    .then(d=>{ if(ok(d)){ offset = d.next || d.posts.length; mais.hidden = !d.more; return d; }
+      live = false; return local(0,"").then(x=>{ offset = x.next; mais.hidden = !x.more; return x; }); })
+    .then(d=>{ if(ok(d)) render(d); }).catch(()=>{});
   const lupa = document.getElementById("tlm-lupa"); if(lupa) lupa.onclick = (e) => { const q = document.querySelector("#busca input"); if(!q || document.getElementById("busca").hidden) return;
     e.preventDefault(); document.getElementById("artigos").scrollIntoView({behavior:"smooth"}); setTimeout(()=>q.focus({preventScroll:true}), 450); };
 

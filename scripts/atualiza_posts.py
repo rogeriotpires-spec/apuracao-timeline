@@ -8,7 +8,7 @@ def get(u):
     return json.loads(body)
 # O Substack trocou "offset" por "cursor" (nextCursor) na paginação do arquivo
 posts, cur = [], ""
-for _ in range(5):
+for _ in range(10):
     d = get(f"{SUB}/api/v1/archive?sort=new&limit=12" + (f"&cursor={cur}" if cur else ""))
     lst = d if isinstance(d, list) else d.get("posts", [])
     posts += lst

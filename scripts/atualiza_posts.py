@@ -1,9 +1,11 @@
 # Copia os artigos mais recentes do Substack para novo-site/data/posts.json (reserva usada pelo site quando o Worker não alcança o Substack)
-import json, urllib.request, datetime, os
+import json, subprocess, datetime, os, sys
 SUB = "https://assine.revistatimeline.com"
 def get(u):
-    req = urllib.request.Request(u, headers={"user-agent": "site-timeline/1.0", "accept": "application/json"})
-    with urllib.request.urlopen(req, timeout=30) as r: return json.load(r)
+    r = subprocess.run(["curl", "-sSL", "-m", "30", "-A", "site-timeline/1.0", "-w", "\n%{http_code}", u], capture_output=True, text=True)
+    body, _, code = r.stdout.rpartition("\n")
+    if code != "200": sys.exit(f"HTTP {code} em {u}: {body[:200]} {r.stderr[:200]}")
+    return json.loads(body)
 posts = []
 for off in range(0, 60, 12):
     d = get(f"{SUB}/api/v1/archive?sort=new&offset={off}&limit=12")

@@ -12,7 +12,7 @@ jobs:
         with: { ref: diag-posts }
       - run: |
           {
-          echo "== site /api/posts"; curl -sS -m 20 -w "\nHTTP %{http_code}\n" "https://www.revistatimeline.com/api/posts?offset=0&nc=$RANDOM" | head -c 900; echo
+          echo "== site /api/posts"; curl -sS -m 20 -w "\nHTTP %{http_code}\n" "https://site-timeline.marketing-b9d.workers.dev/api/posts?offset=0&nc=$RANDOM" | head -c 900; echo
           for u in "https://assine.revistatimeline.com/api/v1/archive?sort=new&limit=3" "https://assine.revistatimeline.com/feed"; do
             echo "== $u"; curl -sSL -m 20 -A "site-timeline/1.0" -o r.txt -w "%{http_code}\n" "$u"; python3 -c "import json,sys;d=json.load(open(\"r.txt\")) if \"archive\" in sys.argv[1] else None; print(type(d).__name__, list(d.keys()) if isinstance(d,dict) else \"\"); p=(d or {}).get(\"posts\",[{}])[0] if isinstance(d,dict) else {}; print({k:p.get(k) for k in [\"title\",\"post_date\",\"canonical_url\",\"cover_image\",\"reaction_count\",\"comment_count\",\"restacks\",\"subtitle\"]}); print(p.get(\"publishedBylines\",[{}])[0].get(\"name\") if p.get(\"publishedBylines\") else None)" "$u" 2>&1 | head -c 1500; echo; done
           } > resultado.txt 2>&1

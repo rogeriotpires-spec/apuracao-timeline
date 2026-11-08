@@ -1,0 +1,10 @@
+== archive?sort=new&limit=12&search=moraes
+200
+['Moraes não obteve vitória alguma nos EUA', 'Acabou o prazo de Moraes na justiça americana', 'Tirania: Moraes ignora aplicação da lei da dosimetria', 'Ministra do STF impõe derrota para Moraes: “multa indevida”', 'Moraes e sua retórica de Lex Luthor: a ameaça de uma “criminosa” armada com batom']
+next eyJvZmZzZXQiOjEyfQ==
+== archive?sort=new&limit=2
+200
+['Quarenta ministérios e nenhuma entrega', 'Por que Brasília olha para Washington na terça']
+next eyJwb3N0X2RhdGUiOiIyMDI2LTExLTAyVDIxOjA2OjEwLjIzMDQ5NloifQ==
+== cursor
+{"posts":[{"id":223017089,"editor_v2":false,"publication_id":3036860,"title":"Perderam nas urnas. Agora querem mudar o jogo","social_title":null,"search_engine_title":null,"search_engine_description":null,"type":"newsletter","slug":"perderam-nas-urnas-agora-querem-mudar","post_date":"2026-11-01T12:4

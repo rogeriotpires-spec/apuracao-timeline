@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- preload-robo --><link rel="preload" as="image" href="img/c/fc29d2f1accb56-300.webp" fetchpriority="high"><!-- /preload-robo -->
 <title>Revista Timeline</title>
 <meta name="description" content="Revista Timeline. Informação para leitores exigentes: reportagem, opinião e análise política.">
 <meta name="theme-color" content="#060504">
@@ -13,7 +14,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,500&display=swap"></noscript>
-<!-- preload-robo --><link rel="preload" as="image" href="img/c/fc29d2f1accb56-300.webp" fetchpriority="high"><!-- /preload-robo -->
 <link rel="preconnect" href="https://rogeriotpires-spec.github.io">
 <script>
 // Tema escolhido pelo leitor (escuro, claro ou mesclado), aplicado antes de a página aparecer
@@ -183,7 +183,9 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .tv-item .th b{position:absolute;right:6px;bottom:6px;padding:2px 6px;border-radius:4px;background:rgba(0,0,0,.8);color:#fff;font:600 11px var(--f-mono)}
 .tv-item .th::after{content:"▶";position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-size:26px;opacity:0;background:rgba(0,0,0,.35);transition:opacity .2s}
 .tv-item:hover .th::after{opacity:1}
-.tv-item .tt{padding:10px 12px 12px;display:grid;gap:4px}
+.tv-item .tt{padding:10px 12px 12px;display:grid;gap:4px;align-content:start}
+.tv-item h3{height:calc(1.35em * 3)}
+.tv-item .tt small,.tv-item .quando{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
 .tv-item h3{margin:0;font:600 13.5px/1.35 var(--f-body);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .tv-item small{color:var(--muted);font-size:12px}
 .tv-item .prog{font:700 10.5px/1 var(--f-cond);letter-spacing:.1em;text-transform:uppercase;color:var(--cream)}
@@ -221,7 +223,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 #programas .section-head>div{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
 #programas .section-head h2{margin-top:0;font-size:24px}
 .tv-item .tt{padding:8px 10px 10px;gap:3px}
-.tv-item h3{-webkit-line-clamp:2;font-size:13px}
+.tv-item h3{-webkit-line-clamp:2;font-size:13px;height:calc(1.35em * 2)}
 
 /* Programas: dois retângulos (Conversa Timeline e Ponto Final) */
 .tv-paineis{display:grid;grid-template-columns:1fr;gap:14px}
@@ -256,7 +258,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .tv-tam button:hover{border-color:var(--orange)}
 .tv-painel .tv-lista>.tv-item.vivo.medio{grid-column:span 3;grid-row:span 2}
 .tv-item.vivo.medio .th{aspect-ratio:16/9}
-.tv-item.vivo.medio h3{font-size:15px;-webkit-line-clamp:2}
+.tv-item.vivo.medio h3{height:calc(1.35em * 2);font-size:15px;-webkit-line-clamp:2}
 @media(max-width:760px){.tv-painel .tv-item.vivo.medio{flex:0 0 100%}}
 
 /* play do ao vivo: o vídeo só carrega quando a pessoa clica (assim a visualização conta no YouTube) */
@@ -730,7 +732,8 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
   placa("v-evento", "");
   function vitrine(d){
     const b = d.book;
-    if(b){
+    if(b && document.getElementById("v-livro").dataset.robo) placa("v-livro", b.price_digital_old?'Promoção':'Lançamento');
+    else if(b){
       const href = ED+"/livro.html?l="+encodeURIComponent(b.slug)+"&src=site";
       const pre = b.price_digital_old ? '<s>'+brl(b.price_digital_old)+'</s>' : '';
       const alt = b.price_rental ? ' · ou '+brl(b.price_rental)+' por '+(b.rental_days||30)+' dias' : '';

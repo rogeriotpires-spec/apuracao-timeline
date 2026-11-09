@@ -115,6 +115,29 @@ comp = lambda x: {**{k: v for k, v in x.items() if k not in ("updated", "program
 if comp(seed) != comp(velho):
     seed["updated"] = agora_txt
     s = s[:mt.start(2)] + json.dumps(seed, ensure_ascii=False).replace("</", "<\\/") + s[mt.end(2):]
+    # cartão do livro já escrito no HTML: a capa (maior imagem do topo no celular) aparece sem esperar o JavaScript
+    from html import escape as E
+    def brl(c): return "R$ " + f"{(c or 0)/100:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    bk = dest.get("book")
+    if bk:
+        ED = "https://editora.revistatimeline.com"
+        href = f"{ED}/livro.html?l={bk['slug']}&src=site"
+        c = imgs.get(bk.get("cover_url"))
+        if c:
+            ws = c["w"]; h = round(ws[-1] / c["r"])
+            capa = f'<img alt="" src="{c["b"]}-{ws[-1]}.webp" srcset="{", ".join(f"{c['b']}-{x}.webp {x}w" for x in ws)}" sizes="122px" width="{ws[-1]}" height="{h}" fetchpriority="high">'
+        elif bk.get("cover_url"): capa = f'<img alt="" src="{E(bk["cover_url"])}" fetchpriority="high">'
+        else: capa = f'<span class="fake">{E(bk["title"] or "")}</span>'
+        old = bk.get("price_digital_old")
+        info = ""
+        if bk.get("price_digital"):
+            info = '<p class="info">' + (f"<s>{brl(old)}</s> " if old else "") + f"<b>{brl(bk['price_digital'])}</b> para sempre" + \
+                   (f" ou {brl(bk['price_rental'])} por {bk.get('rental_days') or 30} dias" if bk.get("price_rental") else "") + "</p>"
+        amostra = f'<a class="lnk" href="{E(ED + "/ler.html?l=" + bk["slug"] + "&amostra=1")}">Ler amostra grátis</a>' if bk.get("has_sample") else ""
+        art = (f'<span class="placa" aria-hidden="true">{"Promoção" if old else "Lançamento"}</span><a class="pic p-livro" href="{E(href)}" tabindex="-1" aria-hidden="true"><span class="sombra"></span><span class="flutua"><span class="book">{capa}</span></span></a>'
+               f'<div class="txt"><span class="eyebrow">Editora Timeline</span><h3>{E(bk["title"] or "")}</h3>{info}'
+               f'<div class="acts"><a class="btn primary" href="{E(href)}">Comprar</a>{amostra}</div></div>')
+        s = re.sub(r'(<article class="feat" id="v-livro"[^>]*>).*?(</article>)', lambda m_: '<article class="feat" id="v-livro" data-robo="1">' + art + m_.group(2), s, count=1, flags=re.S)
     # pré-carrega a capa do livro (primeira imagem grande da página)
     pre = ""
     bc = dest.get("book") and imgs.get(dest["book"].get("cover_url"))

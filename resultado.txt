@@ -1,0 +1,2 @@
+itens 9 esq 0 cls 
+[{"c":"tv-item prox","t":"PRÓXIMO\nSegunda-feira, 09/11, 12h00\nConversa Timeline","h":183.5625},{"c":"tv-item","t":"3h26\nO QUE VI NA CASA DO TRUMP - 06/11/2026 - CONVERSA TIMEL","h":183.5625},{"c":"tv-item","t":"3h20\n05/11/2026 - CONVERSA TIMELINE\n05 de nov · 85 mil visua","h":183.5625},{"c":"tv-item","t":"3h26\n04/11/2026 - CONVERSA TIMELINE\n04 de nov · 113 mil visu","h":183.5625}]

@@ -11,6 +11,6 @@ jobs:
       - uses: actions/checkout@v4
         with: { ref: diag-posts }
       - run: |
-          B=https://site-timeline.marketing-b9d.workers.dev
-          for p in / /fonts/inter-v4.woff2 /img/t.png /img/c/fc29d2f1accb56-300.webp /api/programas /p/teste-antigo; do echo "== $p"; curl -sS -o /dev/null -D - "$B$p" | grep -i "^\(HTTP\|cache-control\|location\|cf-cache-status\)"; done > resultado.txt 2>&1
-          git config user.name diag; git config user.email diag@x; git add resultado.txt; git commit -m resultado; git push
+          npm i playwright@1 >/dev/null 2>&1 && npx playwright install --with-deps webkit >/dev/null 2>&1
+          node wk.js || echo falhou >> resultado.txt
+          git config user.name diag; git config user.email diag@x; git add resultado.txt wk-*.png; git commit -m resultado; git push

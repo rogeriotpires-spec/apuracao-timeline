@@ -146,3 +146,4 @@ if comp(seed) != comp(velho):
     print("site atualizado:", posts[0]["title"])
 else:
     print("sem mudança")
+# gatilho 2026-11-09T04:12:18Z

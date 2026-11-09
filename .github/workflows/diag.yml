@@ -10,12 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { ref: diag-posts }
-      - uses: actions/setup-node@v4
-        with: { node-version: 22 }
       - run: |
-          npm i -g lighthouse@12 >/dev/null 2>&1
-          sleep 150
-          U="https://site-timeline.marketing-b9d.workers.dev/?nc=$RANDOM"
-          for i in 1 2 3; do lighthouse "$U&r=$i" --quiet --chrome-flags="--headless=new --no-sandbox" --output=json --output-path=lh-mobile$i.json || true; done
-          lighthouse "$U" --quiet --preset=desktop --chrome-flags="--headless=new --no-sandbox" --output=json --output-path=lh-desktop.json || true
-          git config user.name diag; git config user.email diag@x; git add lh-*.json; git commit -m resultado; git push
+          B=https://site-timeline.marketing-b9d.workers.dev
+          for p in / /fonts/inter-v4.woff2 /img/t.png /img/c/fc29d2f1accb56-300.webp /api/programas /p/teste-antigo; do echo "== $p"; curl -sS -o /dev/null -D - "$B$p" | grep -i "^\(HTTP\|cache-control\|location\|cf-cache-status\)"; done > resultado.txt 2>&1
+          git config user.name diag; git config user.email diag@x; git add resultado.txt; git commit -m resultado; git push

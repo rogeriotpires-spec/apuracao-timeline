@@ -115,7 +115,8 @@
 
   if (!document.getElementById('tlm-fonts')) {
     var f = document.createElement('link');
-    f.id = 'tlm-fonts'; f.rel = 'stylesheet';
+    // carrega sem prioridade alta (media=print até chegar), para não atrasar a primeira pintura da página
+    f.id = 'tlm-fonts'; f.rel = 'stylesheet'; f.media = 'print'; f.onload = function () { f.media = 'all'; };
     f.href = 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600&family=Inter:wght@600;700;800&family=Playfair+Display:wght@400&display=swap';
     document.head.appendChild(f);
   }

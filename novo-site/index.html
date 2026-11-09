@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- preload-robo --><link rel="preload" as="image" href="img/c/fc29d2f1accb56-300.webp" fetchpriority="high"><!-- /preload-robo -->
+<!-- preload-robo --><!-- /preload-robo -->
 <title>Revista Timeline</title>
 <meta name="description" content="Revista Timeline. Informação para leitores exigentes: reportagem, opinião e análise política.">
 <meta name="theme-color" content="#060504">
@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<link id="tlm-fonts" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,500&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,500&display=swap"></noscript>
 <link rel="preconnect" href="https://rogeriotpires-spec.github.io">
 <script>
@@ -553,7 +553,8 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
 
   if (!document.getElementById('tlm-fonts')) {
     var f = document.createElement('link');
-    f.id = 'tlm-fonts'; f.rel = 'stylesheet';
+    // carrega sem prioridade alta (media=print até chegar), para não atrasar a primeira pintura da página
+    f.id = 'tlm-fonts'; f.rel = 'stylesheet'; f.media = 'print'; f.onload = function () { f.media = 'all'; };
     f.href = 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600&family=Inter:wght@600;700;800&family=Playfair+Display:wght@400&display=swap';
     document.head.appendChild(f);
   }
@@ -622,7 +623,7 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
       <button class="nav-btn prev" type="button" aria-label="Destaques anteriores" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
       <button class="nav-btn next" type="button" aria-label="Próximos destaques"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
       <div class="rail" id="rail" tabindex="0" role="region" aria-label="Destaques: Editora, eventos, assinatura, Fiscalize e loja">
-      <article class="feat" id="v-livro" data-robo="1"><span class="placa" aria-hidden="true">Lançamento</span><a class="pic p-livro" href="https://editora.revistatimeline.com/livro.html?l=almanaque-timeline&amp;src=site" tabindex="-1" aria-hidden="true"><span class="sombra"></span><span class="flutua"><span class="book"><img alt="" src="img/c/fc29d2f1accb56-300.webp" srcset="img/c/fc29d2f1accb56-200.webp 200w, img/c/fc29d2f1accb56-300.webp 300w" sizes="122px" width="300" height="400" fetchpriority="high"></span></span></a><div class="txt"><span class="eyebrow">Editora Timeline</span><h3>Almanaque Timeline</h3><p class="info"><b>R$ 59,70</b> para sempre ou R$ 24,70 por 30 dias</p><div class="acts"><a class="btn primary" href="https://editora.revistatimeline.com/livro.html?l=almanaque-timeline&amp;src=site">Comprar</a><a class="lnk" href="https://editora.revistatimeline.com/ler.html?l=almanaque-timeline&amp;amostra=1">Ler amostra grátis</a></div></div></article>
+      <article class="feat" id="v-livro" data-robo="1"><span class="placa" aria-hidden="true">Lançamento</span><a class="pic p-livro" href="https://editora.revistatimeline.com/livro.html?l=almanaque-timeline&amp;src=site" tabindex="-1" aria-hidden="true"><span class="sombra"></span><span class="flutua"><span class="book"><img alt="" src="img/c/fc29d2f1accb56-300.webp" srcset="img/c/fc29d2f1accb56-200.webp 200w, img/c/fc29d2f1accb56-300.webp 300w" sizes="122px" width="300" height="400"></span></span></a><div class="txt"><span class="eyebrow">Editora Timeline</span><h3>Almanaque Timeline</h3><p class="info"><b>R$ 59,70</b> para sempre ou R$ 24,70 por 30 dias</p><div class="acts"><a class="btn primary" href="https://editora.revistatimeline.com/livro.html?l=almanaque-timeline&amp;src=site">Comprar</a><a class="lnk" href="https://editora.revistatimeline.com/ler.html?l=almanaque-timeline&amp;amostra=1">Ler amostra grátis</a></div></div></article>
       <article class="feat" id="v-evento">
         <a class="pic p-evento" href="https://eventos.revistatimeline.com/?src=site" tabindex="-1" aria-hidden="true"><span class="live"><i></i>Ao vivo</span></a>
         <div class="txt">
@@ -910,7 +911,7 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
       const pre = b.price_digital_old ? '<s>'+brl(b.price_digital_old)+'</s>' : '';
       const alt = b.price_rental ? ' · ou '+brl(b.price_rental)+' por '+(b.rental_days||30)+' dias' : '';
       document.getElementById("v-livro").innerHTML =
-        '<span class="placa" aria-hidden="true">'+(b.price_digital_old?'Promoção':'Lançamento')+'</span><a class="pic p-livro" href="'+esc(href)+'" tabindex="-1" aria-hidden="true"><span class="sombra"></span><span class="flutua"><span class="book">'+(b.cover_url?pic(b.cover_url, 300, "122px", ' fetchpriority="high"'):'<span class="fake">'+esc(b.title)+'</span>')+'</span></span></a>'+
+        '<span class="placa" aria-hidden="true">'+(b.price_digital_old?'Promoção':'Lançamento')+'</span><a class="pic p-livro" href="'+esc(href)+'" tabindex="-1" aria-hidden="true"><span class="sombra"></span><span class="flutua"><span class="book">'+(b.cover_url?pic(b.cover_url, 300, "122px"):'<span class="fake">'+esc(b.title)+'</span>')+'</span></span></a>'+
         '<div class="txt"><span class="eyebrow">Editora Timeline</span><h3>'+esc(b.title)+'</h3>'+
         (b.price_digital?'<p class="info">'+(b.price_digital_old?'<s>'+brl(b.price_digital_old)+'</s> ':'')+'<b>'+brl(b.price_digital)+'</b> para sempre'+(b.price_rental?' ou '+brl(b.price_rental)+' por '+(b.rental_days||30)+' dias':'')+'</p>':'')+
         '<div class="acts"><a class="btn primary" href="'+esc(href)+'">Comprar</a>'+
@@ -927,7 +928,7 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
       const where = [e.venue, how && how.charAt(0).toUpperCase()+how.slice(1)].filter(Boolean).join(" · ");
       const preco = prices.length ? ' · '+(prices.length>1?'a partir de ':'')+'<b>'+brl(Math.min.apply(null,prices))+'</b>' : '';
       document.getElementById("v-evento").innerHTML =
-        (e.cover_url ? '<a class="pic p-evento has-pic" href="'+esc(href)+'" tabindex="-1" aria-hidden="true">'+pic(e.cover_url, 800, "(max-width:700px) 84vw, 400px", ' fetchpriority="high" decoding="async"')+'<span class="chip">'+esc(part({day:"2-digit",month:"short"}))+'</span></a>'
+        (e.cover_url ? '<a class="pic p-evento has-pic" href="'+esc(href)+'" tabindex="-1" aria-hidden="true">'+pic(e.cover_url, 800, "(max-width:700px) 84vw, 400px", ' decoding="async"')+'<span class="chip">'+esc(part({day:"2-digit",month:"short"}))+'</span></a>'
           : '<a class="pic p-evento" href="'+esc(href)+'" tabindex="-1" aria-hidden="true"><span class="date"><b>'+esc(part({day:"2-digit"}))+'</b><span>'+esc(part({month:"short"}))+'<small>'+esc(part({weekday:"short"}))+' · '+esc(part({hour:"2-digit",minute:"2-digit"}))+'</small></span></span></a>')+
         '<div class="txt"><span class="eyebrow">Próximo evento · '+esc(part({weekday:"short"}))+', '+esc(part({hour:"2-digit",minute:"2-digit"}))+'</span><h3>'+esc(e.title)+'</h3>'+
         '<p class="info">'+esc(where)+preco+'</p>'+

@@ -126,8 +126,8 @@ if comp(seed) != comp(velho):
         c = imgs.get(bk.get("cover_url"))
         if c:
             ws = c["w"]; h = round(ws[-1] / c["r"])
-            capa = f'<img alt="" src="{c["b"]}-{ws[-1]}.webp" srcset="{", ".join(f"{c['b']}-{x}.webp {x}w" for x in ws)}" sizes="122px" width="{ws[-1]}" height="{h}" fetchpriority="high">'
-        elif bk.get("cover_url"): capa = f'<img alt="" src="{E(bk["cover_url"])}" fetchpriority="high">'
+            capa = f'<img alt="" src="{c["b"]}-{ws[-1]}.webp" srcset="{", ".join(f"{c['b']}-{x}.webp {x}w" for x in ws)}" sizes="122px" width="{ws[-1]}" height="{h}">'
+        elif bk.get("cover_url"): capa = f'<img alt="" src="{E(bk["cover_url"])}">'
         else: capa = f'<span class="fake">{E(bk["title"] or "")}</span>'
         old = bk.get("price_digital_old")
         info = ""
@@ -141,8 +141,6 @@ if comp(seed) != comp(velho):
         s = re.sub(r'(<article class="feat" id="v-livro"[^>]*>).*?(</article>)', lambda m_: '<article class="feat" id="v-livro" data-robo="1">' + art + m_.group(2), s, count=1, flags=re.S)
     # pré-carrega a capa do livro (primeira imagem grande da página)
     pre = ""
-    bc = dest.get("book") and imgs.get(dest["book"].get("cover_url"))
-    if bc: pre = f'<link rel="preload" as="image" href="{bc["b"]}-300.webp" fetchpriority="high">'
     s = re.sub(r'<!-- preload-robo -->.*?<!-- /preload-robo -->', f'<!-- preload-robo -->{pre}<!-- /preload-robo -->', s, flags=re.S)
     open(ix, "w").write(s)
     print("site atualizado:", posts[0]["title"])

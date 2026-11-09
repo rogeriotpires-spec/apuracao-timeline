@@ -142,7 +142,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 /* Placa 3D "Lançamento": inclinada, saindo por cima do cartão, com espessura e um brilho que passa de vez em quando */
 .placa{position:absolute;left:14px;top:-12px;z-index:3;overflow:hidden;padding:9px 16px 8px;border-radius:5px;background:linear-gradient(180deg,#d8452b,#a3211e);border:1.5px solid #f4a65a;color:#fff3e6;font:800 16px/1 var(--f-cond);letter-spacing:.14em;text-transform:uppercase;text-shadow:0 1px 0 rgba(0,0,0,.35);transform:perspective(400px) rotateY(-16deg) rotate(-7deg);box-shadow:0 4px 0 #5e120d,0 14px 22px rgba(0,0,0,.5);pointer-events:none;transition:transform .35s ease}
 .placa::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-20deg);animation:brilho 5s ease-in-out infinite}
-@keyframes brilho{0%,70%{left:-60%}100%{left:130%}}
+@keyframes brilho{0%,70%{transform:translateX(0) skewX(-20deg)}100%{transform:translateX(475%) skewX(-20deg)}}
 .feat:hover .placa{transform:perspective(400px) rotateY(-10deg) rotate(-4deg) translateY(-2px)}
 
 .feat .lt-form{max-width:none;margin-top:auto;padding-top:10px;gap:6px}
@@ -346,6 +346,7 @@ html.lt-travado{overflow:hidden}
 @keyframes flutua{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
 @keyframes sombra{0%,100%{transform:scaleX(1);opacity:.9}50%{transform:scaleX(.8);opacity:.55}}
 @media(prefers-reduced-motion:reduce){.p-livro .flutua,.p-livro .sombra{animation:none}}
+html:not(.tl-anima) .placa::after,html:not(.tl-anima) .p-livro .flutua,html:not(.tl-anima) .p-livro .sombra,html:not(.tl-anima) .tv-item.vivo{animation-play-state:paused}
 .p-livro .book img{width:100%;height:100%;object-fit:cover;display:block}
 .p-livro .book .fake{height:100%;display:grid;align-content:end;padding:8px;background:#1a0f08;color:#f4a65a;font-family:var(--f-display);font-weight:800;font-size:12px;line-height:1.05}
 .p-evento{display:grid;place-items:center;background:radial-gradient(circle at 30% 20%,#3a2114,#120c09 70%)}
@@ -891,7 +892,7 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
 // Executa algo pesado (vídeo, pixel) só depois da primeira interação do leitor com a página
 window.tlDepois = window.tlDepois || (function(){
   const fila = []; let ok = false;
-  const vai = () => { if(ok) return; ok = true; ["scroll","pointerdown","pointermove","keydown","touchstart","wheel"].forEach(e => removeEventListener(e, vai, true)); fila.splice(0).forEach(f => { try{ f(); }catch(e){} }); };
+  const vai = () => { if(ok) return; ok = true; document.documentElement.classList.add("tl-anima"); ["scroll","pointerdown","pointermove","keydown","touchstart","wheel"].forEach(e => removeEventListener(e, vai, true)); fila.splice(0).forEach(f => { try{ f(); }catch(e){} }); };
   ["scroll","pointerdown","pointermove","keydown","touchstart","wheel"].forEach(e => addEventListener(e, vai, { capture: true, passive: true }));
   return f => ok ? f() : fila.push(f);
 })();
@@ -942,8 +943,16 @@ window.tlDepois = window.tlDepois || (function(){
     '<div class="tv-item vivo ultimo medio esq"><div class="th"></div><div class="tt"><h3>&nbsp;</h3></div></div>' + vazio.repeat(4);
   document.querySelector("#tv-pf .tv-lista").innerHTML = cardProx(null, "Ponto Final", proximaData([5],20)) + vazio.repeat(5);
   sec.hidden = false;
-  fetch("api/programas",{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null).then(d=>{
-    if(!d || d.sem_chave || !d.conversa){ sec.hidden = true; return; }
+  // a grade abre montada com a cópia que o robô do site gravou; depois o Worker confirma (live, novo programa)
+  let semente = null; try{ semente = JSON.parse(document.getElementById("seed").textContent).programas; }catch(e){}
+  let montado = false;
+  const monta = d => {
+    if(!d || d.sem_chave || !d.conversa){ if(!montado) sec.hidden = true; return; }
+    // mesma grade já na tela: não recria (o player continua tocando)
+    const ass = x => x ? [x.id, !!x.ao_vivo] : null;
+    const assin = JSON.stringify([ass(d.conversa.proximo), (d.conversa.videos||[]).map(v=>v.id), ass((d.ponto_final||{}).proximo), ((d.ponto_final||{}).videos||[]).map(v=>v.id)]);
+    if(sec.dataset.assin === assin) return;
+    sec.dataset.assin = assin; montado = true;
     const ct = d.conversa, pf = d.ponto_final || {};
     document.querySelector("#tv-ct .tv-lista").innerHTML = cardProx(ct.proximo, "Conversa Timeline", proximaData([1,2,3,4,5],12)) + (ct.videos||[]).map(card).join("");
     document.querySelector("#tv-pf .tv-lista").innerHTML = cardProx(pf.proximo, "Ponto Final", proximaData([5],20)) + (pf.videos||[]).map(card).join("");
@@ -998,7 +1007,9 @@ window.tlDepois = window.tlDepois || (function(){
         if(t === "medio") card.scrollIntoView({behavior:"smooth", block:"nearest"});
       });
     });
-  });
+  };
+  if(semente) monta(semente);
+  fetch("api/programas",{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null).then(monta);
 })();
 </script>
 </body>

@@ -21,6 +21,11 @@
   document.documentElement.setAttribute('data-tema', lerTema());
   window.tlTema = { ler: lerTema, gravar: gravarTema };
 
+  // Animações contínuas do menu (e da página) começam na primeira interação do leitor: a abertura fica mais leve
+  (function () { var EV = ['scroll', 'pointerdown', 'pointermove', 'keydown', 'touchstart', 'wheel'];
+    function vai() { document.documentElement.classList.add('tl-anima'); EV.forEach(function (x) { removeEventListener(x, vai, true); }); }
+    EV.forEach(function (x) { addEventListener(x, vai, { capture: true, passive: true }); }); })();
+
   // Pixel da Meta em todos os sites da Timeline (ver pixel.js)
   if (!window.__tlPixel) { var px = document.createElement('script'); px.async = true; px.src = 'https://rogeriotpires-spec.github.io/apuracao-timeline/menu/pixel.js'; document.head.appendChild(px); }
 
@@ -92,6 +97,7 @@
     '@media(max-width:1400px){.tlm-links{gap:15px}.tlm-links a{font-size:14px}}' +
     '@media(max-width:1000px){.tlm-mast{min-height:75px}.tlm-brand{font-size:44px}.tlm-links{justify-content:flex-start}}' +
     '@media(max-width:600px){.tlm-mast{min-height:62px;padding:10px}.tlm-brand{font-size:34px}.tlm-tools{right:10px;gap:8px}.tlm-lupa{width:34px;height:34px}.tlm-assine{padding:10px 11px;font-size:12px}.tlm-assine .tlm-hand{right:-4px;width:32px;height:32px}.tlm-links{gap:22px;min-height:68px}.tlm-links a{font-size:15px;padding:15px 0 13px}}' +
+    'html:not(.tl-anima) .tlm-assine::after,html:not(.tl-anima) .tlm-hand,html:not(.tl-anima) .tlm-links a.tlm-m-assine,html:not(.tl-anima) .tlm-links a.tlm-m-assine::before{animation-play-state:paused}' +
     '@media(prefers-reduced-motion:reduce){.tlm-assine::after,.tlm-hand,.tlm-links a.tlm-m-assine,.tlm-links a.tlm-m-assine::before{animation:none}.tlm-links a,.tlm-links a::after{transition:none}}';
 
   var MAO = '<svg class="tlm-hand" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V4.5a1.5 1.5 0 0 1 3 0V10V9a1.5 1.5 0 0 1 3 0v1.5a1.5 1.5 0 0 1 3 0V12a1.5 1.5 0 0 1 3 0v4.5c0 3.6-2.6 6.5-6.5 6.5h-1.6c-2 0-3.4-.8-4.6-2.3L4.6 16.2a1.6 1.6 0 0 1 2.4-2.1L9 16z"/></svg>';

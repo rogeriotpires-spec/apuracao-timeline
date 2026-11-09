@@ -62,6 +62,10 @@ dest = {
 if cat is None and evs is None and os.path.exists(f"{SITE}/data/destaques.json"):
     dest = json.load(open(f"{SITE}/data/destaques.json"))  # Editora e Eventos fora do ar: mantém a última cópia
 
+# 2b. programas do YouTube (pelo Worker, que guarda a chave da API): a página já abre com a grade montada
+prog = tenta("https://site-timeline.marketing-b9d.workers.dev/api/programas")
+if not (prog and prog.get("conversa")): prog = None
+
 # 3. imagens leves: cada original vira img/c/<código>-<largura>.webp
 from PIL import Image
 os.makedirs(f"{SITE}/img/c", exist_ok=True)
@@ -100,8 +104,14 @@ grava(f"{SITE}/data/destaques.json", {"updated": agora_txt, **dest}, "book")
 ix = f"{SITE}/index.html"; s = open(ix).read()
 mt = re.search(r'(<script type="application/json" id="seed">\n)(.*?)(\n</script>)', s, re.S)
 velho = json.loads(mt.group(2))
-seed = {"updated": velho.get("updated"), "subscribers": velho.get("subscribers", "46 mil"), "posts": posts[:12], "destaques": dest, "img": imgs}
-comp = lambda x: {k: v for k, v in x.items() if k != "updated"}
+seed = {"updated": velho.get("updated"), "subscribers": velho.get("subscribers", "46 mil"), "posts": posts[:12], "destaques": dest, "img": imgs,
+        "programas": prog or velho.get("programas")}
+# a contagem de visualizações muda o tempo todo; só regrava a página quando os programas mudam de verdade
+def chave_prog(pg):
+    if not pg: return None
+    f = lambda x: x and {k: x.get(k) for k in ("id", "titulo", "ao_vivo", "inicio")}
+    return [[f(pg[k].get("proximo")), [v.get("id") for v in pg[k].get("videos") or []]] for k in ("conversa", "ponto_final") if pg.get(k)]
+comp = lambda x: {**{k: v for k, v in x.items() if k not in ("updated", "programas")}, "prog": chave_prog(x.get("programas"))}
 if comp(seed) != comp(velho):
     seed["updated"] = agora_txt
     s = s[:mt.start(2)] + json.dumps(seed, ensure_ascii=False).replace("</", "<\\/") + s[mt.end(2):]

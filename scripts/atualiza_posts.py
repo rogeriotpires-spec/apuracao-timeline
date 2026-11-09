@@ -16,9 +16,10 @@ def baixa(u, binario=False):
     if code != b"200": raise RuntimeError(f"HTTP {code.decode()} em {u}: {body[:200]!r}")
     return body if binario else json.loads(body)
 
-# 0. cópia do menu padrão dentro do site (servida pelo próprio domínio, abre mais rápido)
-if open("menu/timeline-menu.js").read() != (open(f"{SITE}/js/timeline-menu.js").read() if os.path.exists(f"{SITE}/js/timeline-menu.js") else ""):
-    os.makedirs(f"{SITE}/js", exist_ok=True); shutil.copy("menu/timeline-menu.js", f"{SITE}/js/timeline-menu.js")
+# 0. o menu padrão vai embutido no index.html (sem um pedido a mais na abertura)
+_ix = f"{SITE}/index.html"; _s = open(_ix).read(); _menu = open("menu/timeline-menu.js").read().replace("</script", "<\\/script")
+_novo = re.sub(r'<!-- menu-robo -->.*?<!-- /menu-robo -->', lambda m_: '<!-- menu-robo --><script>' + _menu + '</script><!-- /menu-robo -->', _s, flags=re.S)
+if _novo != _s: open(_ix, "w").write(_novo); print("menu embutido atualizado")
 
 # 1. artigos (o Substack pagina por "cursor")
 posts, cur = [], ""

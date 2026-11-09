@@ -215,6 +215,17 @@ async function programas(env, ctx) {
 }
 
 export default {
+  // A cada 10 minutos (gatilho Cron do Worker) pede ao GitHub para rodar o robô do site (artigos, destaques, programas).
+  // O agendamento do próprio GitHub atrasa horas; este gatilho é pontual. Precisa do segredo GH_TOKEN
+  // (token do GitHub com permissão Actions: leitura e escrita, só no repositório apuracao-timeline).
+  async scheduled(event, env, ctx) {
+    if (!env.GH_TOKEN) return;
+    ctx.waitUntil(fetch('https://api.github.com/repos/rogeriotpires-spec/apuracao-timeline/actions/workflows/posts.yml/dispatches', {
+      method: 'POST',
+      headers: { authorization: 'Bearer ' + env.GH_TOKEN, accept: 'application/vnd.github+json', 'x-github-api-version': '2022-11-28', 'user-agent': 'site-timeline/1.0', 'content-type': 'application/json' },
+      body: JSON.stringify({ ref: 'main' }),
+    }));
+  },
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname === '/api/config') {

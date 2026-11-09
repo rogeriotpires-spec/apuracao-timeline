@@ -887,10 +887,12 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
       const v = document.querySelector(".vitrine"); v.parentNode.insertBefore(bar, v);
     }
     const rail = document.getElementById("rail");
-    (c.cartoes||[]).forEach(x=>{ const el = document.getElementById("v-"+x.id); if(!el) return; if(x.mostrar===false) el.remove(); else rail.appendChild(el); });
+    // só mexe nos cartões se a ordem ou a visibilidade mudou (mover um cartão faz o navegador redesenhar a imagem)
+    const atual = [...rail.children].map(e=>e.id).join(","), quer = (c.cartoes||[]).filter(x=>x.mostrar!==false && document.getElementById("v-"+x.id)).map(x=>"v-"+x.id).join(",");
+    if(atual !== quer) (c.cartoes||[]).forEach(x=>{ const el = document.getElementById("v-"+x.id); if(!el) return; if(x.mostrar===false) el.remove(); else rail.appendChild(el); });
     const loja = document.querySelector("#v-loja .info b");
     if(loja && c.loja && c.loja.preco_min) loja.innerHTML = "R$&nbsp;"+esc(c.loja.preco_min);
-    rail.scrollLeft = 0; dispatchEvent(new Event("resize"));
+    if(atual !== quer){ rail.scrollLeft = 0; dispatchEvent(new Event("resize")); }
   });
   // etiqueta do cartão: "auto" escolhe Promoção ou Lançamento; vazio esconde
   const placa = (id, txt) => cfgP.then(c=>{

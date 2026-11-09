@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /assinar.html
+
+Sitemap: https://revistatimeline.com/sitemap.xml

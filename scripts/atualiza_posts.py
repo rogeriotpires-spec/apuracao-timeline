@@ -126,7 +126,7 @@ if comp(seed) != comp(velho):
         c = imgs.get(bk.get("cover_url"))
         if c:
             ws = c["w"]; h = round(ws[-1] / c["r"])
-            capa = f'<img alt="" src="{c["b"]}-{ws[-1]}.webp" srcset="{", ".join(f"{c['b']}-{x}.webp {x}w" for x in ws)}" sizes="122px" width="{ws[-1]}" height="{h}">'
+            capa = f'<img alt="" src="{c["b"]}-{ws[-1]}.webp" srcset="{", ".join(f"{c['b']}-{x}.webp {x}w" for x in ws)}" sizes="122px" width="{ws[-1]}" height="{h}" fetchpriority="high">'
         elif bk.get("cover_url"): capa = f'<img alt="" src="{E(bk["cover_url"])}">'
         else: capa = f'<span class="fake">{E(bk["title"] or "")}</span>'
         old = bk.get("price_digital_old")

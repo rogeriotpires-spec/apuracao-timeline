@@ -181,7 +181,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .tv-item:hover{transform:translateY(-3px);border-color:var(--orange)}
 .tv-item .th{position:relative;aspect-ratio:16/9;background:#000}
 .tv-item .th img{width:100%;height:100%;object-fit:cover;display:block}
-html.tl-pre main,html.tl-pre .footer{visibility:hidden}
+html.tl-pre main>:not(.wrap),html.tl-pre main>.wrap>:not(.vitrine),html.tl-pre .footer{visibility:hidden}
 .tv-item.esq .th{background:linear-gradient(110deg,#141010 30%,#1f1815 50%,#141010 70%)}
 .tv-item .th b{position:absolute;right:6px;bottom:6px;padding:2px 6px;border-radius:4px;background:rgba(0,0,0,.8);color:#fff;font:600 11px var(--f-mono)}
 .tv-item .th::after{content:"▶";position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-size:26px;opacity:0;background:rgba(0,0,0,.35);transition:opacity .2s}
@@ -623,7 +623,7 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
       <button class="nav-btn prev" type="button" aria-label="Destaques anteriores" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
       <button class="nav-btn next" type="button" aria-label="Próximos destaques"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
       <div class="rail" id="rail" tabindex="0" role="region" aria-label="Destaques: Editora, eventos, assinatura, Fiscalize e loja">
-      <article class="feat" id="v-livro" data-robo="1"><span class="placa" aria-hidden="true">Lançamento</span><a class="pic p-livro" href="https://editora.revistatimeline.com/livro.html?l=almanaque-timeline&amp;src=site" tabindex="-1" aria-hidden="true"><span class="sombra"></span><span class="flutua"><span class="book"><img alt="" src="img/c/fc29d2f1accb56-300.webp" srcset="img/c/fc29d2f1accb56-200.webp 200w, img/c/fc29d2f1accb56-300.webp 300w" sizes="122px" width="300" height="400"></span></span></a><div class="txt"><span class="eyebrow">Editora Timeline</span><h3>Almanaque Timeline</h3><p class="info"><b>R$ 59,70</b> para sempre ou R$ 24,70 por 30 dias</p><div class="acts"><a class="btn primary" href="https://editora.revistatimeline.com/livro.html?l=almanaque-timeline&amp;src=site">Comprar</a><a class="lnk" href="https://editora.revistatimeline.com/ler.html?l=almanaque-timeline&amp;amostra=1">Ler amostra grátis</a></div></div></article>
+      <article class="feat" id="v-livro" data-robo="1"><span class="placa" aria-hidden="true">Lançamento</span><a class="pic p-livro" href="https://editora.revistatimeline.com/livro.html?l=almanaque-timeline&amp;src=site" tabindex="-1" aria-hidden="true"><span class="sombra"></span><span class="flutua"><span class="book"><img alt="" src="img/c/fc29d2f1accb56-300.webp" srcset="img/c/fc29d2f1accb56-200.webp 200w, img/c/fc29d2f1accb56-300.webp 300w" sizes="122px" width="300" height="400" fetchpriority="high"></span></span></a><div class="txt"><span class="eyebrow">Editora Timeline</span><h3>Almanaque Timeline</h3><p class="info"><b>R$ 59,70</b> para sempre ou R$ 24,70 por 30 dias</p><div class="acts"><a class="btn primary" href="https://editora.revistatimeline.com/livro.html?l=almanaque-timeline&amp;src=site">Comprar</a><a class="lnk" href="https://editora.revistatimeline.com/ler.html?l=almanaque-timeline&amp;amostra=1">Ler amostra grátis</a></div></div></article>
       <article class="feat" id="v-evento">
         <a class="pic p-evento" href="https://eventos.revistatimeline.com/?src=site" tabindex="-1" aria-hidden="true"><span class="live"><i></i>Ao vivo</span></a>
         <div class="txt">
@@ -911,7 +911,7 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
       const pre = b.price_digital_old ? '<s>'+brl(b.price_digital_old)+'</s>' : '';
       const alt = b.price_rental ? ' · ou '+brl(b.price_rental)+' por '+(b.rental_days||30)+' dias' : '';
       document.getElementById("v-livro").innerHTML =
-        '<span class="placa" aria-hidden="true">'+(b.price_digital_old?'Promoção':'Lançamento')+'</span><a class="pic p-livro" href="'+esc(href)+'" tabindex="-1" aria-hidden="true"><span class="sombra"></span><span class="flutua"><span class="book">'+(b.cover_url?pic(b.cover_url, 300, "122px"):'<span class="fake">'+esc(b.title)+'</span>')+'</span></span></a>'+
+        '<span class="placa" aria-hidden="true">'+(b.price_digital_old?'Promoção':'Lançamento')+'</span><a class="pic p-livro" href="'+esc(href)+'" tabindex="-1" aria-hidden="true"><span class="sombra"></span><span class="flutua"><span class="book">'+(b.cover_url?pic(b.cover_url, 300, "122px", ' fetchpriority="high"'):'<span class="fake">'+esc(b.title)+'</span>')+'</span></span></a>'+
         '<div class="txt"><span class="eyebrow">Editora Timeline</span><h3>'+esc(b.title)+'</h3>'+
         (b.price_digital?'<p class="info">'+(b.price_digital_old?'<s>'+brl(b.price_digital_old)+'</s> ':'')+'<b>'+brl(b.price_digital)+'</b> para sempre'+(b.price_rental?' ou '+brl(b.price_rental)+' por '+(b.rental_days||30)+' dias':'')+'</p>':'')+
         '<div class="acts"><a class="btn primary" href="'+esc(href)+'">Comprar</a>'+

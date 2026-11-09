@@ -10,7 +10,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { ref: diag-posts }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
       - run: |
-          npm i playwright@1 >/dev/null 2>&1 && npx playwright install chromium >/dev/null 2>&1
-          node cls.js > resultado.txt 2>&1 || true
-          git config user.name diag; git config user.email diag@x; git add resultado.txt; git commit -m resultado; git push
+          npm i -g lighthouse@12 >/dev/null 2>&1
+          sleep 60
+          U="https://site-timeline.marketing-b9d.workers.dev/?nc=$RANDOM"
+          lighthouse "$U" --quiet --chrome-flags="--headless=new --no-sandbox" --output=json --output-path=lh-mobile.json || true
+          lighthouse "$U" --quiet --chrome-flags="--headless=new --no-sandbox" --output=json --output-path=lh-mobile2.json || true
+          lighthouse "$U" --quiet --preset=desktop --chrome-flags="--headless=new --no-sandbox" --output=json --output-path=lh-desktop.json || true
+          git config user.name diag; git config user.email diag@x; git add lh-*.json; git commit -m resultado; git push

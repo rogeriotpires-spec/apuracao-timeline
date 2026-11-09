@@ -225,12 +225,18 @@ export default {
     if (url.pathname === '/api/posts') return posts(url, ctx, await getConfig(env));
     if (url.pathname === '/api/destaques') return destaques(ctx, await getConfig(env));
     const path = url.pathname === '/' ? '/index.html' : url.pathname;
-    const r = await fetch(PAGES + path, { cf: { cacheTtl: 120 } });
+    // Tempo de guarda por tipo de arquivo: imagens leves e fontes têm nome com versão, então podem ficar guardadas por um ano
+    const fixo = /^\/(img\/c|fonts)\//.test(path);
+    const imagem = /^\/img\//.test(path) || /\.(png|jpe?g|webp|svg|ico|woff2)$/i.test(path);
+    const ttl = fixo ? 31536000 : imagem ? 604800 : 120;
+    const r = await fetch(PAGES + path, { cf: { cacheTtl: ttl, cacheEverything: true } });
     // O que não existe no site novo é endereço antigo do Substack (/p/artigo, /archive, /subscribe, /about, /s/...):
     // manda para o Substack no mesmo caminho, para nenhum link já compartilhado quebrar.
     if (r.status === 404) return Response.redirect(SUBSTACK + url.pathname + url.search, 301);
     const out = new Response(r.body, r);
-    out.headers.set('cache-control', 'public, max-age=120');
+    out.headers.set('cache-control', fixo ? 'public, max-age=31536000, immutable'
+      : imagem ? 'public, max-age=604800, stale-while-revalidate=86400'
+      : 'public, max-age=120, stale-while-revalidate=600');
     return out;
   },
 };

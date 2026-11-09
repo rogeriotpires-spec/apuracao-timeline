@@ -19,6 +19,8 @@
 // Tema escolhido pelo leitor (escuro, claro ou mesclado), aplicado antes de a página aparecer
 (function(){ var m = document.cookie.match(/(?:^|; )tl_tema=([a-z]+)/), t = m && m[1]; if(!t){ try{ t = localStorage.getItem("tl_tema"); }catch(e){} }
   if(["escuro","claro","mesclado"].indexOf(t) < 0) t = "escuro"; document.documentElement.setAttribute("data-tema", t); })();
+// O que fica abaixo da vitrine só aparece depois que os scripts do fim da página montam tudo (sem a página "pular")
+document.documentElement.classList.add("tl-pre"); setTimeout(function(){ document.documentElement.classList.remove("tl-pre"); }, 4000);
 </script>
 <style>
 /* Identidade visual Timeline (mesma do Observatório Eleitoral): preto profundo, cobre, âmbar e vermelho */
@@ -179,6 +181,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .tv-item:hover{transform:translateY(-3px);border-color:var(--orange)}
 .tv-item .th{position:relative;aspect-ratio:16/9;background:#000}
 .tv-item .th img{width:100%;height:100%;object-fit:cover;display:block}
+html.tl-pre .vitrine~*,html.tl-pre .footer{display:none!important}
 .tv-item.esq .th{background:linear-gradient(110deg,#141010 30%,#1f1815 50%,#141010 70%)}
 .tv-item .th b{position:absolute;right:6px;bottom:6px;padding:2px 6px;border-radius:4px;background:rgba(0,0,0,.8);color:#fff;font:600 11px var(--f-mono)}
 .tv-item .th::after{content:"▶";position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-size:26px;opacity:0;background:rgba(0,0,0,.35);transition:opacity .2s}
@@ -1004,6 +1007,7 @@ window.tlDepois = window.tlDepois || (function(){
     });
   };
   if(semente) monta(semente);
+  document.documentElement.classList.remove("tl-pre");
   fetch("api/programas",{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null).then(monta);
 })();
 </script>

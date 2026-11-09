@@ -11,7 +11,10 @@
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,500&display=swap">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,500&display=swap"></noscript>
+<!-- preload-robo --><!-- /preload-robo -->
+<link rel="preconnect" href="https://rogeriotpires-spec.github.io">
 <script>
 // Tema escolhido pelo leitor (escuro, claro ou mesclado), aplicado antes de a página aparecer
 (function(){ var m = document.cookie.match(/(?:^|; )tl_tema=([a-z]+)/), t = m && m[1]; if(!t){ try{ t = localStorage.getItem("tl_tema"); }catch(e){} }
@@ -176,11 +179,12 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .tv-item:hover{transform:translateY(-3px);border-color:var(--orange)}
 .tv-item .th{position:relative;aspect-ratio:16/9;background:#000}
 .tv-item .th img{width:100%;height:100%;object-fit:cover;display:block}
+.tv-item.esq .th{background:linear-gradient(110deg,#141010 30%,#1f1815 50%,#141010 70%)}
 .tv-item .th b{position:absolute;right:6px;bottom:6px;padding:2px 6px;border-radius:4px;background:rgba(0,0,0,.8);color:#fff;font:600 11px var(--f-mono)}
 .tv-item .th::after{content:"▶";position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-size:26px;opacity:0;background:rgba(0,0,0,.35);transition:opacity .2s}
 .tv-item:hover .th::after{opacity:1}
 .tv-item .tt{padding:10px 12px 12px;display:grid;gap:4px}
-.tv-item h4{margin:0;font:600 13.5px/1.35 var(--f-body);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.tv-item h3{margin:0;font:600 13.5px/1.35 var(--f-body);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .tv-item small{color:var(--muted);font-size:12px}
 .tv-item .prog{font:700 10.5px/1 var(--f-cond);letter-spacing:.1em;text-transform:uppercase;color:var(--cream)}
 .tv-item.pf{border-color:rgba(224,122,44,.6)}
@@ -217,7 +221,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 #programas .section-head>div{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
 #programas .section-head h2{margin-top:0;font-size:24px}
 .tv-item .tt{padding:8px 10px 10px;gap:3px}
-.tv-item h4{-webkit-line-clamp:2;font-size:13px}
+.tv-item h3{-webkit-line-clamp:2;font-size:13px}
 
 /* Programas: dois retângulos (Conversa Timeline e Ponto Final) */
 .tv-paineis{display:grid;grid-template-columns:1fr;gap:14px}
@@ -252,7 +256,7 @@ button.btn{background:transparent;font-family:inherit;cursor:pointer}
 .tv-tam button:hover{border-color:var(--orange)}
 .tv-painel .tv-lista>.tv-item.vivo.medio{grid-column:span 3;grid-row:span 2}
 .tv-item.vivo.medio .th{aspect-ratio:16/9}
-.tv-item.vivo.medio h4{font-size:15px;-webkit-line-clamp:2}
+.tv-item.vivo.medio h3{font-size:15px;-webkit-line-clamp:2}
 @media(max-width:760px){.tv-painel .tv-item.vivo.medio{flex:0 0 100%}}
 
 /* play do ao vivo: o vídeo só carrega quando a pessoa clica (assim a visualização conta no YouTube) */
@@ -426,7 +430,7 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
 </head>
 <body>
 
-<script src="https://rogeriotpires-spec.github.io/apuracao-timeline/menu/timeline-menu.js"></script>
+<script src="js/timeline-menu.js"></script>
 
 <main>
   <div class="lt-bar" id="lt-bar" aria-live="polite"><div class="wrap" id="lt-bar-in"></div></div>
@@ -592,6 +596,18 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
   const esc = s => String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const day = p => fmtDay.format(new Date(p.date)).replace(".","");
 
+  let seed = {};
+  try{ seed = JSON.parse(document.getElementById("seed").textContent); }catch(e){}
+  // Imagem: usa a versão leve (WebP) que o robô do site gravou em img/c/; sem ela, pede ao Substack no tamanho certo
+  const IMG = seed.img || {};
+  function pic(u, w, sizes, extra){
+    const c = IMG[u];
+    if(c){ const ws = c.w, h = Math.round(ws[ws.length-1]/c.r);
+      return '<img alt="" src="'+c.b+'-'+ws[ws.length-1]+'.webp" srcset="'+ws.map(x=>c.b+'-'+x+'.webp '+x+'w').join(", ")+'" sizes="'+sizes+'" width="'+ws[ws.length-1]+'" height="'+h+'"'+(extra||"")+'>'; }
+    const src = imgUrl(u, w);
+    return src ? '<img alt="" src="'+esc(src)+'"'+(extra||"")+'>' : "";
+  }
+  window.tlPic = pic;
   function imgUrl(u, w){
     if(!u) return "";
     try{ if(u.includes("%2F")) u = decodeURIComponent(u); }catch(e){}
@@ -615,7 +631,7 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
 
   function card(p){
     return '<a class="card" href="'+esc(p.url)+'">'+
-      '<div class="card-pic"><img alt="" loading="lazy" src="'+esc(imgUrl(p.image,800))+'" onerror="this.parentNode.remove()"></div>'+
+      '<div class="card-pic">'+pic(p.image, 600, "(max-width:700px) 92vw, 380px", ' loading="lazy" decoding="async" onerror="this.parentNode.remove()"')+'</div>'+
       '<div class="card-body"><span class="tag">'+esc(kind(p))+'</span><h3>'+esc(p.title)+'</h3><p>'+esc(p.subtitle)+'</p><div class="card-foot">'+meta(p)+stats(p)+'</div></div></a>';
   }
 
@@ -630,13 +646,11 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
       '<h1><a href="'+esc(lead.url)+'">'+esc(lead.title)+'</a></h1>'+
       '<p class="dek">'+esc(lead.subtitle)+'</p><div class="card-foot">'+meta(lead)+stats(lead)+'</div>'+
       '<div class="hero-actions"><a class="btn primary" href="'+esc(lead.url)+'">Ler o artigo</a><a class="btn" href="#artigos">Mais artigos</a></div></div>'+
-      '<a class="hero-pic" href="'+esc(lead.url)+'" aria-hidden="true" tabindex="-1"><img alt="" src="'+esc(imgUrl(lead.image,1400))+'" onerror="this.parentNode.remove()"></a>';
+      '<a class="hero-pic" href="'+esc(lead.url)+'" aria-hidden="true" tabindex="-1">'+pic(lead.image, 1000, "(max-width:850px) 92vw, 560px", ' decoding="async" onerror="this.parentNode.remove()"')+'</a>';
 
     document.getElementById("grid").innerHTML = rest.slice(0,11).map(card).join("");
   }
 
-  let seed = {};
-  try{ seed = JSON.parse(document.getElementById("seed").textContent); }catch(e){}
   render(seed);
   // Publicado pelo Worker da Cloudflare, /api/posts traz os artigos do Substack ao vivo; no GitHub Pages vale a cópia em data/posts.json
   const ok = d => d && d.posts && d.posts.length;
@@ -651,11 +665,9 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
     return { posts: pag, more: i+12 < lista.length, next: String(i+12) }; });
   const api = (o, s) => (live ? fetch("api/posts?offset="+encodeURIComponent(o)+(s?"&search="+encodeURIComponent(s):""),{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null) : Promise.resolve(null))
     .then(d => ok(d) || (live && d) ? d : local(o, s));
-  live = true;
-  fetch("api/posts?offset=0",{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null)
-    .then(d=>{ if(ok(d)){ offset = d.next || d.posts.length; mais.hidden = !d.more; return d; }
-      live = false; return local(0,"").then(x=>{ offset = x.next; mais.hidden = !x.more; return x; }); })
-    .then(d=>{ if(ok(d)) render(d); }).catch(()=>{});
+  // Os artigos já vêm no próprio HTML (o robô do site os grava a cada 15 min); "carregar mais" e busca usam data/posts.json.
+  // O Worker (/api/posts) fica desligado aqui porque o Substack recusa os pedidos vindos da Cloudflare.
+  live = false; offset = String((seed.posts||[]).length || 12); mais.hidden = false;
   const lupa = document.getElementById("tlm-lupa"); if(lupa) lupa.onclick = (e) => { const q = document.querySelector("#busca input"); if(!q || document.getElementById("busca").hidden) return;
     e.preventDefault(); document.getElementById("artigos").scrollIntoView({behavior:"smooth"}); setTimeout(()=>q.focus({preventScroll:true}), 450); };
 
@@ -715,15 +727,14 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
     p.textContent = want;
   });
   placa("v-evento", "");
-  Promise.all([getj("api/destaques"), cfgP]).then(([d])=>{
-    if(!d){ placa("v-livro","Lançamento"); return; }
+  function vitrine(d){
     const b = d.book;
     if(b){
       const href = ED+"/livro.html?l="+encodeURIComponent(b.slug)+"&src=site";
       const pre = b.price_digital_old ? '<s>'+brl(b.price_digital_old)+'</s>' : '';
       const alt = b.price_rental ? ' · ou '+brl(b.price_rental)+' por '+(b.rental_days||30)+' dias' : '';
       document.getElementById("v-livro").innerHTML =
-        '<span class="placa" aria-hidden="true">'+(b.price_digital_old?'Promoção':'Lançamento')+'</span><a class="pic p-livro" href="'+esc(href)+'" tabindex="-1" aria-hidden="true"><span class="sombra"></span><span class="flutua"><span class="book">'+(b.cover_url?'<img alt="" src="'+esc(b.cover_url)+'">':'<span class="fake">'+esc(b.title)+'</span>')+'</span></span></a>'+
+        '<span class="placa" aria-hidden="true">'+(b.price_digital_old?'Promoção':'Lançamento')+'</span><a class="pic p-livro" href="'+esc(href)+'" tabindex="-1" aria-hidden="true"><span class="sombra"></span><span class="flutua"><span class="book">'+(b.cover_url?pic(b.cover_url, 300, "122px", ' fetchpriority="high"'):'<span class="fake">'+esc(b.title)+'</span>')+'</span></span></a>'+
         '<div class="txt"><span class="eyebrow">Editora Timeline</span><h3>'+esc(b.title)+'</h3>'+
         (b.price_digital?'<p class="info">'+(b.price_digital_old?'<s>'+brl(b.price_digital_old)+'</s> ':'')+'<b>'+brl(b.price_digital)+'</b> para sempre'+(b.price_rental?' ou '+brl(b.price_rental)+' por '+(b.rental_days||30)+' dias':'')+'</p>':'')+
         '<div class="acts"><a class="btn primary" href="'+esc(href)+'">Comprar</a>'+
@@ -740,14 +751,16 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
       const where = [e.venue, how && how.charAt(0).toUpperCase()+how.slice(1)].filter(Boolean).join(" · ");
       const preco = prices.length ? ' · '+(prices.length>1?'a partir de ':'')+'<b>'+brl(Math.min.apply(null,prices))+'</b>' : '';
       document.getElementById("v-evento").innerHTML =
-        (e.cover_url ? '<a class="pic p-evento has-pic" href="'+esc(href)+'" tabindex="-1" aria-hidden="true"><img alt="" src="'+esc(e.cover_url)+'"><span class="chip">'+esc(part({day:"2-digit",month:"short"}))+'</span></a>'
+        (e.cover_url ? '<a class="pic p-evento has-pic" href="'+esc(href)+'" tabindex="-1" aria-hidden="true">'+pic(e.cover_url, 800, "(max-width:700px) 84vw, 400px", ' fetchpriority="high" decoding="async"')+'<span class="chip">'+esc(part({day:"2-digit",month:"short"}))+'</span></a>'
           : '<a class="pic p-evento" href="'+esc(href)+'" tabindex="-1" aria-hidden="true"><span class="date"><b>'+esc(part({day:"2-digit"}))+'</b><span>'+esc(part({month:"short"}))+'<small>'+esc(part({weekday:"short"}))+' · '+esc(part({hour:"2-digit",minute:"2-digit"}))+'</small></span></span></a>')+
         '<div class="txt"><span class="eyebrow">Próximo evento · '+esc(part({weekday:"short"}))+', '+esc(part({hour:"2-digit",minute:"2-digit"}))+'</span><h3>'+esc(e.title)+'</h3>'+
         '<p class="info">'+esc(where)+preco+'</p>'+
         '<div class="acts"><a class="btn primary" href="'+esc(href)+'">Garantir ingresso</a><a class="lnk" href="'+EV+'/?src=site">Agenda completa</a></div></div>';
       placa("v-evento", "");
     }
-  }).catch(()=>{});
+  }
+  if(seed.destaques) vitrine(seed.destaques);
+  else getj("api/destaques").then(d=>{ if(d) vitrine(d); else placa("v-livro","Lançamento"); });
   mais.onclick = () => { mais.disabled = true;
     api(offset, termo).then(d=>{ mais.disabled = false; if(!ok(d)){ mais.hidden = true; return; }
       offset = d.next || (offset + d.posts.length); grid.insertAdjacentHTML("beforeend", d.posts.map(card).join("")); mais.hidden = !d.more; }).catch(()=>{ mais.disabled = false; }); };
@@ -875,6 +888,13 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
 })();
 </script>
 <script>
+// Executa algo pesado (vídeo, pixel) só depois da primeira interação do leitor com a página
+window.tlDepois = window.tlDepois || (function(){
+  const fila = []; let ok = false;
+  const vai = () => { if(ok) return; ok = true; ["scroll","pointerdown","pointermove","keydown","touchstart","wheel"].forEach(e => removeEventListener(e, vai, true)); fila.splice(0).forEach(f => { try{ f(); }catch(e){} }); };
+  ["scroll","pointerdown","pointermove","keydown","touchstart","wheel"].forEach(e => addEventListener(e, vai, { capture: true, passive: true }));
+  return f => ok ? f() : fila.push(f);
+})();
 // Programas: Conversa Timeline (próximo + 5 últimos) e Ponto Final (próximo + último), via /api/programas no Worker
 (function(){
   const sec = document.getElementById("programas"); if(!sec) return;
@@ -894,29 +914,36 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
     }
   }
   const yt = id => "https://www.youtube.com/watch?v="+encodeURIComponent(id);
+  // miniatura pequena (320 px) nos cartões e média (480 px) no player, em vez da imagem de 1280 px
+  const th = (u, g) => String(u||"").replace(/(maxresdefault|sddefault|hqdefault|mqdefault)(_live)?\.jpg/, (g?"hqdefault":"mqdefault")+"$2.jpg");
   const nf = n => { n = +n||0; if(n>=1e6) return (n/1e6).toFixed(1).replace(".0","").replace(".",",")+" mi"; if(n>=1e3) return (n/1e3).toFixed(n>=1e4?0:1).replace(".0","").replace(".",",")+" mil"; return String(n); };
   const vis = v => v.views ? " · "+nf(v.views)+" visualizações" : "";
   function cardProx(p, nome, padrao){
     if(p && p.ao_vivo){
       return '<div class="tv-item prox vivo" data-live><div class="th"><span class="selo vivo">Ao vivo agora</span>'+
-        '<button type="button" class="tv-play" data-id="'+esc(p.id)+'" data-titulo="'+esc(p.titulo)+'" aria-label="Assistir ao vivo"><img src="'+esc(p.thumb)+'" alt=""><span>▶</span></button></div>'+
+        '<button type="button" class="tv-play" data-id="'+esc(p.id)+'" data-titulo="'+esc(p.titulo)+'" aria-label="Assistir ao vivo"><img src="'+esc(th(p.thumb,1))+'" alt="" width="480" height="360"><span>▶</span></button></div>'+
         '<div class="tt"><span class="quando">'+(p.assistindo?esc(nf(p.assistindo))+' assistindo agora':'No ar')+'</span>'+
-        '<h4><a href="'+yt(p.id)+'" target="_blank" rel="noopener">'+esc(p.titulo)+'</a></h4>'+
+        '<h3><a href="'+yt(p.id)+'" target="_blank" rel="noopener">'+esc(p.titulo)+'</a></h3>'+
         '<div class="tv-tam" role="group" aria-label="Tamanho do vídeo"><button type="button" data-tam="mini" aria-pressed="true">Miniatura</button>'+
         '<button type="button" data-tam="medio" aria-pressed="false">Médio</button><button type="button" data-tam="cheia" aria-pressed="false">Tela inteira</button></div></div></div>';
     }
     if(p){
-      return '<a class="tv-item prox" href="'+yt(p.id)+'" target="_blank" rel="noopener"><div class="th"><span class="selo'+(p.ao_vivo?' vivo':'')+'">'+(p.ao_vivo?'Ao vivo agora':'Próximo')+'</span><img src="'+esc(p.thumb)+'" alt="" loading="lazy"></div>'+
-        '<div class="tt"><span class="quando">'+(p.ao_vivo?(p.assistindo?esc(nf(p.assistindo))+' assistindo agora':'No ar'):esc(quando(p.inicio)))+'</span><h4>'+esc(p.titulo)+'</h4></div></a>';
+      return '<a class="tv-item prox" href="'+yt(p.id)+'" target="_blank" rel="noopener"><div class="th"><span class="selo'+(p.ao_vivo?' vivo':'')+'">'+(p.ao_vivo?'Ao vivo agora':'Próximo')+'</span><img src="'+esc(th(p.thumb))+'" alt="" width="320" height="180" loading="lazy"></div>'+
+        '<div class="tt"><span class="quando">'+(p.ao_vivo?(p.assistindo?esc(nf(p.assistindo))+' assistindo agora':'No ar'):esc(quando(p.inicio)))+'</span><h3>'+esc(p.titulo)+'</h3></div></a>';
     }
-    const logo = nome === "Ponto Final" ? '<div class="th logo pf"><span class="selo">Próximo</span><img src="img/ponto-final.jpg" alt="Ponto Final"></div>' : '<div class="th logo"><span class="selo">Próximo</span><img src="img/t.png" alt=""></div>';
+    const logo = nome === "Ponto Final" ? '<div class="th logo pf"><span class="selo">Próximo</span><img src="img/ponto-final.jpg" alt="Ponto Final" width="640" height="360" loading="lazy"></div>' : '<div class="th logo"><span class="selo">Próximo</span><img src="img/t.png" alt="" width="64" height="64" loading="lazy"></div>';
     return '<div class="tv-item prox">'+logo+
-      '<div class="tt"><span class="quando">'+esc(quando(padrao))+'</span><h4>'+esc(nome)+'</h4></div></div>';
+      '<div class="tt"><span class="quando">'+esc(quando(padrao))+'</span><h3>'+esc(nome)+'</h3></div></div>';
   }
-  const card = v => '<a class="tv-item" href="'+yt(v.id)+'" target="_blank" rel="noopener"><div class="th"><img src="'+esc(v.thumb)+'" alt="" loading="lazy">'+(v.seg?'<b>'+dur(v.seg)+'</b>':'')+'</div>'+
-    '<div class="tt"><h4>'+esc(v.titulo)+'</h4><small>'+esc(dia(v.data)+vis(v))+'</small></div></a>';
+  const card = v => '<a class="tv-item" href="'+yt(v.id)+'" target="_blank" rel="noopener"><div class="th"><img src="'+esc(th(v.thumb))+'" alt="" width="320" height="180" loading="lazy">'+(v.seg?'<b>'+dur(v.seg)+'</b>':'')+'</div>'+
+    '<div class="tt"><h3>'+esc(v.titulo)+'</h3><small>'+esc(dia(v.data)+vis(v))+'</small></div></a>';
+  const vazio = '<div class="tv-item esq"><div class="th"></div><div class="tt"><h3>&nbsp;</h3><small>&nbsp;</small></div></div>';
+  document.querySelector("#tv-ct .tv-lista").innerHTML = cardProx(null, "Conversa Timeline", proximaData([1,2,3,4,5],12)) +
+    '<div class="tv-item vivo ultimo medio esq"><div class="th"></div><div class="tt"><h3>&nbsp;</h3></div></div>' + vazio.repeat(4);
+  document.querySelector("#tv-pf .tv-lista").innerHTML = cardProx(null, "Ponto Final", proximaData([5],20)) + vazio.repeat(5);
+  sec.hidden = false;
   fetch("api/programas",{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null).then(d=>{
-    if(!d || d.sem_chave || !d.conversa) return;
+    if(!d || d.sem_chave || !d.conversa){ sec.hidden = true; return; }
     const ct = d.conversa, pf = d.ponto_final || {};
     document.querySelector("#tv-ct .tv-lista").innerHTML = cardProx(ct.proximo, "Conversa Timeline", proximaData([1,2,3,4,5],12)) + (ct.videos||[]).map(card).join("");
     document.querySelector("#tv-pf .tv-lista").innerHTML = cardProx(pf.proximo, "Ponto Final", proximaData([5],20)) + (pf.videos||[]).map(card).join("");
@@ -928,8 +955,8 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
       if(alvo){
         const tmp = document.createElement("div");
         tmp.innerHTML = '<div class="tv-item vivo ultimo" data-live><div class="th"><span class="selo">Último programa</span>'+
-          '<button type="button" class="tv-play" data-id="'+esc(ult.id)+'" data-titulo="'+esc(ult.titulo)+'" aria-label="Assistir"><img src="'+esc(ult.thumb)+'" alt=""><span>▶</span></button></div>'+
-          '<div class="tt"><span class="quando">'+esc(dia(ult.data)+vis(ult))+'</span><h4><a href="'+yt(ult.id)+'" target="_blank" rel="noopener">'+esc(ult.titulo)+'</a></h4>'+
+          '<button type="button" class="tv-play" data-id="'+esc(ult.id)+'" data-titulo="'+esc(ult.titulo)+'" aria-label="Assistir"><img src="'+esc(th(ult.thumb,1))+'" alt="" width="480" height="360"><span>▶</span></button></div>'+
+          '<div class="tt"><span class="quando">'+esc(dia(ult.data)+vis(ult))+'</span><h3><a href="'+yt(ult.id)+'" target="_blank" rel="noopener">'+esc(ult.titulo)+'</a></h3>'+
           '<div class="tv-tam" role="group" aria-label="Tamanho do vídeo"><button type="button" data-tam="mini" aria-pressed="false">Miniatura</button>'+
           '<button type="button" data-tam="medio" aria-pressed="true">Médio</button><button type="button" data-tam="cheia" aria-pressed="false">Tela inteira</button></div></div></div>';
         const novo = tmp.firstChild; alvo.parentNode.insertBefore(novo, alvo.parentNode.children[1] || null); alvo.remove();
@@ -946,7 +973,7 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
         b.replaceWith(f); };
       const play = card.querySelector(".tv-play"); if(play) play.onclick = tocar;
       // já começa tocando sem som; o leitor liga o som no próprio player (esse clique conta a visualização)
-      tocar(true);
+      window.tlDepois(() => tocar(true));
       // ao rolar para além do cartão, o vídeo desce para o canto da tela sem parar de tocar
       const ctrl = document.createElement("div"); ctrl.className = "tl-flt";
       ctrl.innerHTML = '<button type="button" title="Voltar ao programa" aria-label="Voltar ao programa">↑</button><button type="button" title="Fechar" aria-label="Fechar">×</button>';

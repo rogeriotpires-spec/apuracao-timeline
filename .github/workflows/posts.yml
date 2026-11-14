@@ -3,7 +3,7 @@ on:
   schedule: [{ cron: "*/15 * * * *" }]
   workflow_dispatch:
   push:
-    paths: [scripts/atualiza_posts.py, .github/workflows/posts.yml, menu/timeline-menu.js]
+    paths: [scripts/atualiza_posts.py, .github/workflows/posts.yml, menu/timeline-menu.js, "tests/**"]
 permissions:
   contents: write
 concurrency: { group: posts, cancel-in-progress: false }
@@ -12,7 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - run: pip install -q pillow
+      - run: python3 -m unittest discover -s tests -p "test_*.py"
       - run: python3 scripts/atualiza_posts.py 2> err.txt || { echo "::error::$(tail -c 600 err.txt | tr "\n" " ")"; exit 1; }
       - run: |
           git config user.name "Robô Timeline"; git config user.email "rogeriotpires@gmail.com"

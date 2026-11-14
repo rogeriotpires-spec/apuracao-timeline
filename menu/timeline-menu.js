@@ -50,7 +50,6 @@
     { t: 'YouTube', u: 'https://www.youtube.com/@conversatimeline', ext: true },
     { t: 'Instagram', u: 'https://www.instagram.com/_revistatimeline/', ext: true },
     { t: 'Facebook', u: 'https://www.facebook.com/profile.php?id=61572807617119', ext: true },
-    { t: 'Caderno de Cultura', u: SUBSTACK + '/s/caderno-de-cultura', path: '/s/caderno-de-cultura' },
     { t: 'Sobre', u: SUBSTACK + '/about', path: '/about' },
   ];
 

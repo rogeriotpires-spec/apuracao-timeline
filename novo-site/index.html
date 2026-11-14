@@ -568,17 +568,8 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
     <section class="vitrine" aria-label="Destaques da Timeline">
       <button class="nav-btn prev" type="button" aria-label="Destaques anteriores" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
       <button class="nav-btn next" type="button" aria-label="Próximos destaques"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
-      <div class="rail" id="rail" tabindex="0" role="region" aria-label="Destaques: Editora, eventos, assinatura, Fiscalize e loja">
+      <div class="rail" id="rail" tabindex="0" role="region" aria-label="Destaques: Editora, assinatura, Fiscalize e loja">
       <article class="feat" id="v-livro" data-robo="1"><span class="placa" aria-hidden="true">Lançamento</span><a class="pic p-livro" href="https://editora.revistatimeline.com/livro.html?l=almanaque-timeline&amp;src=site" tabindex="-1" aria-hidden="true"><span class="sombra"></span><span class="flutua"><span class="book"><img alt="" src="img/c/82b76bc69e8718090c758ea8-300.webp" srcset="img/c/82b76bc69e8718090c758ea8-200.webp 200w, img/c/82b76bc69e8718090c758ea8-300.webp 300w" sizes="122px" width="300" height="400" fetchpriority="high"></span></span></a><div class="txt"><span class="eyebrow">Editora Timeline</span><h3>Almanaque Timeline</h3><p class="info"><b>R$ 59,70</b> para sempre ou R$ 24,70 por 30 dias</p><div class="acts"><a class="btn primary" href="https://editora.revistatimeline.com/livro.html?l=almanaque-timeline&amp;src=site">Comprar</a><a class="lnk" href="https://editora.revistatimeline.com/ler.html?l=almanaque-timeline&amp;amostra=1">Ler amostra grátis</a></div></div></article>
-      <article class="feat" id="v-evento">
-        <a class="pic p-evento" href="https://eventos.revistatimeline.com/?src=site" tabindex="-1" aria-hidden="true"><span class="live"><i></i>Ao vivo</span></a>
-        <div class="txt">
-          <span class="eyebrow">Eventos Timeline</span>
-          <h3>Encontros com a equipe da revista</h3>
-          <p class="info">Presenciais e on-line, com ingresso por QR Code</p>
-          <div class="acts"><a class="btn primary" href="https://eventos.revistatimeline.com/?src=site">Ver a agenda</a></div>
-        </div>
-      </article>
       <article class="feat" id="v-assine">
         <a class="pic p-assine" href="https://lp.revistatimeline.com/" tabindex="-1" aria-hidden="true"><img src="img/t.png" alt="" width="72" height="72"><span class="lema"><i>torne-se</i><b>Assinante</b></span></a>
         <div class="txt">
@@ -867,7 +858,7 @@ html[data-tema="mesclado"] .dots button:not([aria-current="true"]),html[data-tem
       placa("v-livro", b.price_digital_old?'Promoção':'Lançamento');
     } else placa("v-livro","Lançamento");
     const e = d.event;
-    if(e){
+    if(e && document.getElementById("v-evento")){
       const tz = e.timezone || TZ, dt = new Date(e.starts_at);
       const part = o => new Intl.DateTimeFormat("pt-BR",Object.assign({timeZone:tz},o)).format(dt).replace(".","");
       const how = [e.in_person && "Presencial", e.online && "on-line"].filter(Boolean).join(" e ");

@@ -71,23 +71,34 @@ if not (prog and prog.get("conversa")): prog = None
 from PIL import Image
 os.makedirs(f"{SITE}/img/c", exist_ok=True)
 imgs, usados = {}, set()
+# Revalida os originais: uma imagem pode mudar sem mudar de endereço.
+_seed_anterior = re.search(r'<script type="application/json" id="seed">\s*(.*?)\s*</script>', open(_ix).read(), re.S)
+_imgs_anteriores = json.loads(_seed_anterior.group(1)).get("img", {}) if _seed_anterior else {}
 def leve(url, larguras):
     if not url: return
-    cod = hashlib.sha1(url.encode()).hexdigest()[:14]
-    alvo = [f"{SITE}/img/c/{cod}-{w}.webp" for w in larguras]
-    if not all(os.path.exists(a) for a in alvo):
-        try:
-            im = Image.open(io.BytesIO(baixa(url, True))); im.load()
-            im = im.convert("RGB")
-            for w, a in zip(larguras, alvo):
-                x = im.copy()
-                if x.width > w: x = x.resize((w, round(x.height * w / x.width)), Image.LANCZOS)
-                x.save(a, "WEBP", quality=72, method=6)
-        except Exception as ex:
-            print("imagem ignorada:", url[:90], ex, file=sys.stderr); return
-    usados.update(alvo)
-    w0 = Image.open(alvo[-1]).size
-    imgs[url] = {"b": f"img/c/{cod}", "w": larguras, "r": round(w0[0] / w0[1], 4)}
+    if url in imgs: return
+    try:
+        original = baixa(url, True)
+        # O conteúdo no nome também invalida o cache do navegador e da CDN.
+        cod = hashlib.sha256(url.encode() + b"\0" + original).hexdigest()[:24]
+        alvo = [f"{SITE}/img/c/{cod}-{w}.webp" for w in larguras]
+        im = Image.open(io.BytesIO(original)); im.load()
+        im = im.convert("RGB")
+        for w, a in zip(larguras, alvo):
+            if os.path.exists(a): continue
+            x = im.copy()
+            if x.width > w: x = x.resize((w, round(x.height * w / x.width)), Image.LANCZOS)
+            x.save(a, "WEBP", quality=72, method=6)
+        imgs[url] = {"b": f"img/c/{cod}", "w": larguras, "r": round(im.width / im.height, 4)}
+        usados.update(alvo)
+    except Exception as ex:
+        print("imagem mantida após falha:", url[:90], ex, file=sys.stderr)
+        anterior = _imgs_anteriores.get(url)
+        if anterior:
+            arquivos = [f"{SITE}/{anterior['b']}-{w}.webp" for w in anterior["w"]]
+            if all(os.path.exists(a) for a in arquivos):
+                imgs[url] = anterior
+                usados.update(arquivos)
 if dest.get("book"): leve(dest["book"].get("cover_url"), [200, 300])
 if dest.get("event"): leve(dest["event"].get("cover_url"), [480, 800])
 for i, p in enumerate(posts[:12]): leve(p["image"], [480, 800, 1200] if i == 0 else [400, 800])
